@@ -26,18 +26,18 @@ To run the Easy Minutes application, you need to configure the environment varia
 
 1. **Copy the example environment file:**
    Duplicate the `.env.example` file and rename it to `.env.local`. This will be your configuration for local development.
+
    ```bash
    cp .env.example .env.local
    ```
 
 2. **Fill in the required values:**
    Update the `.env.local` file with the actual credentials, access tokens, and configurations needed for your development and production environments. This includes:
-
-    - **Convex Backend** like deployment name and URL.
-    - **Google Gemini AI** integration keys.
-    - **Clerk Authentication** keys and redirect settings.
-    - **Polar.sh Subscription Management** tokens and secrets.
-    - **App-Specific Configurations** such as CORS settings, maximum file sizes, and email communication settings.
+   - **Convex Backend** like deployment name and URL.
+   - **Google Gemini AI** integration keys.
+   - **Clerk Authentication** keys and redirect settings.
+   - **Polar.sh Subscription Management** tokens and secrets.
+   - **App-Specific Configurations** such as CORS settings, maximum file sizes, and email communication settings.
 
 3. **Generate security keys (if needed):**
    If certain services require generating secure keys or secrets, make sure to do this securely. You can include placeholders in the `.env.local` until you complete the setup.

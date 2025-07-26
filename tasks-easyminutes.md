@@ -28,6 +28,12 @@
 - `middleware.ts` - Next.js middleware for authentication and route protection
 - `.env.local` - Local environment variables for development
 - `.env.example` - Template for environment variables configuration
+- `.prettierrc.json` - Prettier configuration for code formatting
+- `.prettierignore` - Files to exclude from Prettier formatting
+- `eslint.config.mjs` - ESLint configuration with Next.js and Prettier integration
+- `jest.config.js` - Jest testing framework configuration
+- `jest.setup.js` - Jest setup file with global mocks and utilities
+- `tsconfig.json` - TypeScript configuration with Jest and testing library types
 
 ### Notes
 
@@ -44,7 +50,7 @@
   - [x] 1.2 Install and configure Tailwind CSS and shadcn/ui components
 - [x] 1.3 Set up Convex backend with database schema and initial functions
 - [x] 1.4 Configure environment variables for all third-party services
-  - [ ] 1.5 Set up ESLint, Prettier, and testing framework (Jest + React Testing Library)
+  - [x] 1.5 Set up ESLint, Prettier, and testing framework (Jest + React Testing Library)
   - [ ] 1.6 Create basic project structure with folders for components, lib, and app routes
   - [ ] 1.7 Configure Next.js middleware for route protection
 

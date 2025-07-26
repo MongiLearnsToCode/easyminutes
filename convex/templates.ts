@@ -7,20 +7,22 @@ export const createTemplate = mutation({
     userId: v.optional(v.id("users")), // null for system default templates
     name: v.string(),
     description: v.optional(v.string()),
-    sections: v.array(v.object({
-      id: v.string(), // unique section identifier
-      title: v.string(),
-      order: v.number(),
-      isRequired: v.boolean(),
-      placeholder: v.optional(v.string()),
-      type: v.union(
-        v.literal("text"),
-        v.literal("list"),
-        v.literal("attendees"),
-        v.literal("action_items"),
-        v.literal("decisions")
-      ),
-    })),
+    sections: v.array(
+      v.object({
+        id: v.string(), // unique section identifier
+        title: v.string(),
+        order: v.number(),
+        isRequired: v.boolean(),
+        placeholder: v.optional(v.string()),
+        type: v.union(
+          v.literal("text"),
+          v.literal("list"),
+          v.literal("attendees"),
+          v.literal("action_items"),
+          v.literal("decisions")
+        ),
+      })
+    ),
     isPublic: v.boolean(),
   },
   handler: async (ctx, args) => {
@@ -65,20 +67,24 @@ export const updateTemplate = mutation({
     templateId: v.id("templates"),
     name: v.optional(v.string()),
     description: v.optional(v.string()),
-    sections: v.optional(v.array(v.object({
-      id: v.string(),
-      title: v.string(),
-      order: v.number(),
-      isRequired: v.boolean(),
-      placeholder: v.optional(v.string()),
-      type: v.union(
-        v.literal("text"),
-        v.literal("list"),
-        v.literal("attendees"),
-        v.literal("action_items"),
-        v.literal("decisions")
-      ),
-    }))),
+    sections: v.optional(
+      v.array(
+        v.object({
+          id: v.string(),
+          title: v.string(),
+          order: v.number(),
+          isRequired: v.boolean(),
+          placeholder: v.optional(v.string()),
+          type: v.union(
+            v.literal("text"),
+            v.literal("list"),
+            v.literal("attendees"),
+            v.literal("action_items"),
+            v.literal("decisions")
+          ),
+        })
+      )
+    ),
     isPublic: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {

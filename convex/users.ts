@@ -134,16 +134,13 @@ export const canUserTranscribe = query({
     const user = await ctx.db.get(args.userId);
     if (!user) return false;
 
-    // Reset monthly usage if needed
+    // Check if usage needs to be reset (for display purposes only)
     const now = Date.now();
     const oneMonthAgo = now - (30 * 24 * 60 * 60 * 1000);
     
+    // If usage needs to be reset, we'll indicate that user can transcribe
+    // The actual reset should be done in a mutation
     if (user.lastUsageReset < oneMonthAgo) {
-      await ctx.db.patch(args.userId, {
-        monthlyTranscriptions: 0,
-        lastUsageReset: now,
-        updatedAt: now,
-      });
       return true;
     }
 
@@ -157,6 +154,29 @@ export const canUserTranscribe = query({
       default:
         return false;
     }
+  },
+});
+
+// Reset monthly usage if needed (separate mutation)
+export const resetMonthlyUsageIfNeeded = mutation({
+  args: { userId: v.id("users") },
+  handler: async (ctx, args) => {
+    const user = await ctx.db.get(args.userId);
+    if (!user) return false;
+
+    const now = Date.now();
+    const oneMonthAgo = now - (30 * 24 * 60 * 60 * 1000);
+    
+    if (user.lastUsageReset < oneMonthAgo) {
+      await ctx.db.patch(args.userId, {
+        monthlyTranscriptions: 0,
+        lastUsageReset: now,
+        updatedAt: now,
+      });
+      return true;
+    }
+    
+    return false;
   },
 });
 
@@ -185,7 +205,7 @@ export const updateStorageUsage = mutation({
     if (!user) throw new Error("User not found");
 
     const newStorageUsed = user.storageUsedMB + args.additionalMB;
-    
+
     await ctx.db.patch(args.userId, {
       storageUsedMB: newStorageUsed,
       updatedAt: Date.now(),
@@ -193,7 +213,8 @@ export const updateStorageUsage = mutation({
 
     // Check storage limits and create notification if needed
     const storageLimit = getStorageLimit(user.subscriptionTier);
-    if (newStorageUsed > storageLimit * 0.8) { // 80% warning
+    if (newStorageUsed > storageLimit * 0.8) {
+      // 80% warning
       await ctx.db.insert("notifications", {
         userId: args.userId,
         type: "storage_limit_warning",
@@ -208,7 +229,7 @@ export const updateStorageUsage = mutation({
 
 // Check if user has storage space
 export const canUserUpload = query({
-  args: { 
+  args: {
     userId: v.id("users"),
     fileSizeMB: v.number(),
   },
@@ -217,7 +238,7 @@ export const canUserUpload = query({
     if (!user) return false;
 
     const storageLimit = getStorageLimit(user.subscriptionTier);
-    return (user.storageUsedMB + args.fileSizeMB) <= storageLimit;
+    return user.storageUsedMB + args.fileSizeMB <= storageLimit;
   },
 });
 
@@ -265,7 +286,7 @@ export const deleteUserAccount = mutation({
         .query("actionItems")
         .withIndex("by_meeting", (q) => q.eq("meetingId", meeting._id))
         .collect();
-      
+
       for (const actionItem of actionItems) {
         await ctx.db.delete(actionItem._id);
       }
@@ -275,7 +296,7 @@ export const deleteUserAccount = mutation({
         .query("shareAccessLogs")
         .withIndex("by_meeting", (q) => q.eq("meetingId", meeting._id))
         .collect();
-      
+
       for (const log of accessLogs) {
         await ctx.db.delete(log._id);
       }

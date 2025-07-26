@@ -30,6 +30,7 @@ The goal is to create a streamlined, user-friendly meeting minutes app that conv
 ## Functional Requirements
 
 ### 1. Streamlined Meeting Import & Transcription
+
 1. Easy Minutes must provide a clean, intuitive interface for uploading audio files (.mp3, .wav, .m4a, .flac) for meeting recording transcription service
 2. The meeting transcription software must allow users to paste raw text meeting notes directly into a text input field
 3. The voice to text meeting app must integrate with Gemini AI for accurate transcription of audio files
@@ -39,6 +40,7 @@ The goal is to create a streamlined, user-friendly meeting minutes app that conv
 7. The automated meeting minutes solution must support batch processing of multiple files
 
 ### 2. Intelligent Minutes Generation & Summarization
+
 8. The meeting summary generator must create structured meeting minutes from transcribed content including key discussion points, decisions made, and action items
 9. Easy Minutes must offer basic template customization allowing users to add, remove, and reorder sections
 10. The smart meeting notes system must provide default sections: Attendees, Agenda, Discussion, Decisions, Action Items
@@ -47,6 +49,7 @@ The goal is to create a streamlined, user-friendly meeting minutes app that conv
 13. The automated minute taking system must highlight key decisions and important discussion points
 
 ### 3. Robust and Intuitive Editing Tools
+
 14. The system must provide a user-friendly rich text editor for modifying AI-generated content
 15. The system must allow users to highlight and emphasize key phrases
 16. The system must enable easy addition and removal of sections within the minutes
@@ -56,6 +59,7 @@ The goal is to create a streamlined, user-friendly meeting minutes app that conv
 20. The system must auto-save changes every 30 seconds to prevent data loss
 
 ### 4. Secure Saving and Cataloging
+
 21. The system must securely store all meeting minutes with basic encryption
 22. The system must allow users to organize minutes by date, meeting title, and participants
 23. The system must provide full-text search functionality across all stored minutes
@@ -65,6 +69,7 @@ The goal is to create a streamlined, user-friendly meeting minutes app that conv
 27. The system must provide data export functionality (PDF, Word, plain text)
 
 ### 5. Simple Sharing Options
+
 28. The system must generate secure, shareable links for meeting minutes
 29. The system must allow link expiration settings (24 hours, 1 week, 1 month, never)
 30. The system must provide password protection option for shared links
@@ -96,18 +101,21 @@ The goal is to create a streamlined, user-friendly meeting minutes app that conv
 ## Content & Messaging Guidelines
 
 **Primary App Positioning:**
+
 - Easy Minutes as the "best meeting transcription app" for business professionals
 - Emphasize "meeting notes software free" tier availability
 - Position as comprehensive "meeting intelligence platform"
 
 **UI Copy Keywords Integration:**
+
 - Welcome screens: "AI note taker for meetings" and "voice to text meeting app"
-- Feature descriptions: "transcribe audio to text for meetings" and "meeting summary generator" 
+- Feature descriptions: "transcribe audio to text for meetings" and "meeting summary generator"
 - Marketing copy: "conference call transcription" and "business meeting transcription"
 - Help documentation: "speech to text for meetings" and "online meeting notes"
 - Onboarding: "automated meeting minutes solutions" and "meeting recording transcription service"
 
 **SEO-Focused Content Areas:**
+
 - Landing page meta descriptions incorporating "meeting transcription software"
 - Blog content around "digital meeting assistant" capabilities
 - Feature pages highlighting "smart meeting notes" functionality
@@ -128,11 +136,13 @@ The goal is to create a streamlined, user-friendly meeting minutes app that conv
 ## Success Metrics
 
 **Primary Success Metrics:**
+
 - **User Satisfaction Score**: Target NPS of 50+ within 6 months
 - **Complaint Reduction**: 80% reduction in user complaints compared to existing solutions
 - **User Retention**: 70% of users return within 30 days of first use
 
 **Secondary Success Metrics:**
+
 - **Processing Accuracy**: 90%+ user satisfaction with AI-generated minutes quality
 - **Time Savings**: Users report 75%+ time savings compared to manual minute-taking
 - **Feature Adoption**: 80%+ of users utilize editing tools after initial generation
@@ -141,23 +151,27 @@ The goal is to create a streamlined, user-friendly meeting minutes app that conv
 ## Technical Stack Requirements
 
 **Frontend & UI:**
+
 - **Framework**: Next.js 14+ with App Router for server-side rendering and performance optimization
 - **Component Library**: shadcn/ui for consistent, accessible UI components
 - **Styling**: Tailwind CSS utility-first styling framework (pre-configured with shadcn/ui)
 - **Type Safety**: TypeScript for enhanced development experience and error prevention
 
 **Authentication & Backend:**
+
 - **Authentication**: Clerk for user authentication supporting both social login (Google, Microsoft, GitHub) and email/password registration
 - **Backend**: Convex for real-time backend infrastructure and database management
 - **Subscription Management**: Polar.sh for handling freemium model and subscription processing
 
 **Integration Specifications:**
+
 - Primary integration with Google Gemini API for AI transcription and text processing
 - Clerk authentication integration for secure user management
 - Convex database for storing meeting minutes, user preferences, and templates
 - Polar.sh webhook integration for subscription status updates
 
 **Development Guidelines:**
+
 - Use shadcn/ui components: Button, Card, Dialog, Form, Input, Textarea, Select, Toast, Progress, Badge, Separator
 - Implement responsive design using Tailwind CSS breakpoints
 - Follow Next.js App Router conventions for file-based routing
@@ -167,6 +181,7 @@ The goal is to create a streamlined, user-friendly meeting minutes app that conv
 ## Pricing Model & Usage Limits
 
 **Freemium Model Structure:**
+
 - **Free Tier**: 5 meeting transcriptions per month, basic templates, 100MB total storage
 - **Pro Tier**: Unlimited transcriptions, custom templates, 10GB storage, priority processing
 - **Business Tier**: Everything in Pro + team sharing features, advanced search, 100GB storage
@@ -190,16 +205,19 @@ The goal is to create a streamlined, user-friendly meeting minutes app that conv
 ## Resolved Implementation Details
 
 **Post-MVP Integration Considerations:**
+
 - Calendar integration (Google Calendar, Outlook) for automatic meeting imports
 - Slack/Teams integration for easy sharing within team channels
 - Zapier integration for workflow automation
 - Export integrations (Google Drive, Dropbox, OneDrive)
 
 **Offline Capability Decision:**
+
 - Not required for MVP - web-based application with auto-save functionality provides sufficient reliability
 - Focus on robust error handling and connection recovery instead
 
 **Excluded Features:**
+
 - No API access for external developers or enterprise integrations
 - No multi-user organization accounts (individual accounts only for MVP)
 - No real-time collaborative editing capabilities

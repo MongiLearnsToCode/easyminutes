@@ -14,7 +14,7 @@ export const createMeeting = mutation({
   },
   handler: async (ctx, args) => {
     const now = Date.now();
-    
+
     const meetingId = await ctx.db.insert("meetings", {
       userId: args.userId,
       title: args.title,
@@ -47,7 +47,7 @@ export const updateMeetingStatus = mutation({
     meetingId: v.id("meetings"),
     status: v.union(
       v.literal("uploading"),
-      v.literal("transcribing"), 
+      v.literal("transcribing"),
       v.literal("generating"),
       v.literal("completed"),
       v.literal("failed")
@@ -132,42 +132,23 @@ export const getUserMeetings = query({
   args: {
     userId: v.id("users"),
     limit: v.optional(v.number()),
-    cursor: v.optional(v.string()),
     includeArchived: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const limit = args.limit || 20;
     
-    let query = ctx.db
+    let meetings = await ctx.db
       .query("meetings")
       .withIndex("by_user_date", (q) => q.eq("userId", args.userId))
-      .order("desc");
+      .order("desc")
+      .take(limit);
 
-    if (args.cursor) {
-      query = query.paginate({
-        cursor: args.cursor,
-        numItems: limit,
-      });
-    } else {
-      query = query.take(limit);
-    }
-
-    const results = await query;
-    
     // Filter out archived meetings if not requested
     if (!args.includeArchived) {
-      if (Array.isArray(results)) {
-        return results.filter(meeting => !meeting.isArchived);
-      } else {
-        // Handle paginated results
-        return {
-          ...results,
-          page: results.page.filter(meeting => !meeting.isArchived),
-        };
-      }
+      meetings = meetings.filter(meeting => !meeting.isArchived);
     }
 
-    return results;
+    return meetings;
   },
 });
 
@@ -180,7 +161,7 @@ export const searchMeetings = query({
   },
   handler: async (ctx, args) => {
     const limit = args.limit || 50;
-    
+
     const meetings = await ctx.db
       .query("meetings")
       .withIndex("by_user", (q) => q.eq("userId", args.userId))
@@ -189,16 +170,13 @@ export const searchMeetings = query({
 
     // Simple text search (in a real app, you might use a more sophisticated search)
     const searchTermLower = args.searchTerm.toLowerCase();
-    
-    return meetings.filter(meeting => 
-      meeting.title.toLowerCase().includes(searchTermLower) ||
-      meeting.structuredMinutes.toLowerCase().includes(searchTermLower) ||
-      meeting.attendees.some(attendee => 
-        attendee.toLowerCase().includes(searchTermLower)
-      ) ||
-      meeting.tags.some(tag => 
-        tag.toLowerCase().includes(searchTermLower)
-      )
+
+    return meetings.filter(
+      (meeting) =>
+        meeting.title.toLowerCase().includes(searchTermLower) ||
+        meeting.structuredMinutes.toLowerCase().includes(searchTermLower) ||
+        meeting.attendees.some((attendee) => attendee.toLowerCase().includes(searchTermLower)) ||
+        meeting.tags.some((tag) => tag.toLowerCase().includes(searchTermLower))
     );
   },
 });
@@ -215,7 +193,7 @@ export const updateMeeting = mutation({
   },
   handler: async (ctx, args) => {
     const { meetingId, ...updates } = args;
-    
+
     await ctx.db.patch(meetingId, {
       ...updates,
       updatedAt: Date.now(),
@@ -300,16 +278,13 @@ export const getMeetingByShareLink = query({
   handler: async (ctx, args) => {
     const meeting = await ctx.db
       .query("meetings")
-      .withIndex("by_shareable_link", (q) => 
-        q.eq("shareSettings.shareableLink", args.shareLink)
-      )
+      .withIndex("by_shareable_link", (q) => q.eq("shareSettings.shareableLink", args.shareLink))
       .first();
 
     if (!meeting) return null;
 
     // Check if link has expired
-    if (meeting.shareSettings.expiresAt && 
-        meeting.shareSettings.expiresAt < Date.now()) {
+    if (meeting.shareSettings.expiresAt && meeting.shareSettings.expiresAt < Date.now()) {
       return null;
     }
 
@@ -371,7 +346,7 @@ export const getMeetingsByStatus = query({
   args: {
     status: v.union(
       v.literal("uploading"),
-      v.literal("transcribing"), 
+      v.literal("transcribing"),
       v.literal("generating"),
       v.literal("completed"),
       v.literal("failed")
@@ -380,7 +355,7 @@ export const getMeetingsByStatus = query({
   },
   handler: async (ctx, args) => {
     const limit = args.limit || 50;
-    
+
     return await ctx.db
       .query("meetings")
       .withIndex("by_processing_status", (q) => q.eq("processingStatus", args.status))
@@ -399,21 +374,21 @@ export const getUserMeetingStats = query({
       .collect();
 
     const totalMeetings = meetings.length;
-    const archivedMeetings = meetings.filter(m => m.isArchived).length;
-    const completedMeetings = meetings.filter(m => m.processingStatus === "completed").length;
-    const processingMeetings = meetings.filter(m => 
+    const archivedMeetings = meetings.filter((m) => m.isArchived).length;
+    const completedMeetings = meetings.filter((m) => m.processingStatus === "completed").length;
+    const processingMeetings = meetings.filter((m) =>
       ["uploading", "transcribing", "generating"].includes(m.processingStatus)
     ).length;
-    const failedMeetings = meetings.filter(m => m.processingStatus === "failed").length;
+    const failedMeetings = meetings.filter((m) => m.processingStatus === "failed").length;
 
     // Calculate total duration
     const totalDuration = meetings
-      .filter(m => m.duration)
+      .filter((m) => m.duration)
       .reduce((sum, m) => sum + (m.duration || 0), 0);
 
     // Recent activity (last 30 days)
-    const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
-    const recentMeetings = meetings.filter(m => m.createdAt > thirtyDaysAgo).length;
+    const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    const recentMeetings = meetings.filter((m) => m.createdAt > thirtyDaysAgo).length;
 
     return {
       totalMeetings,
