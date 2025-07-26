@@ -47,6 +47,8 @@ export const upsertUser = mutation({
           emailOnSubscriptionUpdates: true,
           inAppNotifications: true,
         },
+        onboardingCompleted: false,
+        onboardingCompletedAt: undefined,
         createdAt: now,
         updatedAt: now,
       });
@@ -106,6 +108,27 @@ export const updateNotificationPreferences = mutation({
     await ctx.db.patch(args.userId, {
       notificationPreferences: args.preferences,
       updatedAt: Date.now(),
+    });
+  },
+});
+
+// Complete user onboarding
+export const completeOnboarding = mutation({
+  args: {
+    userId: v.id("users"),
+    selectedTemplateId: v.optional(v.id("templates")),
+    firstName: v.optional(v.string()),
+    lastName: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const now = Date.now();
+    await ctx.db.patch(args.userId, {
+      onboardingCompleted: true,
+      onboardingCompletedAt: now,
+      defaultTemplateId: args.selectedTemplateId,
+      firstName: args.firstName,
+      lastName: args.lastName,
+      updatedAt: now,
     });
   },
 });

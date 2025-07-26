@@ -1,11 +1,45 @@
-import { Metadata } from "next";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Dashboard - Easy Minutes",
-  description: "Manage your meeting minutes and transcriptions",
-};
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const { user: clerkUser } = useUser();
+  
+  // Get user data from Convex
+  const convexUser = useQuery(
+    api.users.getUserByClerkId,
+    clerkUser ? { clerkId: clerkUser.id } : "skip"
+  );
+
+  // Redirect to onboarding if user hasn't completed it
+  useEffect(() => {
+    if (convexUser && !convexUser.onboardingCompleted) {
+      router.push("/onboarding");
+    }
+  }, [convexUser, router]);
+
+  // Show loading while checking onboarding status
+  if (!convexUser) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span>Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render dashboard content if user needs onboarding
+  if (!convexUser.onboardingCompleted) {
+    return null;
+  }
   return (
     <div>
       <div className="mb-8">

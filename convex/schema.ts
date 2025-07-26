@@ -30,6 +30,10 @@ export default defineSchema({
       inAppNotifications: v.boolean(),
     }),
 
+    // Onboarding tracking
+    onboardingCompleted: v.boolean(),
+    onboardingCompletedAt: v.optional(v.number()),
+
     // Timestamps
     createdAt: v.number(),
     updatedAt: v.number(),
