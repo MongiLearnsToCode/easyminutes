@@ -51,8 +51,8 @@
 - [x] 1.3 Set up Convex backend with database schema and initial functions
 - [x] 1.4 Configure environment variables for all third-party services
   - [x] 1.5 Set up ESLint, Prettier, and testing framework (Jest + React Testing Library)
-  - [ ] 1.6 Create basic project structure with folders for components, lib, and app routes
-  - [ ] 1.7 Configure Next.js middleware for route protection
+  - [x] 1.6 Create basic project structure with folders for components, lib, and app routes
+  - [x] 1.7 Configure Next.js middleware for route protection
 
 - [ ] 2.0 Authentication and User Management
   - [ ] 2.1 Install and configure Clerk authentication with social login providers
