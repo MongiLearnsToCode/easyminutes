@@ -2,30 +2,22 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import { useAuthState } from "@/contexts/user-context";
 import { Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user: clerkUser } = useUser();
-  
-  // Get user data from Convex
-  const convexUser = useQuery(
-    api.users.getUserByClerkId,
-    clerkUser ? { clerkId: clerkUser.id } : "skip"
-  );
+  const { isLoading, needsOnboarding } = useAuthState();
 
   // Redirect to onboarding if user hasn't completed it
   useEffect(() => {
-    if (convexUser && !convexUser.onboardingCompleted) {
+    if (needsOnboarding) {
       router.push("/onboarding");
     }
-  }, [convexUser, router]);
+  }, [needsOnboarding, router]);
 
-  // Show loading while checking onboarding status
-  if (!convexUser) {
+  // Show loading while checking user state
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
         <div className="flex items-center gap-2">
@@ -37,7 +29,7 @@ export default function DashboardPage() {
   }
 
   // Don't render dashboard content if user needs onboarding
-  if (!convexUser.onboardingCompleted) {
+  if (needsOnboarding) {
     return null;
   }
   return (

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ClerkProvider } from '@clerk/nextjs'
 import { ConvexClientProvider } from '@/components/providers/convex-provider'
+import { UserProvider } from '@/contexts/user-context'
 import { Toaster } from '@/components/ui/sonner'
 import "./globals.css";
 
@@ -47,7 +48,9 @@ export default function RootLayout({
       <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <ConvexClientProvider>
-            {children}
+            <UserProvider>
+              {children}
+            </UserProvider>
           </ConvexClientProvider>
           <Toaster />
         </body>

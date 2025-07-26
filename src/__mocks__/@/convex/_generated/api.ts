@@ -4,6 +4,7 @@ export const api = {
     updateUserProfile: 'users.updateUserProfile',
     updateNotificationPreferences: 'users.updateNotificationPreferences',
     getUserUsageStats: 'users.getUserUsageStats',
+    completeOnboarding: 'users.completeOnboarding',
   },
   templates: {
     getAvailableTemplates: 'templates.getAvailableTemplates',
