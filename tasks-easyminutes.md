@@ -26,6 +26,8 @@
 - `convex/users.ts` - Convex functions for user profile, subscription management, and usage tracking
 - `convex/templates.ts` - Convex functions for template management and default template creation
 - `middleware.ts` - Next.js middleware for authentication and route protection
+- `.env.local` - Local environment variables for development
+- `.env.example` - Template for environment variables configuration
 
 ### Notes
 
@@ -41,7 +43,7 @@
   - [x] 1.1 Initialize Next.js 14+ project with TypeScript and App Router
   - [x] 1.2 Install and configure Tailwind CSS and shadcn/ui components
 - [x] 1.3 Set up Convex backend with database schema and initial functions
-  - [ ] 1.4 Configure environment variables for all third-party services
+- [x] 1.4 Configure environment variables for all third-party services
   - [ ] 1.5 Set up ESLint, Prettier, and testing framework (Jest + React Testing Library)
   - [ ] 1.6 Create basic project structure with folders for components, lib, and app routes
   - [ ] 1.7 Configure Next.js middleware for route protection

@@ -20,7 +20,29 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+## Environment Variables Setup
+
+To run the Easy Minutes application, you need to configure the environment variables for all third-party services and application settings. This is essential to ensure all integrations are working correctly. Follow these steps:
+
+1. **Copy the example environment file:**
+   Duplicate the `.env.example` file and rename it to `.env.local`. This will be your configuration for local development.
+   ```bash
+   cp .env.example .env.local
+   ```
+
+2. **Fill in the required values:**
+   Update the `.env.local` file with the actual credentials, access tokens, and configurations needed for your development and production environments. This includes:
+
+    - **Convex Backend** like deployment name and URL.
+    - **Google Gemini AI** integration keys.
+    - **Clerk Authentication** keys and redirect settings.
+    - **Polar.sh Subscription Management** tokens and secrets.
+    - **App-Specific Configurations** such as CORS settings, maximum file sizes, and email communication settings.
+
+3. **Generate security keys (if needed):**
+   If certain services require generating secure keys or secrets, make sure to do this securely. You can include placeholders in the `.env.local` until you complete the setup.
+
+Remember to keep your environment variables secure and do not commit the `.env.local` file containing sensitive credentials to version control.
 
 To learn more about Next.js, take a look at the following resources:
 
