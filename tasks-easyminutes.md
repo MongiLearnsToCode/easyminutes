@@ -4,6 +4,8 @@
 
 - `app/layout.tsx` - Root layout with Clerk provider and global styling setup
 - `app/page.tsx` - Landing page with SEO-optimized copy and feature highlights
+- `app/sign-in/[[...sign-in]]/page.tsx` - Sign-in page using Clerk authentication
+- `app/sign-up/[[...sign-up]]/page.tsx` - Sign-up page using Clerk authentication
 - `app/dashboard/page.tsx` - Main dashboard showing user's meeting minutes list
 - `app/dashboard/new/page.tsx` - Meeting import page for audio/text upload
 - `app/dashboard/minutes/[id]/page.tsx` - Individual meeting minutes editor view
@@ -45,7 +47,7 @@
 
 ## Tasks
 
-- [ ] 1.0 Project Setup and Infrastructure
+- [x] 1.0 Project Setup and Infrastructure
   - [x] 1.1 Initialize Next.js 14+ project with TypeScript and App Router
   - [x] 1.2 Install and configure Tailwind CSS and shadcn/ui components
 - [x] 1.3 Set up Convex backend with database schema and initial functions
@@ -55,7 +57,7 @@
   - [x] 1.7 Configure Next.js middleware for route protection
 
 - [ ] 2.0 Authentication and User Management
-  - [ ] 2.1 Install and configure Clerk authentication with social login providers
+  - [x] 2.1 Install and configure Clerk authentication with social login providers
   - [ ] 2.2 Set up Clerk webhooks to sync user data with Convex database
   - [ ] 2.3 Create protected route layouts and authentication guards
   - [ ] 2.4 Implement user profile management and preferences storage
