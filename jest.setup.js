@@ -28,6 +28,22 @@ jest.mock("convex/react", () => ({
   ConvexProvider: ({ children }) => children,
 }));
 
+// Mock Next.js web APIs
+global.Request = jest.fn().mockImplementation((url, options) => ({
+  url,
+  method: options?.method || 'GET',
+  headers: new Map(Object.entries(options?.headers || {})),
+  text: jest.fn().mockResolvedValue(options?.body || ''),
+  json: jest.fn().mockResolvedValue(JSON.parse(options?.body || '{}')),
+}));
+
+global.Response = jest.fn().mockImplementation((body, options) => ({
+  status: options?.status || 200,
+  ok: (options?.status || 200) >= 200 && (options?.status || 200) < 300,
+  text: jest.fn().mockResolvedValue(body),
+  json: jest.fn().mockResolvedValue(JSON.parse(body || '{}')),
+}));
+
 // Mock environment variables
 process.env.NEXT_PUBLIC_CONVEX_URL = "https://test-convex-url.convex.cloud";
 process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY = "pk_test_test_key";

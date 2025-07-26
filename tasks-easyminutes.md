@@ -13,6 +13,8 @@
 - `app/api/transcribe/route.ts` - API route for Gemini AI transcription processing
 - `app/api/generate-minutes/route.ts` - API route for AI minutes generation
 - `app/api/webhooks/polar/route.ts` - Webhook handler for Polar.sh subscription events
+- `app/api/webhooks/clerk/route.ts` - Webhook handler for Clerk user synchronization
+- `docs/clerk-webhook-setup.md` - Documentation for Clerk webhook integration
 - `components/ui/file-upload.tsx` - Custom file upload component with progress
 - `components/ui/rich-text-editor.tsx` - Rich text editor for minutes editing
 - `components/minutes/template-selector.tsx` - Component for choosing minute templates
@@ -58,7 +60,7 @@
 
 - [ ] 2.0 Authentication and User Management
   - [x] 2.1 Install and configure Clerk authentication with social login providers
-  - [ ] 2.2 Set up Clerk webhooks to sync user data with Convex database
+  - [x] 2.2 Set up Clerk webhooks to sync user data with Convex database
   - [ ] 2.3 Create protected route layouts and authentication guards
   - [ ] 2.4 Implement user profile management and preferences storage
   - [ ] 2.5 Create onboarding flow for new users with template selection
