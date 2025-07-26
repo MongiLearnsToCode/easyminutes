@@ -58,7 +58,7 @@
   - [x] 1.6 Create basic project structure with folders for components, lib, and app routes
   - [x] 1.7 Configure Next.js middleware for route protection
 
-- [ ] 2.0 Authentication and User Management
+- [x] 2.0 Authentication and User Management
   - [x] 2.1 Install and configure Clerk authentication with social login providers
   - [x] 2.2 Set up Clerk webhooks to sync user data with Convex database
   - [x] 2.3 Create protected route layouts and authentication guards
