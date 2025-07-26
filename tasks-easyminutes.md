@@ -61,7 +61,7 @@
 - [ ] 2.0 Authentication and User Management
   - [x] 2.1 Install and configure Clerk authentication with social login providers
   - [x] 2.2 Set up Clerk webhooks to sync user data with Convex database
-  - [ ] 2.3 Create protected route layouts and authentication guards
+  - [x] 2.3 Create protected route layouts and authentication guards
   - [ ] 2.4 Implement user profile management and preferences storage
   - [ ] 2.5 Create onboarding flow for new users with template selection
   - [ ] 2.6 Add user authentication state management throughout the app
