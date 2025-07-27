@@ -1,11 +1,47 @@
-import { Metadata } from "next";
+"use client";
 
-export const metadata: Metadata = {
-  title: "New Meeting - Easy Minutes",
-  description: "Create new meeting minutes from audio or text",
-};
+import { useState } from "react";
+import { processRawNotes } from "@/lib/gemini";
+import { TextInput } from "@/components/ui/text-input";
+import { FileUpload } from "@/components/ui/file-upload";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 
 export default function NewMeetingPage() {
+  const [meetingTitle, setMeetingTitle] = useState("");
+  const [meetingDate, setMeetingDate] = useState("");
+  const [selectedTemplate, setSelectedTemplate] = useState("standard");
+  const [processing, setProcessing] = useState(false);
+  const [result, setResult] = useState<string | null>(null);
+
+  const handleTextSubmit = async (text: string) => {
+    setProcessing(true);
+    try {
+      const response = await processRawNotes(text);
+
+      if (response.success) {
+        setResult(response.transcript);
+        console.log("Processed Transcript:", response.transcript);
+      } else {
+        alert("Processing failed: " + response.error);
+      }
+    } catch (error) {
+      console.error("Processing error:", error);
+      alert("An error occurred during processing.");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleFileSelect = async (file: File) => {
+    // TODO: Implement audio transcription
+    console.log("Audio file selected:", file.name);
+    alert("Audio transcription will be implemented in the next task.");
+  };
   return (
     <div className="container mx-auto py-8">
       <div className="mb-8">
@@ -18,89 +54,100 @@ export default function NewMeetingPage() {
       <div className="max-w-2xl mx-auto">
         <div className="grid gap-6">
           {/* Meeting Details */}
-          <div className="rounded-lg border p-6">
-            <h2 className="text-lg font-semibold mb-4">Meeting Details</h2>
-            <div className="grid gap-4">
-              <div>
-                <label className="text-sm font-medium">Meeting Title</label>
-                <input
+          <Card>
+            <CardHeader>
+              <CardTitle>Meeting Details</CardTitle>
+              <CardDescription>Basic information about your meeting</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="meeting-title">Meeting Title</Label>
+                <Input
+                  id="meeting-title"
                   type="text"
                   placeholder="Enter meeting title..."
-                  className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={meetingTitle}
+                  onChange={(e) => setMeetingTitle(e.target.value)}
                 />
               </div>
-              <div>
-                <label className="text-sm font-medium">Date</label>
-                <input
+              <div className="space-y-2">
+                <Label htmlFor="meeting-date">Date</Label>
+                <Input
+                  id="meeting-date"
                   type="date"
-                  className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={meetingDate}
+                  onChange={(e) => setMeetingDate(e.target.value)}
                 />
               </div>
-              <div>
-                <label className="text-sm font-medium">Template</label>
-                <select className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                  <option>Standard Business Meeting</option>
-                  <option>Project Standup</option>
-                  <option>Client Meeting</option>
-                </select>
+              <div className="space-y-2">
+                <Label htmlFor="template-select">Template</Label>
+                <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a template" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="standard">Standard Business Meeting</SelectItem>
+                    <SelectItem value="standup">Project Standup</SelectItem>
+                    <SelectItem value="client">Client Meeting</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Import Options */}
-          <div className="rounded-lg border p-6">
-            <h2 className="text-lg font-semibold mb-4">Import Content</h2>
-            <div className="grid gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Import Content</CardTitle>
+              <CardDescription>Upload audio files or paste text to generate meeting minutes</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
               {/* Audio Upload */}
-              <div className="rounded-lg border-2 border-dashed p-8 text-center">
-                <div className="text-muted-foreground mb-4">
-                  <svg
-                    className="mx-auto h-12 w-12 mb-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M7 4a3 3 0 016 0v4a3 3 0 01-6 0V4zM5.5 9.643a.75.75 0 00-1.5 0V10c0 3.06 2.29 5.585 5.25 5.954V17.5h-1.5a.75.75 0 000 1.5h4.5a.75.75 0 000-1.5H10.5v-1.546A6.001 6.001 0 0016 10v-.357a.75.75 0 00-1.5 0V10a4.5 4.5 0 01-9 0v-.357z"
-                    />
-                  </svg>
-                  <p className="text-lg font-medium">Upload Audio File</p>
-                  <p className="text-sm">Drop audio files here or click to browse</p>
-                  <p className="text-xs mt-2">Supports MP3, WAV, M4A, FLAC (max 100MB)</p>
-                </div>
-                <input type="file" accept="audio/*" className="hidden" />
-                <button className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
-                  Choose File
-                </button>
+              <div>
+                <FileUpload
+                  onFileSelect={handleFileSelect}
+                  disabled={processing}
+                />
               </div>
 
-              <div className="text-center text-muted-foreground">
-                <span className="bg-background px-2">or</span>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <Separator className="w-full" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">or</span>
+                </div>
               </div>
 
               {/* Text Input */}
               <div>
-                <label className="text-sm font-medium">Paste Meeting Notes</label>
-                <textarea
+                <TextInput
+                  onTextSubmit={handleTextSubmit}
+                  disabled={processing}
                   placeholder="Paste your raw meeting notes here..."
-                  className="mt-1 w-full h-32 rounded-md border border-input bg-background px-3 py-2 text-sm"
                 />
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          {/* Action Buttons */}
-          <div className="flex gap-4">
-            <button className="flex-1 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
-              Process Meeting
-            </button>
-            <button className="rounded-md border border-input px-4 py-2 text-sm font-medium">
-              Cancel
-            </button>
-          </div>
+          {/* Result Display */}
+          {result && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Processed Meeting Notes</CardTitle>
+                <CardDescription>AI-generated meeting minutes ready for editing</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-muted p-4 rounded-md">
+                  <pre className="whitespace-pre-wrap text-sm font-mono">{result}</pre>
+                </div>
+                <div className="mt-4 flex gap-2">
+                  <Button>Edit Minutes</Button>
+                  <Button variant="outline">Save as Draft</Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </div>

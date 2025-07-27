@@ -18,6 +18,7 @@
     "pre-commit": "npm run lint:fix && npm run format && npm run type-check && npm run test:ci"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.2.0",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
@@ -54,6 +55,7 @@
     "cmdk": "^1.1.1",
     "convex": "^1.25.4",
     "date-fns": "^4.1.0",
+    "dotenv": "^17.2.1",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.525.0",
