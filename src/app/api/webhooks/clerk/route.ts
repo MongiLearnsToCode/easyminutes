@@ -3,8 +3,18 @@ import { Webhook } from "svix";
 import { api } from "../../../../../convex/_generated/api";
 import { ConvexHttpClient } from "convex/browser";
 
-// Initialize Convex client for webhook usage
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+// Initialize Convex client for webhook usage (lazily)
+let convex: ConvexHttpClient | null = null;
+
+function getConvexClient() {
+  if (!convex) {
+    if (!process.env.NEXT_PUBLIC_CONVEX_URL) {
+      throw new Error('NEXT_PUBLIC_CONVEX_URL environment variable is not set');
+    }
+    convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL);
+  }
+  return convex;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -106,7 +116,8 @@ async function handleUserUpsert(userData: {
     }
 
     // Upsert user in Convex database
-    await convex.mutation(api.users.upsertUser, {
+    const client = getConvexClient();
+    await client.mutation(api.users.upsertUser, {
       clerkId,
       email,
       firstName: firstName || undefined,
@@ -131,7 +142,8 @@ async function handleUserDeletion(userData: { id: string }) {
     }
 
     // Delete user and all associated data from Convex database
-    await convex.mutation(api.users.deleteUserAccount, {
+    const client = getConvexClient();
+    await client.mutation(api.users.deleteUserAccount, {
       clerkId,
     });
 
