@@ -15,7 +15,7 @@
 - `app/api/webhooks/polar/route.ts` - Webhook handler for Polar.sh subscription events
 - `app/api/webhooks/clerk/route.ts` - Webhook handler for Clerk user synchronization
 - `docs/clerk-webhook-setup.md` - Documentation for Clerk webhook integration
-- `components/ui/file-upload.tsx` - Custom file upload component with progress
+- `components/ui/file-upload.tsx` - Custom file upload component with drag-and-drop and audio validation
 - `components/ui/rich-text-editor.tsx` - Rich text editor for minutes editing
 - `components/minutes/template-selector.tsx` - Component for choosing minute templates
 - `components/minutes/action-item-manager.tsx` - Component for managing action items
@@ -68,8 +68,8 @@
   - [x] 2.7 Implement user session handling and automatic token refresh
 
 - [ ] 3.0 Meeting Import and Transcription System
-  - [ ] 3.1 Create file upload component with drag-and-drop support using shadcn/ui
-  - [ ] 3.2 Implement audio file validation (size, format, duration limits)
+  - [x] 3.1 Create file upload component with drag-and-drop support using shadcn/ui
+  - [x] 3.2 Implement audio file validation (size, format, duration limits)
   - [ ] 3.3 Set up Google Gemini API integration for audio transcription
   - [ ] 3.4 Create text input interface for pasting raw meeting notes
   - [ ] 3.5 Implement upload progress tracking and status notifications

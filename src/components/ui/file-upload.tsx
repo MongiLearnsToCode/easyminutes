@@ -2,25 +2,44 @@
 
 import { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle, Upload, FileAudio, CheckCircle } from "lucide-react";
+import {
+  quickValidateAudioFile,
+  validateAudioFile,
+  AudioValidationResult,
+  SUPPORTED_EXTENSIONS,
+  MAX_FILE_SIZE_MB
+} from "@/lib/utils/audio-processing";
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
+  onMultipleFilesSelect?: (files: File[]) => void;
   accept?: string;
   maxSize?: number; // in MB
   className?: string;
   disabled?: boolean;
+  multiple?: boolean;
+  supportedFormats?: string[];
 }
 
 export function FileUpload({
   onFileSelect,
+  onMultipleFilesSelect,
   accept = "audio/*",
-  maxSize = 100,
+  maxSize = MAX_FILE_SIZE_MB,
   className,
   disabled = false,
+  multiple = false,
+  supportedFormats = SUPPORTED_EXTENSIONS,
 }: FileUploadProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationResult, setValidationResult] = useState<AudioValidationResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -53,28 +72,51 @@ export function FileUpload({
     }
   };
 
-  const handleFileSelection = (file: File) => {
-    // Validate file size
-    if (file.size > maxSize * 1024 * 1024) {
-      alert(`File size must be less than ${maxSize}MB`);
-      return;
-    }
-
-    // Simulate upload progress
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    const interval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsUploading(false);
-          onFileSelect(file);
-          return 100;
-        }
-        return prev + 10;
+  const handleFileSelection = async (file: File) => {
+    setIsValidating(true);
+    setValidationResult(null);
+    
+    try {
+      // Quick validation first (for immediate UI feedback)
+      const quickValidation = quickValidateAudioFile(file);
+      setValidationResult(quickValidation);
+      
+      if (!quickValidation.isValid) {
+        setIsValidating(false);
+        return;
+      }
+      
+      // Full validation including duration check
+      const fullValidation = await validateAudioFile(file);
+      setValidationResult(fullValidation);
+      
+      if (fullValidation.isValid) {
+        // Simulate upload progress for valid files
+        setIsUploading(true);
+        setUploadProgress(0);
+        
+        const interval = setInterval(() => {
+          setUploadProgress((prev) => {
+            if (prev >= 100) {
+              clearInterval(interval);
+              setIsUploading(false);
+              onFileSelect(file);
+              return 100;
+            }
+            return prev + 10;
+          });
+        }, 100);
+      }
+    } catch (error) {
+      console.error('File validation error:', error);
+      setValidationResult({
+        isValid: false,
+        errors: ['Failed to validate file. Please try again.'],
+        warnings: []
       });
-    }, 100);
+    } finally {
+      setIsValidating(false);
+    }
   };
 
   const handleClick = () => {
@@ -109,46 +151,87 @@ export function FileUpload({
         className="hidden"
       />
 
-      {isUploading ? (
+      {isValidating ? (
         <div className="space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
           <div className="space-y-2">
-            <p className="text-sm font-medium">Uploading...</p>
-            <div className="w-full bg-muted rounded-full h-2">
-              <div
-                className="bg-primary h-2 rounded-full transition-all duration-300"
-                style={{ width: `${uploadProgress}%` }}
-              ></div>
-            </div>
+            <p className="text-sm font-medium">Validating file...</p>
+            <p className="text-xs text-muted-foreground">Checking format, size, and duration</p>
+          </div>
+        </div>
+      ) : isUploading ? (
+        <div className="space-y-4">
+          <FileAudio className="mx-auto h-12 w-12 text-primary" />
+          <div className="space-y-2">
+            <p className="text-sm font-medium">Processing file...</p>
+            <Progress value={uploadProgress} className="w-full" />
             <p className="text-xs text-muted-foreground">{uploadProgress}%</p>
           </div>
         </div>
       ) : (
         <div className="space-y-4">
-          <svg
-            className="mx-auto h-12 w-12 text-muted-foreground"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-            />
-          </svg>
+          {validationResult && !validationResult.isValid ? (
+            <AlertCircle className="mx-auto h-12 w-12 text-destructive" />
+          ) : validationResult && validationResult.isValid ? (
+            <CheckCircle className="mx-auto h-12 w-12 text-green-500" />
+          ) : (
+            <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
+          )}
+          
           <div>
             <p className="text-lg font-medium">
-              {isDragOver ? "Drop files here" : "Upload files"}
+              {isDragOver ? "Drop audio files here" : "Upload Audio File"}
             </p>
             <p className="text-sm text-muted-foreground">
-              Drop files here or click to browse
+              {validationResult && validationResult.isValid
+                ? `Ready to process: ${validationResult.fileInfo?.sizeFormatted}`
+                : "Drop files here or click to browse"}
             </p>
             <p className="text-xs text-muted-foreground mt-2">
-              Max file size: {maxSize}MB
+              Supported: {supportedFormats.join(', ')} • Max: {maxSize}MB
             </p>
           </div>
+          
+          {/* Validation Results */}
+          {validationResult && (
+            <div className="space-y-2 text-left">
+              {validationResult.errors.length > 0 && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    <ul className="list-disc list-inside space-y-1">
+                      {validationResult.errors.map((error, index) => (
+                        <li key={index} className="text-sm">{error}</li>
+                      ))}
+                    </ul>
+                  </AlertDescription>
+                </Alert>
+              )}
+              
+              {validationResult.warnings.length > 0 && (
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    <ul className="list-disc list-inside space-y-1">
+                      {validationResult.warnings.map((warning, index) => (
+                        <li key={index} className="text-sm">{warning}</li>
+                      ))}
+                    </ul>
+                  </AlertDescription>
+                </Alert>
+              )}
+              
+              {validationResult.isValid && validationResult.fileInfo && (
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <p>Size: {validationResult.fileInfo.sizeFormatted}</p>
+                  {validationResult.fileInfo.durationFormatted && (
+                    <p>Duration: {validationResult.fileInfo.durationFormatted}</p>
+                  )}
+                  <p>Format: {validationResult.fileInfo.extension.toUpperCase()}</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>
