@@ -23,7 +23,7 @@ export default function SignUpPage() {
         providers={['google', 'github']}
         socialLayout="horizontal"
         view="sign_up"
-        redirectTo={typeof window !== 'undefined' ? `${window.location.origin}/dashboard` : '/dashboard'}
+        redirectTo={typeof window !== 'undefined' ? `${window.location.origin}/auth/callback?next=/onboarding` : '/auth/callback?next=/onboarding'}
       />
     </div>
   )

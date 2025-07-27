@@ -23,7 +23,7 @@ export default function SignInPage() {
         providers={['google', 'github']}
         socialLayout="horizontal"
         view="sign_in"
-        redirectTo={typeof window !== 'undefined' ? `${window.location.origin}/dashboard` : '/dashboard'}
+        redirectTo={typeof window !== 'undefined' ? `${window.location.origin}/auth/callback?next=/dashboard` : '/auth/callback?next=/dashboard'}
       />
     </div>
   )
