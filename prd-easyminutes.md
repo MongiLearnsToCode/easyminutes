@@ -159,15 +159,17 @@ The goal is to create a streamlined, user-friendly meeting minutes app that conv
 
 **Authentication & Backend:**
 
-- **Authentication**: Clerk for user authentication supporting both social login (Google, Microsoft, GitHub) and email/password registration
+- **Authentication**: Supabase Auth for user authentication supporting both social login (Google, GitHub) and email/password registration
 - **Backend**: Convex for real-time backend infrastructure and database management
+- **Database**: Supabase for user data, authentication, and session management
 - **Subscription Management**: Polar.sh for handling freemium model and subscription processing
 
 **Integration Specifications:**
 
 - Primary integration with Google Gemini API for AI transcription and text processing
-- Clerk authentication integration for secure user management
+- Supabase Auth integration for secure user authentication and session management
 - Convex database for storing meeting minutes, user preferences, and templates
+- Supabase database for user profiles, authentication data, and session storage
 - Polar.sh webhook integration for subscription status updates
 
 **Development Guidelines:**

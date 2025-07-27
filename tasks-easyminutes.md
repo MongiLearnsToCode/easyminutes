@@ -2,10 +2,10 @@
 
 ## Relevant Files
 
-- `app/layout.tsx` - Root layout with Clerk provider and global styling setup
+- `app/layout.tsx` - Root layout with Supabase provider and global styling setup
 - `app/page.tsx` - Landing page with SEO-optimized copy and feature highlights
-- `app/sign-in/[[...sign-in]]/page.tsx` - Sign-in page using Clerk authentication
-- `app/sign-up/[[...sign-up]]/page.tsx` - Sign-up page using Clerk authentication
+- `app/sign-in/[[...sign-in]]/page.tsx` - Sign-in page using Supabase Auth
+- `app/sign-up/[[...sign-up]]/page.tsx` - Sign-up page using Supabase Auth
 - `app/dashboard/page.tsx` - Main dashboard showing user's meeting minutes list
 - `app/dashboard/new/page.tsx` - Meeting import page for audio/text upload
 - `app/dashboard/minutes/[id]/page.tsx` - Individual meeting minutes editor view
@@ -13,8 +13,8 @@
 - `app/api/transcribe/route.ts` - API route for Gemini AI transcription processing
 - `app/api/generate-minutes/route.ts` - API route for AI minutes generation
 - `app/api/webhooks/polar/route.ts` - Webhook handler for Polar.sh subscription events
-- `app/api/webhooks/clerk/route.ts` - Webhook handler for Clerk user synchronization
-- `docs/clerk-webhook-setup.md` - Documentation for Clerk webhook integration
+- `app/api/webhooks/supabase/route.ts` - Webhook handler for Supabase user synchronization
+- `docs/supabase-auth-setup.md` - Documentation for Supabase authentication integration
 - `components/ui/file-upload.tsx` - Custom file upload component with drag-and-drop and audio validation
 - `components/ui/rich-text-editor.tsx` - Rich text editor for minutes editing
 - `components/minutes/template-selector.tsx` - Component for choosing minute templates
@@ -59,13 +59,13 @@
   - [x] 1.7 Configure Next.js middleware for route protection
 
 - [x] 2.0 Authentication and User Management
-  - [x] 2.1 Install and configure Clerk authentication with social login providers
-  - [x] 2.2 Set up Clerk webhooks to sync user data with Convex database
-  - [x] 2.3 Create protected route layouts and authentication guards
-  - [x] 2.4 Implement user profile management and preferences storage
+  - [x] 2.1 Install and configure Supabase Auth with social login providers (Google, GitHub)
+  - [x] 2.2 Set up Supabase Auth integration with Next.js middleware and context providers
+  - [x] 2.3 Create protected route layouts and authentication guards using Supabase
+  - [x] 2.4 Implement user profile management and preferences storage in Supabase
   - [x] 2.5 Create onboarding flow for new users with template selection
-- [x] 2.6 Add user authentication state management throughout the app
-  - [x] 2.7 Implement user session handling and automatic token refresh
+- [x] 2.6 Add user authentication state management throughout the app with Supabase context
+  - [x] 2.7 Implement user session handling and automatic token refresh with Supabase
 
 - [ ] 3.0 Meeting Import and Transcription System
   - [x] 3.1 Create file upload component with drag-and-drop support using shadcn/ui
