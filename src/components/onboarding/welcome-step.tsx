@@ -92,7 +92,7 @@ export function WelcomeStep({ onNext }: WelcomeStepProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Zap className="h-5 w-5 text-primary" />
-            What You'll Get
+            What You&apos;ll Get
           </CardTitle>
           <CardDescription>
             Everything you need to revolutionize your meeting documentation

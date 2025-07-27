@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { CheckCircle, Upload, Brain, Edit, Share, FileText } from 'lucide-react'
+import { CheckCircle, Upload, Brain, Edit, FileText } from 'lucide-react'
 
 export default function Home() {
   return (

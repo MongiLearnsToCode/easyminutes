@@ -23,12 +23,20 @@ export async function POST(req: NextRequest) {
 
     // Get the body
     const payload = await req.text();
-    const body = JSON.parse(payload);
 
     // Create a new Svix instance with your webhook secret
     const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET!);
 
-    let evt: any;
+    let evt: {
+      type: string;
+      data: {
+        id: string;
+        email_addresses?: Array<{ email_address: string }>;
+        first_name?: string;
+        last_name?: string;
+        image_url?: string;
+      };
+    };
 
     // Attempt to verify the incoming webhook
     try {
@@ -36,7 +44,16 @@ export async function POST(req: NextRequest) {
         "svix-id": svix_id,
         "svix-timestamp": svix_timestamp,
         "svix-signature": svix_signature,
-      });
+      }) as {
+        type: string;
+        data: {
+          id: string;
+          email_addresses?: Array<{ email_address: string }>;
+          first_name?: string;
+          last_name?: string;
+          image_url?: string;
+        };
+      };
     } catch (err) {
       console.error("Error verifying webhook:", err);
       return new NextResponse("Error occurred -- webhook verification failed", {
@@ -68,7 +85,13 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function handleUserUpsert(userData: any) {
+async function handleUserUpsert(userData: {
+  id: string;
+  email_addresses?: Array<{ email_address: string }>;
+  first_name?: string;
+  last_name?: string;
+  image_url?: string;
+}) {
   try {
     // Extract user data from Clerk webhook payload
     const clerkId = userData.id;
@@ -98,7 +121,7 @@ async function handleUserUpsert(userData: any) {
   }
 }
 
-async function handleUserDeletion(userData: any) {
+async function handleUserDeletion(userData: { id: string }) {
   try {
     const clerkId = userData.id;
 

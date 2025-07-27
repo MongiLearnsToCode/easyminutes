@@ -19,8 +19,8 @@ jest.mock('@clerk/nextjs', () => ({
 const mockUseQuery = jest.fn();
 const mockUseMutation = jest.fn();
 jest.mock('convex/react', () => ({
-  useQuery: (...args: any[]) => mockUseQuery(...args),
-  useMutation: (...args: any[]) => mockUseMutation(...args),
+  useQuery: (...args: unknown[]) => mockUseQuery(...args),
+  useMutation: (...args: unknown[]) => mockUseMutation(...args),
 }));
 
 // Mock the toast hook
@@ -34,7 +34,7 @@ jest.mock('@/convex/_generated/api');
 
 // Mock step components
 jest.mock('./welcome-step', () => ({
-  WelcomeStep: ({ onNext }: any) => (
+  WelcomeStep: ({ onNext }: { onNext: () => void }) => (
     <div data-testid="welcome-step">
       <button onClick={onNext}>Get Started</button>
     </div>
@@ -42,7 +42,7 @@ jest.mock('./welcome-step', () => ({
 }));
 
 jest.mock('./profile-step', () => ({
-  ProfileStep: ({ onNext, onPrev }: any) => (
+  ProfileStep: ({ onNext, onPrev }: { onNext: () => void; onPrev: () => void }) => (
     <div data-testid="profile-step">
       <button onClick={onPrev}>Back</button>
       <button onClick={onNext}>Continue</button>
@@ -51,7 +51,7 @@ jest.mock('./profile-step', () => ({
 }));
 
 jest.mock('./template-step', () => ({
-  TemplateStep: ({ onNext, onPrev }: any) => (
+  TemplateStep: ({ onNext, onPrev }: { onNext: () => void; onPrev: () => void }) => (
     <div data-testid="template-step">
       <button onClick={onPrev}>Back</button>
       <button onClick={onNext}>Continue</button>
@@ -60,7 +60,7 @@ jest.mock('./template-step', () => ({
 }));
 
 jest.mock('./completion-step', () => ({
-  CompletionStep: ({ onPrev, onFinish }: any) => (
+  CompletionStep: ({ onPrev, onFinish }: { onPrev: () => void; onFinish: () => void }) => (
     <div data-testid="completion-step">
       <button onClick={onPrev}>Back</button>
       <button onClick={onFinish}>Finish</button>

@@ -6,12 +6,13 @@ export const metadata: Metadata = {
 };
 
 interface SharePageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export default function SharePage({ params }: SharePageProps) {
+export default async function SharePage({ params }: SharePageProps) {
+  const { id } = await params;
   return (
     <div className="container mx-auto py-8">
       <div className="mb-8">
@@ -34,7 +35,7 @@ export default function SharePage({ params }: SharePageProps) {
                 <span className="font-medium">Date:</span> March 15, 2024
               </p>
               <p>
-                <span className="font-medium">ID:</span> {params.id}
+                <span className="font-medium">ID:</span> {id}
               </p>
             </div>
           </div>

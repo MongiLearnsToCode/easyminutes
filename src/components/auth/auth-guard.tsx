@@ -13,20 +13,20 @@ interface AuthGuardProps {
  */
 export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
   const router = useRouter();
-  const { sessionId } = useSession();
-  const { signOut } = useClerk();
+  const { session } = useSession();
+  useClerk();
 
   useEffect(() => {
     const routeNonAuthenticatedUsers = async () => {
-      if (requireAuth && !sessionId) {
+      if (requireAuth && !session) {
         router.push("/sign-in");
-      } else if (!requireAuth && sessionId) {
+      } else if (!requireAuth && session) {
         router.push("/dashboard");
       }
     };
 
     routeNonAuthenticatedUsers();
-  }, [sessionId, router, requireAuth]);
+  }, [session, router, requireAuth]);
 
   return <>{children}</>;
 }

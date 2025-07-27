@@ -13,21 +13,27 @@ const isPublicOnlyRoute = createRouteMatcher([
   '/sign-up(.*)',
 ])
 
-export default clerkMiddleware((auth, req) => {
+export default clerkMiddleware(async (auth, req) => {
   // Allow webhooks to pass through without authentication
   if (req.nextUrl.pathname.startsWith('/api/webhooks/')) {
     return
   }
 
+  const authData = await auth();
+
   // If user is signed in and trying to access public-only routes, redirect to dashboard
-  if (auth().userId && isPublicOnlyRoute(req)) {
+  if (authData.userId && isPublicOnlyRoute(req)) {
     const dashboardUrl = new URL('/dashboard', req.url)
     return Response.redirect(dashboardUrl)
   }
 
   // Protect routes that require authentication
   if (isProtectedRoute(req)) {
-    auth().protect()
+    if (!authData.userId) {
+      // Redirect to sign-in if not authenticated
+      const signInUrl = new URL('/sign-in', req.url)
+      return Response.redirect(signInUrl)
+    }
   }
 })
 

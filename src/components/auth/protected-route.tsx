@@ -11,12 +11,12 @@ interface ProtectedRouteProps {
  * Server-side authentication guard that protects routes based on auth state.
  * Uses Clerk's auth() function to check authentication status on the server.
  */
-export function ProtectedRoute({ 
+export async function ProtectedRoute({ 
   children, 
   requireAuth = true, 
   redirectTo 
 }: ProtectedRouteProps) {
-  const { userId } = auth();
+  const { userId } = await auth();
 
   // If authentication is required but user is not authenticated
   if (requireAuth && !userId) {

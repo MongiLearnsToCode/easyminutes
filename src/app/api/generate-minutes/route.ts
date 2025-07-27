@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
     // TODO: Implement AI minutes generation logic
     // This will be implemented in later tasks
 
-    const body = await request.json();
+    await request.json();
     
     // Placeholder response
     return NextResponse.json({

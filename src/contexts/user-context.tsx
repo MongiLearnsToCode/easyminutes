@@ -151,14 +151,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   const contextValue: UserContextType = {
     user: userProfile,
-    usageStats,
-    isLoading,
+    usageStats: usageStats || null,
+    isLoading: Boolean(isLoading),
     error,
     refreshUser,
     // Session management functions
     isTokenValid: sessionManager.isTokenValid,
     refreshTokenManually: sessionManager.refreshTokenManually,
-    isSessionLoaded: sessionManager.isSessionLoaded,
+    isSessionLoaded: Boolean(sessionManager.isSessionLoaded),
   };
 
   return (

@@ -204,7 +204,7 @@ export function NotificationSettings() {
           <div className="rounded-lg bg-muted/50 p-4">
             <h4 className="text-sm font-medium mb-2">Privacy & Data</h4>
             <p className="text-xs text-muted-foreground">
-              We respect your privacy and only send notifications you've opted into. 
+              We respect your privacy and only send notifications you&apos;ve opted into.
               You can change these settings at any time. Critical security and account 
               notifications will always be sent regardless of your preferences.
             </p>

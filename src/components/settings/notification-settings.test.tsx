@@ -11,8 +11,8 @@ jest.mock('@clerk/nextjs', () => ({
 const mockUseQuery = jest.fn();
 const mockUseMutation = jest.fn();
 jest.mock('convex/react', () => ({
-  useQuery: (...args: any[]) => mockUseQuery(...args),
-  useMutation: (...args: any[]) => mockUseMutation(...args),
+  useQuery: (...args: unknown[]) => mockUseQuery(...args),
+  useMutation: (...args: unknown[]) => mockUseMutation(...args),
 }));
 
 // Mock the toast hook

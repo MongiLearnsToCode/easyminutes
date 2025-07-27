@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Search, Settings, User } from "lucide-react";
+import { Bell, Search, Settings } from "lucide-react";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,7 +54,7 @@ export function DashboardHeader() {
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium">Transcription Complete</p>
                   <p className="text-xs text-muted-foreground">
-                    Your meeting "Weekly Standup" has been processed
+                    Your meeting &quot;Weekly Standup&quot; has been processed
                   </p>
                 </div>
               </DropdownMenuItem>
@@ -62,7 +62,7 @@ export function DashboardHeader() {
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium">Storage Warning</p>
                   <p className="text-xs text-muted-foreground">
-                    You've used 80% of your storage limit
+                    You&apos;ve used 80% of your storage limit
                   </p>
                 </div>
               </DropdownMenuItem>

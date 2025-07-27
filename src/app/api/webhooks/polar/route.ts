@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
     // TODO: Implement Polar.sh webhook logic
     // This will be implemented in later tasks
 
-    const body = await request.json();
+    await request.json();
     const signature = request.headers.get("x-polar-signature");
     
     // TODO: Verify webhook signature

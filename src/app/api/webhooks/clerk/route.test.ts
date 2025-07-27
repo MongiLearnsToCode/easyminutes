@@ -46,20 +46,20 @@ describe('/api/webhooks/clerk', () => {
     jest.restoreAllMocks();
   });
 
-  it('should verify Clerk webhook is properly implemented', () => {
+  it('should verify Clerk webhook is properly implemented', async () => {
     // Test that the webhook file exists and exports POST handler
-    const { POST } = require('./route');
-    expect(typeof POST).toBe('function');
+    const route = await import('./route');
+    expect(typeof route.POST).toBe('function');
   });
 
-  it('should have proper dependencies installed', () => {
+  it('should have proper dependencies installed', async () => {
     // Test that svix library is available
-    const { Webhook } = require('svix');
-    expect(Webhook).toBeDefined();
+    const svix = await import('svix');
+    expect(svix.Webhook).toBeDefined();
     
     // Test that Convex client is available
-    const { ConvexHttpClient } = require('convex/browser');
-    expect(ConvexHttpClient).toBeDefined();
+    const convex = await import('convex/browser');
+    expect(convex.ConvexHttpClient).toBeDefined();
   });
 
   it('should have required environment variables configured', () => {
@@ -67,8 +67,8 @@ describe('/api/webhooks/clerk', () => {
     expect(process.env.NEXT_PUBLIC_CONVEX_URL).toBeDefined();
   });
 
-  it('should correctly handle webhook verification setup', () => {
-    const { Webhook } = require('svix');
+  it('should correctly handle webhook verification setup', async () => {
+    const { Webhook } = await import('svix');
     
     // Create webhook instance with secret
     new Webhook(process.env.CLERK_WEBHOOK_SECRET!);
@@ -76,8 +76,8 @@ describe('/api/webhooks/clerk', () => {
     expect(Webhook).toHaveBeenCalledWith(process.env.CLERK_WEBHOOK_SECRET);
   });
 
-  it('should correctly setup Convex client', () => {
-    const { ConvexHttpClient } = require('convex/browser');
+  it('should correctly setup Convex client', async () => {
+    const { ConvexHttpClient } = await import('convex/browser');
     
     // Create Convex client with URL
     new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);

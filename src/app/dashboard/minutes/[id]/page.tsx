@@ -6,18 +6,19 @@ export const metadata: Metadata = {
 };
 
 interface MeetingMinutesPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export default function MeetingMinutesPage({ params }: MeetingMinutesPageProps) {
+export default async function MeetingMinutesPage({ params }: MeetingMinutesPageProps) {
+  const { id } = await params;
   return (
     <div className="container mx-auto py-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Meeting Minutes</h1>
-          <p className="text-muted-foreground">Meeting ID: {params.id}</p>
+          <p className="text-muted-foreground">Meeting ID: {id}</p>
         </div>
         <div className="flex gap-2">
           <button className="rounded-md border border-input px-4 py-2 text-sm font-medium">

@@ -23,7 +23,7 @@ import Link from "next/link";
 
 export function SubscriptionInfo() {
   const { user: clerkUser } = useUser();
-  const { toast } = useToast();
+  useToast();
 
   // Get user data from Convex
   const convexUser = useQuery(
@@ -195,7 +195,7 @@ export function SubscriptionInfo() {
               )}
               {usageStats.transcriptionLimit && transcriptionProgress >= 80 && (
                 <p className="text-xs text-orange-600">
-                  You're nearing your monthly transcription limit
+                  You&apos;re nearing your monthly transcription limit
                 </p>
               )}
             </div>
@@ -216,7 +216,7 @@ export function SubscriptionInfo() {
               />
               {storageProgress >= 80 && (
                 <p className="text-xs text-orange-600">
-                  You're running low on storage space
+                  You&apos;re running low on storage space
                 </p>
               )}
             </div>
@@ -228,7 +228,7 @@ export function SubscriptionInfo() {
                   Consider Upgrading
                 </h4>
                 <p className="text-xs text-orange-700 mb-3">
-                  You're approaching your plan limits. Upgrade to Pro for unlimited transcriptions 
+                  You&apos;re approaching your plan limits. Upgrade to Pro for unlimited transcriptions
                   and {formatStorageSize(10240)} of storage.
                 </p>
                 <Button size="sm" variant="outline" className="border-orange-300" asChild>

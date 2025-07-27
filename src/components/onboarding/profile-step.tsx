@@ -58,7 +58,7 @@ export function ProfileStep({
         </div>
         <h1 className="text-3xl font-bold mb-2">Tell us about yourself</h1>
         <p className="text-muted-foreground">
-          We'll use this information to personalize your experience
+          We&apos;ll use this information to personalize your experience
         </p>
       </div>
 

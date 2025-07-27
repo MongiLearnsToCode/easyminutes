@@ -79,7 +79,7 @@ export function CompletionStep({
             <CheckCircle className="h-8 w-8 text-green-600" />
           </div>
         </div>
-        <h1 className="text-4xl font-bold mb-4">You're all set!</h1>
+        <h1 className="text-4xl font-bold mb-4">You&apos;re all set!</h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
           Welcome to Easy Minutes, {onboardingData.firstName}! Your AI-powered meeting 
           assistant is ready to transform how you document meetings.
@@ -94,7 +94,7 @@ export function CompletionStep({
             Setup Complete
           </CardTitle>
           <CardDescription>
-            Here's what we've configured for your account
+          Here&apos;s what we&apos;ve configured for your account
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -138,7 +138,7 @@ export function CompletionStep({
 
       {/* Next Steps */}
       <div className="mb-12">
-        <h2 className="text-2xl font-bold text-center mb-8">What's next?</h2>
+        <h2 className="text-2xl font-bold text-center mb-8">What&apos;s next?</h2>
         <div className="grid md:grid-cols-3 gap-6">
           {nextSteps.map((step, index) => {
             const Icon = step.icon;
