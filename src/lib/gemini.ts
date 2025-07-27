@@ -6,7 +6,7 @@
 import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
 
 // Initialize Gemini AI client
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY!);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 // Configuration constants
 const TRANSCRIPTION_MODEL = 'gemini-1.5-flash'; // Best model for transcription tasks
@@ -377,10 +377,10 @@ Provide only the processed text, no additional commentary.`;
  */
 export async function checkGeminiConnection(): Promise<{ available: boolean; error?: string }> {
   try {
-    if (!process.env.GOOGLE_AI_API_KEY) {
+    if (!process.env.GEMINI_API_KEY) {
       return {
         available: false,
-        error: 'Google Gemini API key is not configured'
+        error: 'Gemini API key is not configured'
       };
     }
 
