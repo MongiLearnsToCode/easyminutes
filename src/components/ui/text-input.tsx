@@ -92,7 +92,7 @@ export function TextInput({
     }
   };
 
-  const handlePaste = (e: React.ClipboardEvent) => {
+  const handlePaste = (_e: React.ClipboardEvent) => {
     // Allow default paste behavior, but could add processing here if needed
     setTimeout(() => {
       if (textareaRef.current) {

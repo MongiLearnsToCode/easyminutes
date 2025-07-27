@@ -24,7 +24,7 @@ export default function NewMeetingPage() {
       const response = await processRawNotes(text);
 
       if (response.success) {
-        setResult(response.transcript);
+        setResult(response.transcript || null);
         console.log("Processed Transcript:", response.transcript);
       } else {
         alert("Processing failed: " + response.error);

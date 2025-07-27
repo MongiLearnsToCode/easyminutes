@@ -2,7 +2,6 @@
 
 import { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Upload, FileAudio, CheckCircle } from "lucide-react";
@@ -16,23 +15,23 @@ import {
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
-  onMultipleFilesSelect?: (files: File[]) => void;
+  _onMultipleFilesSelect?: (files: File[]) => void;
   accept?: string;
   maxSize?: number; // in MB
   className?: string;
   disabled?: boolean;
-  multiple?: boolean;
+  _multiple?: boolean;
   supportedFormats?: string[];
 }
 
 export function FileUpload({
   onFileSelect,
-  onMultipleFilesSelect,
+  _onMultipleFilesSelect,
   accept = "audio/*",
   maxSize = MAX_FILE_SIZE_MB,
   className,
   disabled = false,
-  multiple = false,
+  _multiple = false,
   supportedFormats = SUPPORTED_EXTENSIONS,
 }: FileUploadProps) {
   const [isDragOver, setIsDragOver] = useState(false);

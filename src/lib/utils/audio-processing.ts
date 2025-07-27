@@ -219,7 +219,7 @@ export async function validateAudioFile(file: File): Promise<AudioValidationResu
     if (durationValidation.warning) {
       warnings.push(durationValidation.warning);
     }
-  } catch (error) {
+  } catch {
     warnings.push('Could not determine audio duration. File will be processed, but duration validation was skipped.');
   }
   
