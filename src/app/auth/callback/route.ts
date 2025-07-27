@@ -1,6 +1,11 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { ConvexHttpClient } from 'convex/browser'
+import { api } from '@/convex/_generated/api'
+
+
+const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!)
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
@@ -34,6 +39,30 @@ export async function GET(request: NextRequest) {
         const { data: { user } } = await supabase.auth.getUser()
         
         if (user) {
+          try {
+            // Sync user to Convex database
+            await convex.mutation(api.users.upsertUser, {
+              supabaseId: user.id,
+              email: user.email || '',
+              firstName: user.user_metadata?.firstName || 
+                         user.user_metadata?.full_name?.split(' ')[0] ||
+                         user.user_metadata?.name?.split(' ')[0] ||
+                         '',
+              lastName: user.user_metadata?.lastName || 
+                        user.user_metadata?.full_name?.split(' ').slice(1).join(' ') ||
+                        user.user_metadata?.name?.split(' ').slice(1).join(' ') ||
+                        '',
+              imageUrl: user.user_metadata?.avatar_url || 
+                        user.user_metadata?.picture ||
+                        '',
+            })
+            
+            console.log('User synced to Convex successfully:', user.id)
+          } catch (convexError) {
+            console.error('Failed to sync user to Convex:', convexError)
+            // Continue with redirect even if Convex sync fails
+          }
+
           // User signed in successfully, redirect to dashboard or onboarding
           const forwardedHost = request.headers.get('x-forwarded-host')
           const isLocalEnv = process.env.NODE_ENV === 'development'
