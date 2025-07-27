@@ -1,12 +1,12 @@
-import { SignIn } from '@clerk/nextjs'
-import { Metadata } from 'next'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'Sign In',
-  description: 'Sign in to access your AI meeting transcription dashboard',
-}
+import { Auth } from '@supabase/auth-ui-react'
+import { ThemeSupa } from '@supabase/auth-ui-shared'
+import { createClient } from '@/lib/supabase'
 
 export default function SignInPage() {
+  const supabase = createClient()
+  
   return (
     <div className="flex flex-col justify-center space-y-6">
       <div className="flex flex-col space-y-2 text-center">
@@ -17,13 +17,13 @@ export default function SignInPage() {
           Sign in to access your AI meeting transcription dashboard
         </p>
       </div>
-      <SignIn 
-        appearance={{
-          elements: {
-            formButtonPrimary: 'bg-primary hover:bg-primary/90',
-            card: 'shadow-none border-0',
-          }
-        }}
+      <Auth
+        supabaseClient={supabase}
+        appearance={{ theme: ThemeSupa }}
+        providers={['google', 'github']}
+        socialLayout="horizontal"
+        view="sign_in"
+        redirectTo={typeof window !== 'undefined' ? `${window.location.origin}/dashboard` : '/dashboard'}
       />
     </div>
   )

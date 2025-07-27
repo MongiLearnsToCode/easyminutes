@@ -4,8 +4,8 @@ import { v } from "convex/values";
 export default defineSchema({
   // Users table for storing user profiles and subscription info
   users: defineTable({
-    // Clerk user ID for authentication integration
-    clerkId: v.string(),
+    // Supabase user ID for authentication integration
+    supabaseId: v.string(),
     email: v.string(),
     firstName: v.optional(v.string()),
     lastName: v.optional(v.string()),
@@ -38,7 +38,7 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   })
-    .index("by_clerk_id", ["clerkId"])
+    .index("by_supabase_id", ["supabaseId"])
     .index("by_email", ["email"])
     .index("by_subscription_id", ["subscriptionId"]),
 

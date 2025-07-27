@@ -46,7 +46,8 @@ global.Response = jest.fn().mockImplementation((body, options) => ({
 
 // Mock environment variables
 process.env.NEXT_PUBLIC_CONVEX_URL = "https://test-convex-url.convex.cloud";
-process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY = "pk_test_test_key";
+process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test-supabase-url.supabase.co";
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-supabase-anon-key";
 
 // Global test utilities
 global.ResizeObserver = jest.fn().mockImplementation(() => ({

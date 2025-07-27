@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@/contexts/auth-context";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -10,13 +10,13 @@ import { toast } from "@/hooks/use-toast";
 
 // Types for our combined user state
 export interface UserProfile {
-  // Clerk user data
-  clerkId: string;
+  // Supabase user data
+  id: string;
   email: string;
   firstName?: string;
   lastName?: string;
   fullName?: string;
-  imageUrl?: string;
+  avatarUrl?: string;
   
   // Convex user data
   convexId: Id<"users">;
@@ -56,14 +56,14 @@ interface UserContextType {
   refreshUser: () => void;
   // Session management
   isTokenValid: () => Promise<boolean>;
-  refreshTokenManually: () => Promise<string | null>;
+  refreshTokenManually: () => Promise<any>;
   isSessionLoaded: boolean;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const { user: clerkUser, isLoaded: clerkLoaded } = useUser();
+  const { user: supabaseUser, loading: authLoading } = useAuth();
   const [error, setError] = useState<string | null>(null);
   
   // Session manager for automatic token refresh
@@ -76,21 +76,19 @@ export function UserProvider({ children }: { children: ReactNode }) {
         variant: "destructive",
       });
     },
-    onTokenRefreshed: () => {
+    onSessionRefreshed: () => {
       // Optionally show a success message or just log
       console.log("Session refreshed successfully");
     },
     // Check token every 2 minutes
     checkInterval: 120000,
-    // Refresh token 10 minutes before expiry
-    refreshBuffer: 600000,
     autoRedirect: true,
   });
   
   // Query Convex user data
   const convexUser = useQuery(
-    api.users.getUserByClerkId,
-    clerkUser ? { clerkId: clerkUser.id } : "skip"
+    api.users.getUserBySupabaseId,
+    supabaseUser ? { supabaseId: supabaseUser.id } : "skip"
   );
 
   // Query usage statistics
@@ -100,21 +98,21 @@ export function UserProvider({ children }: { children: ReactNode }) {
   );
 
   // Determine loading state
-  const isLoading = !clerkLoaded || (clerkUser && !convexUser);
+  const isLoading = authLoading || (supabaseUser && !convexUser);
 
   // Create combined user profile
   const userProfile: UserProfile | null = (() => {
-    if (!clerkUser || !convexUser) return null;
+    if (!supabaseUser || !convexUser) return null;
 
     return {
-      // Clerk data
-      clerkId: clerkUser.id,
-      email: clerkUser.primaryEmailAddress?.emailAddress || "",
-      firstName: clerkUser.firstName || convexUser.firstName,
-      lastName: clerkUser.lastName || convexUser.lastName,
-      fullName: clerkUser.fullName || 
+      // Supabase data
+      id: supabaseUser.id,
+      email: supabaseUser.email || "",
+      firstName: supabaseUser.user_metadata?.firstName || convexUser.firstName,
+      lastName: supabaseUser.user_metadata?.lastName || convexUser.lastName,
+      fullName: supabaseUser.user_metadata?.fullName || 
         `${convexUser.firstName || ""} ${convexUser.lastName || ""}`.trim(),
-      imageUrl: clerkUser.imageUrl,
+      avatarUrl: supabaseUser.user_metadata?.avatarUrl,
 
       // Convex data
       convexId: convexUser._id,
@@ -135,12 +133,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   // Handle errors
   useEffect(() => {
-    if (clerkLoaded && clerkUser && convexUser === null) {
+    if (!authLoading && supabaseUser && convexUser === null) {
       setError("Failed to load user profile data");
     } else {
       setError(null);
     }
-  }, [clerkLoaded, clerkUser, convexUser]);
+  }, [authLoading, supabaseUser, convexUser]);
 
   // Function to refresh user data (useful after updates)
   const refreshUser = () => {
@@ -156,9 +154,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
     error,
     refreshUser,
     // Session management functions
-    isTokenValid: sessionManager.isTokenValid,
-    refreshTokenManually: sessionManager.refreshTokenManually,
-    isSessionLoaded: Boolean(sessionManager.isSessionLoaded),
+    isTokenValid: sessionManager.isSessionValid,
+    refreshTokenManually: sessionManager.refreshSessionManually,
+    isSessionLoaded: Boolean(sessionManager.session),
   };
 
   return (
@@ -207,7 +205,7 @@ export function useAuthState(): {
 // Convenience hook for session management
 export function useSessionManagement(): {
   isTokenValid: () => Promise<boolean>;
-  refreshTokenManually: () => Promise<string | null>;
+  refreshTokenManually: () => Promise<any>;
   isSessionLoaded: boolean;
 } {
   const { isTokenValid, refreshTokenManually, isSessionLoaded } = useUserContext();

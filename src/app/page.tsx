@@ -1,11 +1,21 @@
+'use client'
+
 import Link from 'next/link'
-import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
+import { useAuth } from '@/contexts/auth-context'
 import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { CheckCircle, Upload, Brain, Edit, FileText } from 'lucide-react'
+import { CheckCircle, Upload, Brain, Edit, FileText, User, LogOut } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 export default function Home() {
+  const { user, signOut } = useAuth()
+  
   return (
     <div className="flex min-h-screen flex-col">
       {/* Header */}
@@ -16,20 +26,35 @@ export default function Home() {
             <span className="text-xl font-bold">Easy Minutes</span>
           </div>
           <nav className="flex items-center space-x-4">
-            <SignedOut>
-              <Link href="/sign-in">
-                <Button variant="ghost">Sign In</Button>
-              </Link>
-              <Link href="/sign-up">
-                <Button>Get Started Free</Button>
-              </Link>
-            </SignedOut>
-            <SignedIn>
-              <Link href="/dashboard">
-                <Button variant="ghost">Dashboard</Button>
-              </Link>
-              <UserButton afterSignOutUrl="/" />
-            </SignedIn>
+            {!user ? (
+              <>
+                <Link href="/sign-in">
+                  <Button variant="ghost">Sign In</Button>
+                </Link>
+                <Link href="/sign-up">
+                  <Button>Get Started Free</Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/dashboard">
+                  <Button variant="ghost">Dashboard</Button>
+                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="relative h-8 w-8 rounded-full">
+                      <User className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => signOut()}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            )}
           </nav>
         </div>
       </header>
@@ -51,25 +76,26 @@ export default function Home() {
               for business transcription needs.
             </p>
             <div className="flex flex-col gap-2 min-[400px]:flex-row">
-              <SignedOut>
-                <Link href="/sign-up">
-                  <Button size="lg" className="min-w-[200px]">
-                    Start Free Trial
-                  </Button>
-                </Link>
-                <Link href="/sign-in">
-                  <Button variant="outline" size="lg">
-                    Sign In
-                  </Button>
-                </Link>
-              </SignedOut>
-              <SignedIn>
+              {!user ? (
+                <>
+                  <Link href="/sign-up">
+                    <Button size="lg" className="min-w-[200px]">
+                      Start Free Trial
+                    </Button>
+                  </Link>
+                  <Link href="/sign-in">
+                    <Button variant="outline" size="lg">
+                      Sign In
+                    </Button>
+                  </Link>
+                </>
+              ) : (
                 <Link href="/dashboard">
                   <Button size="lg" className="min-w-[200px]">
                     Go to Dashboard
                   </Button>
                 </Link>
-              </SignedIn>
+              )}
             </div>
           </div>
         </div>
@@ -166,20 +192,19 @@ export default function Home() {
             <p className="max-w-[600px] text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
               Join thousands of professionals using Easy Minutes as their automated minute taking system
             </p>
-            <SignedOut>
+            {!user ? (
               <Link href="/sign-up">
                 <Button size="lg" className="min-w-[200px]">
                   Start Your Free Trial
                 </Button>
               </Link>
-            </SignedOut>
-            <SignedIn>
+            ) : (
               <Link href="/dashboard/new">
                 <Button size="lg" className="min-w-[200px]">
                   Create Your First Minutes
                 </Button>
               </Link>
-            </SignedIn>
+            )}
           </div>
         </div>
       </section>

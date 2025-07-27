@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight, User } from "lucide-react";
-import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@/contexts/auth-context";
 import { OnboardingData, OnboardingStep } from "./onboarding-flow";
 
 interface ProfileStepProps {
@@ -25,7 +25,7 @@ export function ProfileStep({
   onboardingData, 
   updateOnboardingData 
 }: ProfileStepProps) {
-  const { user: clerkUser } = useUser();
+  const { user: supabaseUser } = useAuth();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +75,7 @@ export function ProfileStep({
             {/* Profile Picture Display */}
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
-                <AvatarImage src={clerkUser?.imageUrl} alt={clerkUser?.fullName || "User"} />
+                <AvatarImage src={supabaseUser?.user_metadata?.avatarUrl} alt={supabaseUser?.user_metadata?.fullName || "User"} />
                 <AvatarFallback>
                   {onboardingData.firstName?.[0]}{onboardingData.lastName?.[0]}
                 </AvatarFallback>
@@ -117,7 +117,7 @@ export function ProfileStep({
               <Label htmlFor="email">Email Address</Label>
               <Input
                 id="email"
-                value={clerkUser?.primaryEmailAddress?.emailAddress || ""}
+                value={supabaseUser?.email || ""}
                 disabled
                 className="bg-muted"
               />

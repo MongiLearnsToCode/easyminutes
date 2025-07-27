@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@/contexts/auth-context";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -19,13 +19,13 @@ interface NotificationPreferences {
 }
 
 export function NotificationSettings() {
-  const { user: clerkUser } = useUser();
+  const { user: supabaseUser } = useAuth();
   const { toast } = useToast();
 
   // Get user data from Convex
   const convexUser = useQuery(
-    api.users.getUserByClerkId,
-    clerkUser ? { clerkId: clerkUser.id } : "skip"
+    api.users.getUserBySupabaseId,
+    supabaseUser ? { supabaseId: supabaseUser.id } : "skip"
   );
 
   // Mutations

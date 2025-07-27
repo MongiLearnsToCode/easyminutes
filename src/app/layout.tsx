@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ClerkProvider } from '@clerk/nextjs'
 import { ConvexClientProvider } from '@/components/providers/convex-provider'
+import { AuthProvider } from '@/contexts/auth-context'
 import { UserProvider } from '@/contexts/user-context'
 import { Toaster } from '@/components/ui/sonner'
 import "./globals.css";
@@ -28,33 +28,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider
-      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-      appearance={{
-        baseTheme: undefined,
-        variables: {
-          colorPrimary: "hsl(var(--primary))",
-          colorBackground: "hsl(var(--background))",
-          colorInputBackground: "hsl(var(--background))",
-          colorInputText: "hsl(var(--foreground))",
-          colorText: "hsl(var(--foreground))",
-          colorTextSecondary: "hsl(var(--muted-foreground))",
-          colorNeutral: "hsl(var(--muted))",
-          colorTextOnPrimaryBackground: "hsl(var(--primary-foreground))",
-          borderRadius: "0.5rem",
-        },
-      }}
-    >
-      <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <AuthProvider>
           <ConvexClientProvider>
             <UserProvider>
               {children}
             </UserProvider>
           </ConvexClientProvider>
-          <Toaster />
-        </body>
-      </html>
-    </ClerkProvider>
+        </AuthProvider>
+        <Toaster />
+      </body>
+    </html>
   );
 }

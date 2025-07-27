@@ -1,7 +1,7 @@
 "use client";
 
-import { Bell, Search, Settings } from "lucide-react";
-import { UserButton, useUser } from "@clerk/nextjs";
+import { Bell, Search, Settings, User, LogOut } from "lucide-react";
+import { useAuth } from '@/contexts/auth-context'
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
 export function DashboardHeader() {
-  const { user } = useUser();
+  const { user, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 bg-background border-b">
@@ -93,24 +93,27 @@ export function DashboardHeader() {
           {/* User Menu */}
           <div className="flex items-center space-x-3">
             <div className="hidden md:block text-right">
-              <p className="text-sm font-medium">{user?.fullName || user?.emailAddresses[0]?.emailAddress}</p>
+              <p className="text-sm font-medium">{user?.email}</p>
               <p className="text-xs text-muted-foreground">Free Plan</p>
             </div>
-            <UserButton 
-              appearance={{
-                elements: {
-                  avatarBox: "h-8 w-8",
-                  userButtonPopoverCard: "shadow-lg border",
-                }
-              }}
-              userProfileProps={{
-                appearance: {
-                  elements: {
-                    modalContent: "shadow-lg border",
-                  }
-                }
-              }}
-            />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="relative h-8 w-8 rounded-full">
+                  <User className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/settings">Settings</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => signOut()}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>

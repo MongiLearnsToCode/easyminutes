@@ -1,10 +1,10 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
-// Create or update user from Clerk webhook
+// Create or update user from Supabase auth
 export const upsertUser = mutation({
   args: {
-    clerkId: v.string(),
+    supabaseId: v.string(),
     email: v.string(),
     firstName: v.optional(v.string()),
     lastName: v.optional(v.string()),
@@ -13,7 +13,7 @@ export const upsertUser = mutation({
   handler: async (ctx, args) => {
     const existingUser = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .withIndex("by_supabase_id", (q) => q.eq("supabaseId", args.supabaseId))
       .first();
 
     const now = Date.now();
@@ -31,7 +31,7 @@ export const upsertUser = mutation({
     } else {
       // Create new user with default values
       const userId = await ctx.db.insert("users", {
-        clerkId: args.clerkId,
+        supabaseId: args.supabaseId,
         email: args.email,
         firstName: args.firstName,
         lastName: args.lastName,
@@ -57,13 +57,13 @@ export const upsertUser = mutation({
   },
 });
 
-// Get user by Clerk ID
-export const getUserByClerkId = query({
-  args: { clerkId: v.string() },
+// Get user by Supabase ID
+export const getUserBySupabaseId = query({
+  args: { supabaseId: v.string() },
   handler: async (ctx, args) => {
     return await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .withIndex("by_supabase_id", (q) => q.eq("supabaseId", args.supabaseId))
       .first();
   },
 });
@@ -288,11 +288,11 @@ export const getUserUsageStats = query({
 
 // Delete user account and all associated data
 export const deleteUserAccount = mutation({
-  args: { clerkId: v.string() },
+  args: { supabaseId: v.string() },
   handler: async (ctx, args) => {
     const user = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .withIndex("by_supabase_id", (q) => q.eq("supabaseId", args.supabaseId))
       .first();
 
     if (!user) return;

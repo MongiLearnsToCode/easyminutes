@@ -1,54 +1,50 @@
 "use client";
 
 import { useEffect, useCallback, useRef } from "react";
-import { useAuth, useSession } from "@clerk/nextjs";
+import { useAuth } from '@/contexts/auth-context';
 import { useRouter } from "next/navigation";
 
 interface UseSessionManagerOptions {
-  /** How often to check token validity (in milliseconds) */
+  /** How often to check session validity (in milliseconds) */
   checkInterval?: number;
-  /** How early to refresh before token expires (in milliseconds) */
-  refreshBuffer?: number;
   /** Whether to auto-redirect to sign-in on session expiry */
   autoRedirect?: boolean;
   /** Callback when session expires */
   onSessionExpired?: () => void;
-  /** Callback when token is refreshed */
-  onTokenRefreshed?: (newToken: string) => void;
+  /** Callback when session is refreshed */
+  onSessionRefreshed?: () => void;
 }
 
 export function useSessionManager(options: UseSessionManagerOptions = {}) {
   const {
     checkInterval = 60000, // Check every minute
-    refreshBuffer = 300000, // Refresh 5 minutes before expiry
     autoRedirect = true,
     onSessionExpired,
-    onTokenRefreshed,
+    onSessionRefreshed,
   } = options;
 
-  const { getToken, signOut } = useAuth();
-  const { session, isLoaded } = useSession();
+  const { user, session, signOut, supabaseClient } = useAuth();
   const router = useRouter();
   
   // Use refs to store the latest callbacks to avoid effect dependencies
   const onSessionExpiredRef = useRef(onSessionExpired);
-  const onTokenRefreshedRef = useRef(onTokenRefreshed);
+  const onSessionRefreshedRef = useRef(onSessionRefreshed);
   
   useEffect(() => {
     onSessionExpiredRef.current = onSessionExpired;
-    onTokenRefreshedRef.current = onTokenRefreshed;
+    onSessionRefreshedRef.current = onSessionRefreshed;
   });
 
-  // Function to check and refresh token if needed
-  const checkAndRefreshToken = useCallback(async () => {
-    if (!session || !isLoaded) return;
+  // Function to check session validity
+  const checkSession = useCallback(async () => {
+    if (!session) return;
 
     try {
-      // Get current token with a reasonable timeout
-      const token = await getToken();
+      // Check if session is still valid
+      const { data: { user: currentUser }, error } = await supabaseClient.auth.getUser();
       
-      if (!token) {
-        console.warn("No token available, session may have expired");
+      if (error || !currentUser) {
+        console.warn("Session expired or invalid");
         onSessionExpiredRef.current?.();
         
         if (autoRedirect) {
@@ -58,32 +54,11 @@ export function useSessionManager(options: UseSessionManagerOptions = {}) {
         return;
       }
 
-      // Check if token is close to expiring
-      const tokenPayload = JSON.parse(atob(token.split('.')[1]));
-      const expiryTime = tokenPayload.exp * 1000; // Convert to milliseconds
-      const currentTime = Date.now();
-      const timeUntilExpiry = expiryTime - currentTime;
-
-      // If token expires soon, refresh it
-      if (timeUntilExpiry < refreshBuffer) {
-        console.log("Token expiring soon, refreshing...");
-        const newToken = await getToken({ skipCache: true });
-        
-        if (newToken) {
-          onTokenRefreshedRef.current?.(newToken);
-          console.log("Token refreshed successfully");
-        } else {
-          console.warn("Failed to refresh token");
-          onSessionExpiredRef.current?.();
-          
-          if (autoRedirect) {
-            await signOut();
-            router.push("/sign-in");
-          }
-        }
-      }
+      // Session is still valid
+      onSessionRefreshedRef.current?.();
+      
     } catch (error) {
-      console.error("Error checking/refreshing token:", error);
+      console.error("Error checking session:", error);
       onSessionExpiredRef.current?.();
       
       if (autoRedirect) {
@@ -91,28 +66,28 @@ export function useSessionManager(options: UseSessionManagerOptions = {}) {
         router.push("/sign-in");
       }
     }
-  }, [session, isLoaded, getToken, signOut, router, autoRedirect, refreshBuffer]);
+  }, [session, supabaseClient, signOut, router, autoRedirect]);
 
-  // Set up periodic token checking
+  // Set up periodic session checking
   useEffect(() => {
-    if (!isLoaded || !session) return;
+    if (!session || !user) return;
 
     // Initial check
-    checkAndRefreshToken();
+    checkSession();
 
     // Set up interval for periodic checks
-    const intervalId = setInterval(checkAndRefreshToken, checkInterval);
+    const intervalId = setInterval(checkSession, checkInterval);
 
     return () => {
       clearInterval(intervalId);
     };
-  }, [isLoaded, session, checkAndRefreshToken, checkInterval]);
+  }, [session, user, checkSession, checkInterval]);
 
-  // Listen for visibility change to check token when user returns to tab
+  // Listen for visibility change to check session when user returns to tab
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible" && session) {
-        checkAndRefreshToken();
+        checkSession();
       }
     };
 
@@ -120,46 +95,43 @@ export function useSessionManager(options: UseSessionManagerOptions = {}) {
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [session, checkAndRefreshToken]);
+  }, [session, checkSession]);
 
-  // Manual refresh function for external use
-  const refreshTokenManually = useCallback(async () => {
+  // Manual session refresh function for external use
+  const refreshSessionManually = useCallback(async () => {
     if (!session) return null;
     
     try {
-      const newToken = await getToken({ skipCache: true });
-      if (newToken) {
-        onTokenRefreshedRef.current?.(newToken);
+      const { data: { session: refreshedSession }, error } = await supabaseClient.auth.refreshSession();
+      if (refreshedSession && !error) {
+        onSessionRefreshedRef.current?.();
+        return refreshedSession;
       }
-      return newToken;
+      return null;
     } catch (error) {
-      console.error("Manual token refresh failed:", error);
+      console.error("Manual session refresh failed:", error);
       return null;
     }
-  }, [session, getToken]);
+  }, [session, supabaseClient]);
 
-  // Function to check current token validity
-  const isTokenValid = useCallback(async () => {
+  // Function to check current session validity
+  const isSessionValid = useCallback(async () => {
     if (!session) return false;
 
     try {
-      const token = await getToken();
-      if (!token) return false;
-
-      const tokenPayload = JSON.parse(atob(token.split('.')[1]));
-      const expiryTime = tokenPayload.exp * 1000;
-      return Date.now() < expiryTime;
+      const { data: { user }, error } = await supabaseClient.auth.getUser();
+      return !error && !!user;
     } catch (error) {
-      console.error("Error checking token validity:", error);
+      console.error("Error checking session validity:", error);
       return false;
     }
-  }, [session, getToken]);
+  }, [session, supabaseClient]);
 
   return {
     session,
-    isSessionLoaded: isLoaded,
-    isTokenValid,
-    refreshTokenManually,
-    checkAndRefreshToken,
+    user,
+    isSessionValid,
+    refreshSessionManually,
+    checkSession,
   };
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@/contexts/auth-context";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -23,7 +23,7 @@ export interface OnboardingData {
 
 export function OnboardingFlow() {
   const router = useRouter();
-  const { user: clerkUser } = useUser();
+  const { user: supabaseUser } = useAuth();
   const { toast } = useToast();
 
   const [currentStep, setCurrentStep] = useState<OnboardingStep>("welcome");
@@ -32,8 +32,8 @@ export function OnboardingFlow() {
 
   // Get user data from Convex
   const convexUser = useQuery(
-    api.users.getUserByClerkId,
-    clerkUser ? { clerkId: clerkUser.id } : "skip"
+    api.users.getUserBySupabaseId,
+    supabaseUser ? { supabaseId: supabaseUser.id } : "skip"
   );
 
   // Complete onboarding mutation
@@ -48,13 +48,13 @@ export function OnboardingFlow() {
 
   // Initialize form data with user info
   useEffect(() => {
-    if (clerkUser && !onboardingData.firstName && !onboardingData.lastName) {
+    if (supabaseUser && !onboardingData.firstName && !onboardingData.lastName) {
       setOnboardingData({
-        firstName: clerkUser.firstName || "",
-        lastName: clerkUser.lastName || "",
+        firstName: supabaseUser.user_metadata?.firstName || "",
+        lastName: supabaseUser.user_metadata?.lastName || "",
       });
     }
-  }, [clerkUser, onboardingData]);
+  }, [supabaseUser, onboardingData]);
 
   const updateOnboardingData = (data: Partial<OnboardingData>) => {
     setOnboardingData(prev => ({ ...prev, ...data }));

@@ -1,5 +1,5 @@
 import { useRouter } from "next/navigation";
-import { useClerk, useSession } from "@clerk/nextjs";
+import { useAuth } from '@/contexts/auth-context'
 import React, { useEffect } from "react";
 
 interface AuthGuardProps {
@@ -13,20 +13,27 @@ interface AuthGuardProps {
  */
 export function AuthGuard({ children, requireAuth = true }: AuthGuardProps) {
   const router = useRouter();
-  const { session } = useSession();
-  useClerk();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
+    // Don't redirect while loading
+    if (loading) return;
+    
     const routeNonAuthenticatedUsers = async () => {
-      if (requireAuth && !session) {
+      if (requireAuth && !user) {
         router.push("/sign-in");
-      } else if (!requireAuth && session) {
+      } else if (!requireAuth && user) {
         router.push("/dashboard");
       }
     };
 
     routeNonAuthenticatedUsers();
-  }, [session, router, requireAuth]);
+  }, [user, loading, router, requireAuth]);
+
+  // Show loading while auth state is being determined
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return <>{children}</>;
 }

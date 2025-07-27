@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@/contexts/auth-context";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -15,13 +15,13 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save, User } from "lucide-react";
 
 export function ProfileSettings() {
-  const { user: clerkUser } = useUser();
+  const { user: supabaseUser } = useAuth();
   const { toast } = useToast();
 
   // Get user data from Convex
   const convexUser = useQuery(
-    api.users.getUserByClerkId,
-    clerkUser ? { clerkId: clerkUser.id } : "skip"
+    api.users.getUserBySupabaseId,
+    supabaseUser ? { supabaseId: supabaseUser.id } : "skip"
   );
 
   // Get available templates for default selection
@@ -115,14 +115,14 @@ export function ProfileSettings() {
           {/* Profile Picture */}
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">
-              <AvatarImage src={clerkUser?.imageUrl} alt={clerkUser?.fullName || "User"} />
+              <AvatarImage src={supabaseUser?.user_metadata?.avatarUrl} alt={supabaseUser?.user_metadata?.fullName || "User"} />
               <AvatarFallback>
-                {clerkUser?.firstName?.[0]}{clerkUser?.lastName?.[0]}
+                {supabaseUser?.user_metadata?.firstName?.[0]}{supabaseUser?.user_metadata?.lastName?.[0]}
               </AvatarFallback>
             </Avatar>
             <div>
-              <h3 className="font-medium">{clerkUser?.fullName || "User"}</h3>
-              <p className="text-sm text-muted-foreground">{clerkUser?.primaryEmailAddress?.emailAddress}</p>
+              <h3 className="font-medium">{supabaseUser?.user_metadata?.fullName || "User"}</h3>
+              <p className="text-sm text-muted-foreground">{supabaseUser?.email}</p>
               <p className="text-xs text-muted-foreground mt-1">
                 Profile picture is managed through your account provider
               </p>

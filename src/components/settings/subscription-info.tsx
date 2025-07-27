@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@/contexts/auth-context";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -22,13 +22,13 @@ import {
 import Link from "next/link";
 
 export function SubscriptionInfo() {
-  const { user: clerkUser } = useUser();
+  const { user: supabaseUser } = useAuth();
   useToast();
 
   // Get user data from Convex
   const convexUser = useQuery(
-    api.users.getUserByClerkId,
-    clerkUser ? { clerkId: clerkUser.id } : "skip"
+    api.users.getUserBySupabaseId,
+    supabaseUser ? { supabaseId: supabaseUser.id } : "skip"
   );
 
   // Get usage statistics
