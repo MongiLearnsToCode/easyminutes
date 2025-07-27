@@ -38,7 +38,7 @@ export default function PrivacyPage() {
           <section className="mt-8">
             <h2>Introduction</h2>
             <p>
-              Easy Minutes ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy 
+              Easy Minutes (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy 
               explains how we collect, use, disclose, and safeguard your information when you use our AI-powered 
               meeting transcription service.
             </p>
@@ -84,8 +84,8 @@ export default function PrivacyPage() {
           <section className="mt-8">
             <h2>Data Processing and AI</h2>
             <p>
-              We use Google's Gemini AI service to transcribe your audio files and generate meeting minutes. 
-              Your audio data is processed according to Google's privacy policies and data handling practices. 
+              We use Google&apos;s Gemini AI service to transcribe your audio files and generate meeting minutes. 
+              Your audio data is processed according to Google&apos;s privacy policies and data handling practices.
               We do not store your audio files permanently - they are processed and then deleted.
             </p>
           </section>

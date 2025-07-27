@@ -38,8 +38,8 @@ export default function TermsPage() {
           <section className="mt-8">
             <h2>1. Acceptance of Terms</h2>
             <p>
-              By accessing and using Easy Minutes ("the Service"), you accept and agree to be bound by 
-              these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use 
+              By accessing and using Easy Minutes (&quot;the Service&quot;), you accept and agree to be bound by 
+              these Terms of Service (&quot;Terms&quot;). If you do not agree to these Terms, please do not use 
               our Service.
             </p>
           </section>
@@ -83,7 +83,7 @@ export default function TermsPage() {
             <ul>
               <li>Subscription fees are billed in advance on a monthly or annual basis</li>
               <li>Fees are non-refundable except as required by law</li>
-              <li>We may change subscription prices with 30 days' notice</li>
+              <li>We may change subscription prices with 30 days&apos; notice</li>
               <li>Your subscription will auto-renew unless cancelled</li>
             </ul>
 
@@ -147,7 +147,7 @@ export default function TermsPage() {
               <li>Our AI transcription service may not be 100% accurate</li>
               <li>You should review and verify all transcripts and generated content</li>
               <li>We are not responsible for errors in AI-generated content</li>
-              <li>The service is provided "as is" without warranties of accuracy</li>
+              <li>The service is provided &quot;as is&quot; without warranties of accuracy</li>
             </ul>
           </section>
 
