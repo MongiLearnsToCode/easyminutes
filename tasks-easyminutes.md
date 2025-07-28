@@ -7,7 +7,7 @@
 - `app/sign-in/[[...sign-in]]/page.tsx` - Sign-in page using Supabase Auth
 - `app/sign-up/[[...sign-up]]/page.tsx` - Sign-up page using Supabase Auth
 - `app/dashboard/page.tsx` - Main dashboard showing user's meeting minutes list
-- `app/dashboard/new/page.tsx` - Meeting import page for audio/text upload
+- `app/dashboard/new/page.tsx` - Meeting import page for audio/text upload with progress tracking and status notifications
 - `app/dashboard/minutes/[id]/page.tsx` - Individual meeting minutes editor view
 - `app/dashboard/minutes/[id]/share/page.tsx` - Sharing configuration page
 - `app/api/transcribe/route.ts` - API route for Gemini AI transcription processing
@@ -15,7 +15,7 @@
 - `app/api/webhooks/polar/route.ts` - Webhook handler for Polar.sh subscription events
 - `app/api/webhooks/supabase/route.ts` - Webhook handler for Supabase user synchronization
 - `docs/supabase-auth-setup.md` - Documentation for Supabase authentication integration
-- `components/ui/file-upload.tsx` - Custom file upload component with drag-and-drop and audio validation
+- `components/ui/file-upload.tsx` - Custom file upload component with drag-and-drop, audio validation, and real-time progress tracking
 - `components/ui/text-input.tsx` - Enhanced text input component for pasting raw meeting notes
 - `components/ui/rich-text-editor.tsx` - Rich text editor for minutes editing
 - `components/minutes/template-selector.tsx` - Component for choosing minute templates
@@ -73,7 +73,7 @@
   - [x] 3.2 Implement audio file validation (size, format, duration limits)
   - [x] 3.3 Set up Google Gemini API integration for audio transcription
   - [x] 3.4 Create text input interface for pasting raw meeting notes
-  - [ ] 3.5 Implement upload progress tracking and status notifications
+  - [x] 3.5 Implement upload progress tracking and status notifications
   - [ ] 3.6 Add batch processing support for multiple files
   - [ ] 3.7 Create error handling for failed transcriptions and file processing
   - [ ] 3.8 Implement audio file preprocessing and optimization before transcription

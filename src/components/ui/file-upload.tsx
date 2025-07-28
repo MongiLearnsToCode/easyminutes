@@ -14,7 +14,11 @@ import {
 } from "@/lib/utils/audio-processing";
 
 interface FileUploadProps {
-  onFileSelect: (file: File) => void;
+  onFileSelect: (
+    file: File, 
+    onProgress?: (progress: number) => void,
+    onStatusChange?: (status: string) => void
+  ) => void;
   _onMultipleFilesSelect?: (files: File[]) => void;
   accept?: string;
   maxSize?: number; // in MB
@@ -90,21 +94,33 @@ export function FileUpload({
       setValidationResult(fullValidation);
       
       if (fullValidation.isValid) {
-        // Simulate upload progress for valid files
+        // Use real progress tracking with callbacks
         setIsUploading(true);
         setUploadProgress(0);
         
-        const interval = setInterval(() => {
-          setUploadProgress((prev) => {
-            if (prev >= 100) {
-              clearInterval(interval);
-              setIsUploading(false);
-              onFileSelect(file);
-              return 100;
-            }
-            return prev + 10;
+        const handleProgress = (progress: number) => {
+          setUploadProgress(progress);
+        };
+        
+        const handleStatusChange = (status: string) => {
+          // Update status but don't show it in this component
+          // The status is shown in the parent component
+          console.log('Upload status:', status);
+        };
+        
+        try {
+          await onFileSelect(file, handleProgress, handleStatusChange);
+        } catch (error) {
+          console.error('File processing failed:', error);
+          setValidationResult({
+            isValid: false,
+            errors: [`Processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`],
+            warnings: []
           });
-        }, 100);
+        } finally {
+          setIsUploading(false);
+          setUploadProgress(0);
+        }
       }
     } catch (error) {
       console.error('File validation error:', error);

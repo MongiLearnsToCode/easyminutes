@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 
 export default function NewMeetingPage() {
   const [meetingTitle, setMeetingTitle] = useState("");
@@ -17,6 +19,7 @@ export default function NewMeetingPage() {
   const [selectedTemplate, setSelectedTemplate] = useState("standard");
   const [processing, setProcessing] = useState(false);
   const [result, setResult] = useState<string | null>(null);
+  const [processingStatus, setProcessingStatus] = useState<string>("");
 
   const handleTextSubmit = async (text: string) => {
     setProcessing(true);
@@ -37,10 +40,88 @@ export default function NewMeetingPage() {
     }
   };
 
-  const handleFileSelect = async (file: File) => {
-    // TODO: Implement audio transcription
-    console.log("Audio file selected:", file.name);
-    alert("Audio transcription will be implemented in the next task.");
+  const handleFileSelect = async (
+    file: File,
+    onProgress?: (progress: number) => void,
+    onStatusChange?: (status: string) => void
+  ) => {
+    setProcessing(true);
+    setProcessingStatus("");
+    
+    const updateStatus = (status: string) => {
+      setProcessingStatus(status);
+      onStatusChange?.(status);
+    };
+    
+    try {
+      updateStatus("Preparing file for upload...");
+      
+      // Convert file to base64
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          resolve(result.split(',')[1]); // Remove data:mime;base64, prefix
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      
+      updateStatus("Uploading file...");
+      onProgress?.(25);
+      
+      // Create request payload
+      const payload = {
+        audioFile: base64,
+        audioFileName: file.name,
+        audioFileType: file.type,
+        options: {
+          language: 'auto',
+          enableSpeakerDiarization: true,
+          maxDuration: 3600 // 1 hour max
+        }
+      };
+      
+      updateStatus("Processing with AI...");
+      onProgress?.(50);
+      
+      // Send to transcription API
+      const response = await fetch('/api/transcribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      
+      onProgress?.(75);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Transcription failed');
+      }
+      
+      const result = await response.json();
+      
+      onProgress?.(100);
+      updateStatus("Transcription complete!");
+      
+      if (result.success) {
+        setResult(result.data.transcript || null);
+        console.log("Transcription Result:", result.data);
+      } else {
+        throw new Error(result.error || 'Transcription failed');
+      }
+    } catch (error) {
+      console.error('File processing error:', error);
+      const errorMessage = `Error: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      updateStatus(errorMessage);
+      alert(`Processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setProcessing(false);
+      // Clear status after a delay when processing is complete
+      setTimeout(() => setProcessingStatus(""), 3000);
+    }
   };
   return (
     <div className="container mx-auto py-8">
@@ -129,6 +210,24 @@ export default function NewMeetingPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Status Notification */}
+          {processingStatus && (
+            <Alert className={`${processingStatus.startsWith('Error:') ? 'border-destructive bg-destructive/10' : processingStatus.includes('complete') ? 'border-green-500 bg-green-50' : 'border-blue-500 bg-blue-50'}`}>
+              {processing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : processingStatus.startsWith('Error:') ? (
+                <AlertCircle className="h-4 w-4" />
+              ) : processingStatus.includes('complete') ? (
+                <CheckCircle className="h-4 w-4" />
+              ) : (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              )}
+              <AlertDescription>
+                {processingStatus}
+              </AlertDescription>
+            </Alert>
+          )}
 
           {/* Result Display */}
           {result && (
