@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { processRawNotes } from "@/lib/gemini";
+// Removed direct import of processRawNotes to avoid client-side API key usage
 import { TextInput } from "@/components/ui/text-input";
 import { BatchUpload } from "@/components/ui/batch-upload";
 import { Button } from "@/components/ui/button";
@@ -23,20 +23,50 @@ export default function NewMeetingPage() {
 
   const handleTextSubmit = async (text: string) => {
     setProcessing(true);
+    setProcessingStatus("");
+    
+    const updateStatus = (status: string) => {
+      setProcessingStatus(status);
+    };
+    
     try {
-      const response = await processRawNotes(text);
-
-      if (response.success) {
-        setResult(response.transcript || null);
-        console.log("Processed Transcript:", response.transcript);
+      updateStatus("Processing raw meeting notes...");
+      
+      // Send to transcription API for text processing
+      const response = await fetch('/api/transcribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          rawText: text
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Text processing failed');
+      }
+      
+      const result = await response.json();
+      
+      updateStatus("Text processing complete!");
+      
+      if (result.success) {
+        setResult(result.data.transcript || null);
+        console.log("Processed Text:", result.data);
       } else {
-        alert("Processing failed: " + response.error);
+        throw new Error(result.error || 'Text processing failed');
       }
     } catch (error) {
-      console.error("Processing error:", error);
-      alert("An error occurred during processing.");
+      console.error('Text processing error:', error);
+      const errorMessage = `Error: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      updateStatus(errorMessage);
+      alert(`Processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setProcessing(false);
+      // Clear status after a delay when processing is complete
+      setTimeout(() => setProcessingStatus(""), 3000);
     }
   };
 

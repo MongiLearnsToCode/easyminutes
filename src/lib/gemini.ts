@@ -10,7 +10,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 // Configuration constants
 const TRANSCRIPTION_MODEL = 'gemini-1.5-flash'; // Best model for transcription tasks
-const TEXT_PROCESSING_MODEL = 'gemini-1.5-pro'; // Best model for text analysis
+const TEXT_PROCESSING_MODEL = 'gemini-1.5-flash'; // Better free tier limits, still good for text analysis
 const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB limit
 const SUPPORTED_FORMATS = ['audio/mpeg', 'audio/wav', 'audio/mp4', 'audio/flac'];
 
