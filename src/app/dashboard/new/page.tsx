@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { processRawNotes } from "@/lib/gemini";
 import { TextInput } from "@/components/ui/text-input";
-import { FileUpload } from "@/components/ui/file-upload";
+import { BatchUpload } from "@/components/ui/batch-upload";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -183,9 +183,9 @@ export default function NewMeetingPage() {
               <CardDescription>Upload audio files or paste text to generate meeting minutes</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Audio Upload */}
+              {/* Audio Upload with Batch Processing */}
               <div>
-                <FileUpload
+                <BatchUpload
                   onFileSelect={handleFileSelect}
                   disabled={processing}
                 />

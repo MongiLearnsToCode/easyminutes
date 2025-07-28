@@ -15,7 +15,8 @@
 - `app/api/webhooks/polar/route.ts` - Webhook handler for Polar.sh subscription events
 - `app/api/webhooks/supabase/route.ts` - Webhook handler for Supabase user synchronization
 - `docs/supabase-auth-setup.md` - Documentation for Supabase authentication integration
-- `components/ui/file-upload.tsx` - Custom file upload component with drag-and-drop, audio validation, and real-time progress tracking
+- `components/ui/file-upload.tsx` - Custom file upload component with drag-and-drop, audio validation, and real-time progress tracking with multiple file support
+- `components/ui/batch-upload.tsx` - Batch upload component for handling multiple file uploads with individual progress tracking and error handling
 - `components/ui/text-input.tsx` - Enhanced text input component for pasting raw meeting notes
 - `components/ui/rich-text-editor.tsx` - Rich text editor for minutes editing
 - `components/minutes/template-selector.tsx` - Component for choosing minute templates
@@ -74,7 +75,7 @@
   - [x] 3.3 Set up Google Gemini API integration for audio transcription
   - [x] 3.4 Create text input interface for pasting raw meeting notes
   - [x] 3.5 Implement upload progress tracking and status notifications
-  - [ ] 3.6 Add batch processing support for multiple files
+  - [x] 3.6 Add batch processing support for multiple files
   - [ ] 3.7 Create error handling for failed transcriptions and file processing
   - [ ] 3.8 Implement audio file preprocessing and optimization before transcription
 

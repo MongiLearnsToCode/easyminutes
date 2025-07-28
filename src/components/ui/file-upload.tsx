@@ -19,23 +19,27 @@ interface FileUploadProps {
     onProgress?: (progress: number) => void,
     onStatusChange?: (status: string) => void
   ) => void;
-  _onMultipleFilesSelect?: (files: File[]) => void;
+  onMultipleFilesSelect?: (
+    files: File[],
+    onProgress?: (fileIndex: number, progress: number) => void,
+    onStatusChange?: (fileIndex: number, status: string) => void
+  ) => void;
   accept?: string;
   maxSize?: number; // in MB
   className?: string;
   disabled?: boolean;
-  _multiple?: boolean;
+  multiple?: boolean;
   supportedFormats?: string[];
 }
 
 export function FileUpload({
   onFileSelect,
-  _onMultipleFilesSelect,
+  onMultipleFilesSelect,
   accept = "audio/*",
   maxSize = MAX_FILE_SIZE_MB,
   className,
   disabled = false,
-  _multiple = false,
+  multiple = false,
   supportedFormats = SUPPORTED_EXTENSIONS,
 }: FileUploadProps) {
   const [isDragOver, setIsDragOver] = useState(false);
@@ -65,13 +69,101 @@ export function FileUpload({
 
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
-      handleFileSelection(files[0]);
+      if (multiple && files.length > 1) {
+        handleMultipleFileSelection(files);
+      } else {
+        handleFileSelection(files[0]);
+      }
     }
   };
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      handleFileSelection(e.target.files[0]);
+      const files = Array.from(e.target.files);
+      if (multiple && files.length > 1) {
+        handleMultipleFileSelection(files);
+      } else {
+        handleFileSelection(files[0]);
+      }
+    }
+  };
+
+  const handleMultipleFileSelection = async (files: File[]) => {
+    if (!onMultipleFilesSelect) {
+      // Fallback to single file processing if multiple handler not provided
+      return handleFileSelection(files[0]);
+    }
+
+    setIsValidating(true);
+    setValidationResult(null);
+    
+    try {
+      // Validate all files first
+      const validationResults = await Promise.all(
+        files.map(file => quickValidateAudioFile(file))
+      );
+      
+      const invalidFiles = validationResults.filter(result => !result.isValid);
+      
+      if (invalidFiles.length > 0) {
+        setValidationResult({
+          isValid: false,
+          errors: [`${invalidFiles.length} of ${files.length} files are invalid`],
+          warnings: []
+        });
+        setIsValidating(false);
+        return;
+      }
+      
+      // All files are valid, start batch processing
+      setIsUploading(true);
+      setUploadProgress(0);
+      
+      const handleProgress = (fileIndex: number, progress: number) => {
+        // Calculate overall progress based on file index and individual progress
+        const overallProgress = ((fileIndex * 100) + progress) / files.length;
+        setUploadProgress(Math.round(overallProgress));
+      };
+      
+      const handleStatusChange = (fileIndex: number, status: string) => {
+        console.log(`File ${fileIndex + 1}/${files.length}: ${status}`);
+      };
+      
+      try {
+        await onMultipleFilesSelect(files, handleProgress, handleStatusChange);
+        setValidationResult({
+          isValid: true,
+          errors: [],
+          warnings: [],
+          fileInfo: {
+            size: files.reduce((acc, file) => acc + file.size, 0),
+            sizeFormatted: `${files.length} files selected`,
+            duration: undefined,
+            durationFormatted: undefined,
+            format: 'batch',
+            extension: 'batch'
+          }
+        });
+      } catch (error) {
+        console.error('Multiple file processing failed:', error);
+        setValidationResult({
+          isValid: false,
+          errors: [`Batch processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`],
+          warnings: []
+        });
+      } finally {
+        setIsUploading(false);
+        setUploadProgress(0);
+      }
+    } catch (error) {
+      console.error('Multiple file validation error:', error);
+      setValidationResult({
+        isValid: false,
+        errors: ['Failed to validate files. Please try again.'],
+        warnings: []
+      });
+    } finally {
+      setIsValidating(false);
     }
   };
 
@@ -161,6 +253,7 @@ export function FileUpload({
         ref={fileInputRef}
         type="file"
         accept={accept}
+        multiple={multiple}
         onChange={handleFileInputChange}
         disabled={disabled}
         className="hidden"
@@ -170,7 +263,7 @@ export function FileUpload({
         <div className="space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
           <div className="space-y-2">
-            <p className="text-sm font-medium">Validating file...</p>
+            <p className="text-sm font-medium">{multiple ? 'Validating files...' : 'Validating file...'}</p>
             <p className="text-xs text-muted-foreground">Checking format, size, and duration</p>
           </div>
         </div>
@@ -195,15 +288,22 @@ export function FileUpload({
           
           <div>
             <p className="text-lg font-medium">
-              {isDragOver ? "Drop audio files here" : "Upload Audio File"}
+              {isDragOver 
+                ? "Drop audio files here" 
+                : multiple 
+                  ? "Upload Audio Files"
+                  : "Upload Audio File"
+              }
             </p>
             <p className="text-sm text-muted-foreground">
               {validationResult && validationResult.isValid
                 ? `Ready to process: ${validationResult.fileInfo?.sizeFormatted}`
-                : "Drop files here or click to browse"}
+                : multiple
+                  ? "Drop files here or click to browse (multiple files supported)"
+                  : "Drop files here or click to browse"}
             </p>
             <p className="text-xs text-muted-foreground mt-2">
-              Supported: {supportedFormats.join(', ')} • Max: {maxSize}MB
+              Supported: {supportedFormats.join(', ')} • Max: {maxSize}MB {multiple ? 'per file' : ''}
             </p>
           </div>
           
