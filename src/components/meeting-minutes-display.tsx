@@ -4,122 +4,178 @@ import { MeetingMinutes } from '@/hooks/use-process-meeting-notes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { ExportButton } from '@/components/export-button';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+import { useUser } from '@clerk/clerk-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface MeetingMinutesDisplayProps {
   minutes: MeetingMinutes;
+  onUpgradeClick?: () => void;
 }
 
-export function MeetingMinutesDisplay({ minutes }: MeetingMinutesDisplayProps) {
+export function MeetingMinutesDisplay({ minutes, onUpgradeClick }: MeetingMinutesDisplayProps) {
+  const { user } = useUser();
+  const userProfile = useQuery(api.user_profile.getUserProfileByUserId, {
+    userId: user?.id || '',
+  });
+  
+  const isProUser = userProfile?.plan === 'pro';
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold text-gray-900">{minutes.title}</h1>
-        <p className="text-sm text-gray-500">
+      <div className="text-center space-y-4 py-6">
+        <h1 className="text-4xl font-bold text-gray-900">{minutes.title}</h1>
+        <p className="text-lg text-gray-600">
           Generated on {new Date().toLocaleDateString('en-US', { 
             year: 'numeric', 
             month: 'long', 
             day: 'numeric' 
           })}
         </p>
+        <div className="flex justify-center pt-4">
+          <ExportButton 
+            minutes={minutes} 
+            filename={minutes.title}
+            isProUser={isProUser}
+            onUpgradeClick={onUpgradeClick}
+          />
+        </div>
       </div>
 
-      <Separator />
+      <Separator className="my-8" />
 
       {/* Executive Summary & Action Minutes */}
-      <section>
-        <h2 className="text-xl font-semibold text-gray-900 mb-3">Executive Summary & Action Minutes</h2>
-        <p className="text-gray-700 whitespace-pre-wrap">{minutes.executiveSummary}</p>
+      <section className="space-y-4">
+        <h2 className="text-2xl font-bold text-gray-900 border-l-4 border-blue-600 pl-4 py-3">Executive Summary & Action Minutes</h2>
+        <div className="prose prose-lg max-w-none">
+          <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{minutes.executiveSummary}</p>
+        </div>
         {minutes.actionMinutes && (
-          <div className="mt-3 p-4 bg-blue-50 rounded-lg border border-blue-100">
-            <p className="text-gray-700 whitespace-pre-wrap">{minutes.actionMinutes}</p>
-          </div>
+          <Card className="border-l-4 border-blue-500 bg-blue-50">
+            <CardContent className="pt-6">
+              <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">{minutes.actionMinutes}</p>
+            </CardContent>
+          </Card>
         )}
       </section>
 
-      <Separator />
+      <Separator className="my-8" />
 
       {/* Attendees */}
-      <section>
-        <h2 className="text-xl font-semibold text-gray-900 mb-3">Attendees</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+      <section className="space-y-4">
+        <h2 className="text-2xl font-bold text-gray-900 border-l-4 border-green-600 pl-4 py-3">Attendees</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {minutes.attendees.map((attendee, index) => (
-            <div key={index} className="flex items-center p-3 bg-gray-50 rounded-lg">
-              <div className="ml-3">
-                <p className="font-medium text-gray-900">{attendee.name}</p>
-                <p className="text-sm text-gray-500">{attendee.role}</p>
-              </div>
-            </div>
+            <Card key={index} className="hover:shadow-md transition-shadow">
+              <CardContent className="pt-6">
+                <div className="flex items-center space-x-4">
+                  <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16" />
+                  <div>
+                    <h3 className="font-bold text-lg text-gray-900">{attendee.name}</h3>
+                    <p className="text-gray-600">{attendee.role}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </section>
 
-      <Separator />
+      <Separator className="my-8" />
 
       {/* Decisions Made */}
-      <section>
-        <h2 className="text-xl font-semibold text-gray-900 mb-3">Decisions Made</h2>
+      <section className="space-y-4">
+        <h2 className="text-2xl font-bold text-gray-900 border-l-4 border-purple-600 pl-4 py-3">Decisions Made</h2>
         <div className="space-y-4">
           {minutes.decisions.map((decision, index) => (
-            <div key={index} className="p-4 border border-gray-200 rounded-lg">
-              <p className="text-gray-700 mb-2">{decision.description}</p>
-              <div className="flex flex-wrap gap-2 text-sm text-gray-500">
-                <span>Made by: {decision.madeBy}</span>
-                <span>Date: {decision.date}</span>
-              </div>
-            </div>
+            <Card key={index} className="hover:shadow-md transition-shadow">
+              <CardContent className="pt-6">
+                <p className="text-gray-700 mb-4 text-lg">{decision.description}</p>
+                <div className="flex flex-wrap gap-2 text-sm text-gray-500">
+                  <Badge variant="secondary">Made by: {decision.madeBy}</Badge>
+                  <Badge variant="secondary">Date: {decision.date}</Badge>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </section>
 
-      <Separator />
+      <Separator className="my-8" />
 
       {/* Risks & Mitigations */}
-      <section>
-        <h2 className="text-xl font-semibold text-gray-900 mb-3">Risks & Mitigations</h2>
-        <div className="space-y-4">
+      <section className="space-y-4">
+        <h2 className="text-2xl font-bold text-gray-900 border-l-4 border-red-600 pl-4 py-3">Risks & Mitigations</h2>
+        <div className="space-y-6">
           {minutes.risks.map((risk, index) => (
-            <div key={index} className="p-4 border border-gray-200 rounded-lg">
-              <h3 className="font-medium text-gray-900 mb-1">Risk:</h3>
-              <p className="text-gray-700 mb-3">{risk.description}</p>
-              <h3 className="font-medium text-gray-900 mb-1">Mitigation:</h3>
-              <p className="text-gray-700">{risk.mitigation}</p>
+            <div key={index} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="border-l-4 border-red-500">
+                <CardHeader>
+                  <CardTitle className="text-lg text-red-700">Risk</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-700">{risk.description}</p>
+                </CardContent>
+              </Card>
+              <Card className="border-l-4 border-green-500">
+                <CardHeader>
+                  <CardTitle className="text-lg text-green-700">Mitigation</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-700">{risk.mitigation}</p>
+                </CardContent>
+              </Card>
             </div>
           ))}
         </div>
       </section>
 
-      <Separator />
+      <Separator className="my-8" />
 
       {/* Action Items */}
-      <section>
-        <h2 className="text-xl font-semibold text-gray-900 mb-3">Action Items</h2>
-        <div className="space-y-3">
-          {minutes.actionItems.map((item, index) => (
-            <div key={index} className="flex items-start p-4 border border-gray-200 rounded-lg">
-              <div className="flex-1">
-                <p className="text-gray-700 mb-2">{item.description}</p>
-                <div className="flex flex-wrap gap-2 text-sm text-gray-500">
-                  <span>Owner: {item.owner}</span>
-                  <span>Deadline: {item.deadline}</span>
-                </div>
-              </div>
-              <Badge variant="secondary" className="ml-2">Pending</Badge>
-            </div>
-          ))}
+      <section className="space-y-4">
+        <h2 className="text-2xl font-bold text-gray-900 border-l-4 border-yellow-600 pl-4 py-3">Action Items</h2>
+        <div className="border rounded-lg overflow-hidden">
+          <Table>
+            <TableHeader className="bg-gray-100">
+              <TableRow>
+                <TableHead className="w-1/2">Description</TableHead>
+                <TableHead>Owner</TableHead>
+                <TableHead>Deadline</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {minutes.actionItems.map((item, index) => (
+                <TableRow key={index} className="hover:bg-gray-50">
+                  <TableCell className="font-medium">{item.description}</TableCell>
+                  <TableCell>{item.owner}</TableCell>
+                  <TableCell>{item.deadline}</TableCell>
+                  <TableCell>
+                    <Badge variant="secondary">Pending</Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </section>
 
-      <Separator />
+      <Separator className="my-8" />
 
       {/* Observations & Insights */}
-      <section>
-        <h2 className="text-xl font-semibold text-gray-900 mb-3">Observations & Insights</h2>
-        <div className="space-y-3">
+      <section className="space-y-4">
+        <h2 className="text-2xl font-bold text-gray-900 border-l-4 border-indigo-600 pl-4 py-3">Observations & Insights</h2>
+        <div className="grid grid-cols-1 gap-4">
           {minutes.observations.map((observation, index) => (
-            <div key={index} className="p-4 bg-gray-50 rounded-lg">
-              <p className="text-gray-700">{observation.description}</p>
-            </div>
+            <Card key={index} className="hover:shadow-md transition-shadow">
+              <CardContent className="pt-6">
+                <p className="text-gray-700">{observation.description}</p>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </section>
