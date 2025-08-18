@@ -4,11 +4,15 @@ import { useUser, useAuth } from '@clerk/clerk-react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import UserProfile from '@/components/user-profile';
+import { useSyncUserProfile } from '@/hooks/use-sync-user-profile';
 
 export default function Home() {
   const { isSignedIn, user, isLoaded } = useUser();
   const { signOut } = useAuth();
   const router = useRouter();
+  
+  // Sync user profile with Convex
+  useSyncUserProfile();
 
   // Redirect to sign-in if not authenticated
   useEffect(() => {
