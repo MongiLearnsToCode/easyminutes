@@ -224,7 +224,21 @@ export const processMeetingNotes = mutation({
       };
     } catch (error) {
       console.error("Error processing meeting notes with Gemini API:", error);
-      throw new Error(`Failed to process meeting notes: ${error instanceof Error ? error.message : String(error)}`);
+      
+      // Log the error for monitoring
+      console.error("Gemini API error details:", {
+        errorMessage: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        userId: args.userId,
+        textLength: args.text.length
+      });
+      
+      // Provide a more user-friendly error message
+      const userMessage = error instanceof Error && error.message.includes("Operation timed out") 
+        ? "The request took too long to process. Please try again with a shorter input." 
+        : "We encountered an issue processing your meeting notes. Please try again.";
+      
+      throw new Error(userMessage);
     }
   },
 });

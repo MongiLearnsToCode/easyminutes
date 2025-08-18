@@ -46,7 +46,7 @@
 2. UX polish
    - [x] AI processing animation + countdown timer
    - [x] Mobile responsiveness
-   - [ ] Error/success messages with fallback (retry or fail-gracefully)
+   - [x] Error/success messages with fallback (retry or fail-gracefully)
 
 ---
 

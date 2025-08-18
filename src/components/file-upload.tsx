@@ -106,7 +106,8 @@ export function FileUpload({ onFileUpload, isLoading = false }: FileUploadProps)
       const text = await extractTextFromFile(file);
       onFileUpload(file, text);
     } catch (err) {
-      setError('Failed to process file. Please try another file.');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to process file. Please try another file.';
+      setError(errorMessage);
       console.error('File processing error:', err);
     }
   };

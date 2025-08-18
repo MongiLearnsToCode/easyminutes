@@ -13,10 +13,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { useProcessMeetingNotes } from '@/hooks/use-process-meeting-notes';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AIProcessingAnimation } from '@/components/ai-processing-animation';
+import { ErrorAlert } from '@/components/error-alert';
+import { SuccessAlert } from '@/components/success-alert';
 
 export default function Home() {
   const { isSignedIn, user, isLoaded } = useUser();
@@ -26,6 +27,10 @@ export default function Home() {
   const [showMinutes, setShowMinutes] = useState(false);
   const { processNotes, isLoading, result } = useProcessMeetingNotes();
   const [saveEditedMinutes] = useMutation(api.save_edited_minutes.saveEditedMeetingMinutes);
+  
+  // State to track last input for retry functionality
+  const [lastTextInput, setLastTextInput] = useState<string>('');
+  const [lastFileInput, setLastFileInput] = useState<{file: File, text: string} | null>(null);
   
   // Sync user profile with Convex
   useSyncUserProfile();
@@ -46,6 +51,7 @@ export default function Home() {
 
   const handleGenerate = async (text: string) => {
     if (user?.id) {
+      setLastTextInput(text);
       await processNotes(text, user.id);
       setShowMinutes(true);
     }
@@ -53,6 +59,7 @@ export default function Home() {
 
   const handleFileUpload = async (file: File, text: string) => {
     if (user?.id) {
+      setLastFileInput({ file, text });
       await processNotes(text, user.id);
       setShowMinutes(true);
     }
@@ -149,32 +156,26 @@ export default function Home() {
               
               {/* Display result or error */}
               {result && !result.success && (
-                <Alert variant="destructive" className="mb-4">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    {result.error || 'Failed to generate meeting minutes. Please try again.'}
-                  </AlertDescription>
-                </Alert>
+                <ErrorAlert
+                  error={result.error || 'Failed to generate meeting minutes. Please try again.'}
+                  onRetry={() => {
+                    // Retry the last action based on the active tab
+                    if (activeTab === 'text' && lastTextInput) {
+                      handleGenerate(lastTextInput);
+                    } else if (activeTab === 'file' && lastFileInput) {
+                      handleFileUpload(lastFileInput.file, lastFileInput.text);
+                    }
+                  }}
+                  showRetry={true}
+                />
               )}
               
               {result && result.success && result.meetingMinutes && (
-                <Alert className="mb-4">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    <div className="flex items-start">
-                      <div className="flex-1">
-                        <strong>Meeting minutes generated successfully!</strong>
-                        <p className="mt-2">Title: {result.meetingMinutes.title}</p>
-                      </div>
-                      {result.processingTime && (
-                        <div className="flex items-center text-sm text-gray-500 ml-2">
-                          <Clock className="h-4 w-4 mr-1" />
-                          {(result.processingTime / 1000).toFixed(1)}s
-                        </div>
-                      )}
-                    </div>
-                  </AlertDescription>
-                </Alert>
+                <SuccessAlert
+                  title="Meeting Minutes Generated"
+                  message={`Title: ${result.meetingMinutes.title}`}
+                  processingTime={result.processingTime}
+                />
               )}
               
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
