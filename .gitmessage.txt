@@ -1,0 +1,36 @@
+# Commit Message Template — EasyMinutes (Conventional Commits)
+
+# <type>(<scope>): <short summary>
+#   │       │
+#   │       └─> OPTIONAL: what part of the codebase (auth, ui, api, docs, etc.)
+#   │
+#   └─> feat|fix|docs|style|refactor|perf|test|chore
+
+# Examples:
+#   feat(auth): add Clerk login flow with session tokens
+#   fix(api): handle Gemini API timeout errors gracefully
+#   chore(build): update Convex config for deployment
+#   docs(prd): update PRD with Fortune 500 template details
+#   refactor(ui): restructure output template rendering
+
+# --- COMMIT MESSAGE FORMAT ---
+
+<type>(<scope>): <short summary>
+
+# --- BODY (OPTIONAL) ---
+# Use the body to explain what and why (not how).
+# Wrap at 72 characters per line.
+#
+# Example:
+#   feat(output): implement Fortune 500 export templates
+#
+#   - Added Word/PDF export templates with board-ready styling
+#   - Ensures formatting matches PRD standards
+#   - Gated export feature behind Pro subscription
+
+# --- FOOTER (OPTIONAL) ---
+# Add issue references or breaking change notes here.
+#
+# Example:
+#   Closes #42
+#   BREAKING CHANGE: changed output schema format
