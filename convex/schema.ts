@@ -57,4 +57,16 @@ export default defineSchema({
   }).index("by_userId", ["userId"])
     .index("by_parentId", ["parentId"])
     .index("by_userId_and_isLatest", ["userId", "isLatest"]),
+  
+  // Table for storing shareable links
+  shareableLinks: defineTable({
+    minutesId: v.id("meetingMinutes"),
+    userId: v.string(),
+    shareId: v.string(), // Unique identifier for the shareable link
+    expiresAt: v.optional(v.number()), // Optional expiration time
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_minutesId", ["minutesId"])
+    .index("by_shareId", ["shareId"])
+    .index("by_userId", ["userId"]),
 });

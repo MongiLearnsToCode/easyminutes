@@ -60,7 +60,7 @@
    - [x] Gate Pro-only features using Clerk roles/metadata (plan = "pro")
 3. Pro-only features
    - [x] Export (PDF + DOCX with Fortune 500 template)
-   - [ ] Shareable link (stored in Convex)
+   - [x] Shareable link (stored in Convex)
    - [ ] Email integration (send Action Minutes directly)
    - [ ] Audio upload + transcription via Gemini (speech-to-text)
 

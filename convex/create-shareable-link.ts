@@ -6,6 +6,7 @@ export const createShareableLink = mutation({
   args: {
     minutesId: v.id("meetingMinutes"),
     userId: v.string(),
+    expiresInDays: v.optional(v.number()), // Optional expiration in days
   },
   handler: async (ctx, args) => {
     // Verify the user owns these minutes
@@ -19,16 +20,34 @@ export const createShareableLink = mutation({
       throw new Error("User does not have permission to share these minutes");
     }
     
-    // Create a shareable link (in a real implementation, this would be more complex)
-    // For now, we'll just return the minutes ID as the "shareable link"
-    const shareableLink = `${ctx.host}/shared/${args.minutesId}`;
+    // Generate a unique share ID
+    const shareId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     
-    // In a real implementation, we would store this in the database
-    // and set an expiration time, etc.
+    // Calculate expiration time if provided
+    let expiresAt: number | undefined;
+    if (args.expiresInDays) {
+      expiresAt = Date.now() + (args.expiresInDays * 24 * 60 * 60 * 1000);
+    }
+    
+    // Create the shareable link record
+    const shareLinkId = await ctx.db.insert("shareableLinks", {
+      minutesId: args.minutesId,
+      userId: args.userId,
+      shareId: shareId,
+      expiresAt: expiresAt,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    
+    // Generate the shareable URL
+    const shareableUrl = `${ctx.url.host}/shared/${shareId}`;
     
     return {
       success: true,
-      shareableLink,
+      shareLinkId,
+      shareableUrl,
+      shareId,
+      expiresAt,
     };
   },
 });

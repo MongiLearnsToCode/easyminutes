@@ -134,14 +134,36 @@ export function MeetingMinutesDisplay({ minutes, isProUser = false, onUpgradeCli
                 return;
               }
               
+              if (!user) {
+                alert('You must be logged in to share meeting minutes.');
+                return;
+              }
+              
               // Create shareable link
               setIsSharing(true);
               try {
-                // In a real implementation, we would pass the actual minutes ID
-                // For now, we'll just show an alert
+                // In a real implementation, we would need to pass the actual minutes ID
+                // This is a placeholder implementation
                 alert('In a full implementation, this would create a shareable link for your meeting minutes.');
+                
+                // TODO: Get the actual minutes ID from the context
+                // const result = await createShareableLink({
+                //   minutesId: /* actual minutes ID */,
+                //   userId: user.id,
+                //   expiresInDays: 30 // Link expires in 30 days
+                // });
+                // 
+                // if (result.success) {
+                //   // Copy the shareable URL to clipboard
+                //   navigator.clipboard.writeText(result.shareableUrl);
+                //   setShareableLink(result.shareableUrl);
+                //   alert(`Shareable link copied to clipboard: ${result.shareableUrl}`);
+                // } else {
+                //   alert('Failed to create shareable link. Please try again.');
+                // }
               } catch (error) {
                 console.error('Error creating shareable link:', error);
+                alert('Failed to create shareable link. Please try again.');
               } finally {
                 setIsSharing(false);
               }
