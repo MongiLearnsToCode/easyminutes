@@ -1,6 +1,7 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { validateAndNormalizeMeetingMinutes } from "./utils/meeting-minutes-validator";
 
 // Define the structure for our meeting minutes
 export type MeetingMinutes = {
@@ -131,7 +132,7 @@ export const processMeetingNotes = mutation({
       const text = response.text();
       
       // Parse the JSON response
-      let meetingMinutes: MeetingMinutes;
+      let meetingMinutes: any;
       try {
         meetingMinutes = JSON.parse(text);
       } catch (parseError) {
@@ -144,17 +145,20 @@ export const processMeetingNotes = mutation({
         }
       }
       
+      // Validate and normalize the meeting minutes
+      const normalizedMinutes = validateAndNormalizeMeetingMinutes(meetingMinutes);
+      
       // Store the generated minutes in the database
       const minutesId = await ctx.db.insert("meetingMinutes", {
         userId: args.userId,
-        title: meetingMinutes.title,
-        executiveSummary: meetingMinutes.executiveSummary,
-        actionMinutes: meetingMinutes.actionMinutes,
-        attendees: meetingMinutes.attendees,
-        decisions: meetingMinutes.decisions,
-        risks: meetingMinutes.risks,
-        actionItems: meetingMinutes.actionItems,
-        observations: meetingMinutes.observations,
+        title: normalizedMinutes.title,
+        executiveSummary: normalizedMinutes.executiveSummary,
+        actionMinutes: normalizedMinutes.actionMinutes,
+        attendees: normalizedMinutes.attendees,
+        decisions: normalizedMinutes.decisions,
+        risks: normalizedMinutes.risks,
+        actionItems: normalizedMinutes.actionItems,
+        observations: normalizedMinutes.observations,
         createdAt: Date.now(),
         updatedAt: Date.now(),
       });
@@ -162,7 +166,7 @@ export const processMeetingNotes = mutation({
       return {
         success: true,
         minutesId,
-        meetingMinutes,
+        meetingMinutes: normalizedMinutes,
       };
     } catch (error) {
       console.error("Error processing meeting notes with Gemini API:", error);
