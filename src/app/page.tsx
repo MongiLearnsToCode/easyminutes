@@ -13,7 +13,7 @@ import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { useProcessMeetingNotes } from '@/hooks/use-process-meeting-notes';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Clock } from 'lucide-react';
 
 export default function Home() {
   const { isSignedIn, user, isLoaded } = useUser();
@@ -117,8 +117,18 @@ export default function Home() {
             <Alert className="mb-4">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                <strong>Meeting minutes generated successfully!</strong>
-                <p className="mt-2">Title: {result.meetingMinutes.title}</p>
+                <div className="flex items-start">
+                  <div className="flex-1">
+                    <strong>Meeting minutes generated successfully!</strong>
+                    <p className="mt-2">Title: {result.meetingMinutes.title}</p>
+                  </div>
+                  {result.processingTime && (
+                    <div className="flex items-center text-sm text-gray-500 ml-2">
+                      <Clock className="h-4 w-4 mr-1" />
+                      {(result.processingTime / 1000).toFixed(1)}s
+                    </div>
+                  )}
+                </div>
               </AlertDescription>
             </Alert>
           )}

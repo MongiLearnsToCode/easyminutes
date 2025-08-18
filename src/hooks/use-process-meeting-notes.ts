@@ -36,6 +36,7 @@ export interface ProcessMeetingNotesResult {
   minutesId?: string;
   meetingMinutes?: MeetingMinutes;
   error?: string;
+  processingTime?: number;
 }
 
 export function useProcessMeetingNotes() {

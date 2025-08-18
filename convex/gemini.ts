@@ -31,6 +31,45 @@ export type MeetingMinutes = {
   }>;
 };
 
+// Utility function to add a timeout to a promise
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) => 
+      setTimeout(() => reject(new Error(`Operation timed out after ${timeoutMs}ms`)), timeoutMs)
+    )
+  ]);
+}
+
+// Utility function to retry a function with exponential backoff
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  baseDelay: number = 1000
+): Promise<T> {
+  let lastError: Error;
+  
+  for (let i = 0; i <= maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error as Error;
+      
+      // If this was the last retry, throw the error
+      if (i === maxRetries) {
+        throw error;
+      }
+      
+      // Exponential backoff with jitter
+      const delay = Math.min(baseDelay * Math.pow(2, i), 10000) + Math.random() * 1000;
+      console.log(`Attempt ${i + 1} failed. Retrying in ${delay}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  throw lastError!;
+}
+
 // Mutation to process meeting notes using Gemini API
 export const processMeetingNotes = mutation({
   args: {
@@ -126,8 +165,17 @@ export const processMeetingNotes = mutation({
     `;
     
     try {
-      // Call the Gemini API
-      const result = await model.generateContent(prompt);
+      // Record start time for performance monitoring
+      const startTime = Date.now();
+      
+      // Call the Gemini API with timeout and retry logic
+      const result = await withRetry(async () => {
+        return await withTimeout(
+          model.generateContent(prompt),
+          9000 // 9 second timeout to ensure we stay under 10s
+        );
+      }, 2); // Retry up to 2 times
+      
       const response = await result.response;
       const text = response.text();
       
@@ -148,6 +196,11 @@ export const processMeetingNotes = mutation({
       // Validate and normalize the meeting minutes
       const normalizedMinutes = validateAndNormalizeMeetingMinutes(meetingMinutes);
       
+      // Record end time and log performance
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+      console.log(`Gemini API call completed in ${duration}ms`);
+      
       // Store the generated minutes in the database
       const minutesId = await ctx.db.insert("meetingMinutes", {
         userId: args.userId,
@@ -167,6 +220,7 @@ export const processMeetingNotes = mutation({
         success: true,
         minutesId,
         meetingMinutes: normalizedMinutes,
+        processingTime: duration,
       };
     } catch (error) {
       console.error("Error processing meeting notes with Gemini API:", error);
