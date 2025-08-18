@@ -40,10 +40,10 @@ export const processMeetingNotes = mutation({
     // Check if user has remaining generations (implement in Pro gating phase)
     // For now, we'll proceed with the generation
     
-    // Get the Gemini API key from environment variables
-    const apiKey = process.env.GEMINI_API_KEY;
+    // Get the Gemini API key from Convex environment variables
+    const apiKey = ctx.env.GEMINI_API_KEY;
     if (!apiKey) {
-      throw new Error("GEMINI_API_KEY is not configured");
+      throw new Error("GEMINI_API_KEY is not configured in Convex environment variables");
     }
     
     // Initialize the Gemini API client
