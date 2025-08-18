@@ -6,33 +6,33 @@
 1. Project scaffold
    - [x] Initialize Next.js + TypeScript frontend
    - [x] Setup Convex backend (functions + storage)
-   - [ ] Connect frontend with Convex client
+   - [x] Connect frontend with Convex client
 2. Authentication (Clerk)
-   - [ ] Install & configure Clerk SDK
-   - [ ] Setup login, signup, logout with Clerk components/pages
-   - [ ] Protect Convex endpoints using Clerk session tokens
-   - [ ] Sync/store basic user profile (email, name, plan) in Convex
+   - [x] Install & configure Clerk SDK
+   - [x] Setup login, signup, logout with Clerk components/pages
+   - [x] Protect Convex endpoints using Clerk session tokens
+   - [x] Sync/store basic user profile (email, name, plan) in Convex
 
 ---
 
-## Phase 2 — MVP Core Flow (The “Magic Moment”)
+## Phase 2 — MVP Core Flow (The "Magic Moment")
 1. Multi-input intelligence
-   - [ ] Text paste box with validation
-   - [ ] File upload (DOCX + TXT → raw text)
-   - [ ] Mark audio upload as **Pro-only** (stub UI in MVP, functional in Pro Phase)
+   - [x] Text paste box with validation
+   - [x] File upload (DOCX + TXT → raw text)
+   - [x] Mark audio upload as **Pro-only** (stub UI in MVP, functional in Pro Phase)
 2. AI Processing Engine (Gemini API)
-   - [ ] Convex function to call Gemini API
-   - [ ] Prompt template enforces Fortune 500 schema:
+   - [x] Convex function to call Gemini API
+   - [x] Prompt template enforces Fortune 500 schema:
        - Executive Summary & Action Minutes
        - Attendees (with roles)
        - Decisions Made
        - Risks & Mitigations
        - Action Items (owner + deadline)
        - Observations & Insights
-   - [ ] Output normalization → JSON schema
-   - [ ] Ensure turnaround <10s
+   - [x] Output normalization → JSON schema
+   - [x] Ensure turnaround <10s
 3. Fortune 500 output templates
-   - [ ] Render polished minutes from schema
+   - [x] Render polished minutes from schema
    - [ ] Export-ready Fortune 500 Word/PDF templates
    - [ ] Consistent branded styling
 
