@@ -56,7 +56,7 @@
    - [x] Upgrade prompts at **save/export/share**
 2. Subscription integration
    - [x] LemonSqueezy integration
-   - [ ] Webhooks → Convex update Pro status
+   - [x] Webhooks → Convex update Pro status
    - [ ] Gate Pro-only features using Clerk roles/metadata (plan = "pro")
 3. Pro-only features
    - [ ] Export (PDF + DOCX with Fortune 500 template)

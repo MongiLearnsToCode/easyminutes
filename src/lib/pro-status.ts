@@ -2,11 +2,22 @@
 export async function updateProStatus(userId: string, isPro: boolean, customerId: string | null) {
   try {
     // In a real implementation, we would make a request to our Convex backend
-    // to update the user's Pro status
+    // to update the user's Pro status using the updateUserProStatus mutation
+    
+    // For now, we'll just log the action
     console.log('Updating Pro status for user:', userId, 'isPro:', isPro, 'customerId:', customerId);
     
-    // This is a placeholder implementation
-    // In a real implementation, we would use the Convex client to update the user
+    // In a real implementation, this would look something like:
+    // const result = await fetch('/api/convex', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({
+    //     mutation: 'updateUserProStatus',
+    //     args: { userId, isPro, customerId }
+    //   })
+    // });
+    // return await result.json();
+    
     return { success: true };
   } catch (error) {
     console.error('Error updating Pro status:', error);

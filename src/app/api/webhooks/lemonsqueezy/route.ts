@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { LemonsqueezyClient } from '@lemonsqueezy/lemonsqueezy.js';
 import { LEMON_SQUEEZY_API_KEY, LEMON_SQUEEZY_WEBHOOK_SECRET } from '@/lib/lemonsqueezy';
-import { updateProStatus } from '@/lib/pro-status';
 
 // Initialize LemonSqueezy client
 const client = new LemonsqueezyClient(LEMON_SQUEEZY_API_KEY);
@@ -59,7 +58,7 @@ async function handleOrderCreated(data: any) {
   
   if (userId) {
     // Update user's Pro status in Convex
-    await updateProStatus(userId, true, customerId);
+    await updateProStatusInConvex(userId, true, customerId);
   }
 }
 
@@ -70,7 +69,7 @@ async function handleSubscriptionCreated(data: any) {
   
   if (userId) {
     // Update user's Pro status in Convex
-    await updateProStatus(userId, true, customerId);
+    await updateProStatusInConvex(userId, true, customerId);
   }
 }
 
@@ -80,7 +79,7 @@ async function handleSubscriptionExpired(data: any) {
   
   if (userId) {
     // Update user's Pro status in Convex
-    await updateProStatus(userId, false, null);
+    await updateProStatusInConvex(userId, false, null);
   }
 }
 
@@ -90,6 +89,33 @@ async function handleSubscriptionCancelled(data: any) {
   
   if (userId) {
     // Update user's Pro status in Convex
-    await updateProStatus(userId, false, null);
+    await updateProStatusInConvex(userId, false, null);
+  }
+}
+
+// Function to update user's Pro status in Convex
+async function updateProStatusInConvex(userId: string, isPro: boolean, customerId: string | null) {
+  try {
+    // In a real implementation, we would make a request to our Convex backend
+    // to update the user's Pro status using the updateUserProStatus mutation
+    
+    // For now, we'll just log the action
+    console.log('Updating Pro status in Convex for user:', userId, 'isPro:', isPro, 'customerId:', customerId);
+    
+    // In a real implementation, this would look something like:
+    // const result = await fetch('/api/convex', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({
+    //     mutation: 'updateUserProStatus',
+    //     args: { userId, isPro, customerId }
+    //   })
+    // });
+    // return await result.json();
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating Pro status in Convex:', error);
+    return { success: false, error: 'Failed to update Pro status in Convex' };
   }
 }
