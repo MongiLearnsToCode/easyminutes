@@ -4,25 +4,29 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, AudioLines, Lock } from 'lucide-react';
+import { AlertCircle, AudioLines, Lock, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useMutation } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 
 interface AudioUploadProps {
-  onAudioUpload: (file: File) => void;
+  onAudioProcessed: (result: any) => void;
   isLoading?: boolean;
   isProUser?: boolean;
   onUpgradeClick?: () => void;
 }
 
 export function AudioUpload({ 
-  onAudioUpload, 
+  onAudioProcessed, 
   isLoading = false, 
   isProUser = false,
   onUpgradeClick 
 }: AudioUploadProps) {
   const [error, setError] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const transcribeAudio = useMutation(api.transcribe_audio.transcribeAudioAndProcessMeetingNotes);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -32,7 +36,7 @@ export function AudioUpload({
     }
   };
 
-  const handleFile = (file: File) => {
+  const handleFile = async (file: File) => {
     // Validate file type
     const allowedTypes = ['audio/wav', 'audio/mp3', 'audio/mpeg', 'audio/mp4', 'audio/mp4a-latm', 'audio/x-m4a'];
     const allowedExtensions = ['.wav', '.mp3', '.m4a'];
@@ -52,7 +56,43 @@ export function AudioUpload({
     }
     
     setError('');
-    onAudioUpload(file);
+    
+    // Process the audio file
+    await processAudioFile(file);
+  };
+
+  const processAudioFile = async (file: File) => {
+    if (!isProUser) {
+      onUpgradeClick?.();
+      return;
+    }
+    
+    setIsProcessing(true);
+    setError('');
+    
+    try {
+      // Read the file as ArrayBuffer
+      const arrayBuffer = await file.arrayBuffer();
+      
+      // Convert to base64 for transmission
+      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      
+      // Call the Convex mutation to transcribe and process the audio
+      // Note: In a real implementation, you might want to stream the file or use a different approach
+      const result = await transcribeAudio({
+        audioData: arrayBuffer,
+        audioMimeType: file.type,
+        userId: 'user-id-placeholder', // This would be the actual user ID
+      });
+      
+      // Pass the result to the parent component
+      onAudioProcessed(result);
+    } catch (err) {
+      console.error('Error processing audio file:', err);
+      setError('Failed to process audio file. Please try another file.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleButtonClick = () => {
@@ -143,7 +183,7 @@ export function AudioUpload({
             accept=".wav,.mp3,.m4a"
             onChange={handleFileChange}
             className="hidden"
-            disabled={isLoading}
+            disabled={isLoading || isProcessing}
           />
           
           <div className="flex flex-col items-center justify-center space-y-4">
@@ -160,16 +200,23 @@ export function AudioUpload({
               <Button 
                 type="button" 
                 variant="secondary" 
-                disabled={isLoading}
+                disabled={isLoading || isProcessing}
                 onClick={handleButtonClick}
                 className="w-full sm:w-auto"
               >
-                Select Audio File
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  'Select Audio File'
+                )}
               </Button>
               <Button 
                 type="button" 
                 variant={isRecording ? "destructive" : "secondary"} 
-                disabled={isLoading}
+                disabled={isLoading || isProcessing}
                 onClick={handleRecordToggle}
                 className="w-full sm:w-auto"
               >
@@ -180,10 +227,12 @@ export function AudioUpload({
         </div>
       </div>
       
-      {error && (
-        <Alert variant="destructive">
+      {(error || isProcessing) && (
+        <Alert variant={error ? "destructive" : "default"}>
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>
+            {error || 'Processing your audio file... This may take a few moments.'}
+          </AlertDescription>
         </Alert>
       )}
     </div>

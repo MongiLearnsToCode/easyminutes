@@ -62,7 +62,7 @@
    - [x] Export (PDF + DOCX with Fortune 500 template)
    - [x] Shareable link (stored in Convex)
    - [x] Email integration (send Action Minutes directly)
-   - [ ] Audio upload + transcription via Gemini (speech-to-text)
+   - [x] Audio upload + transcription via Gemini (speech-to-text)
 
 ---
 

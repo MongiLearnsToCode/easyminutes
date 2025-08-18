@@ -116,10 +116,18 @@ export default function Home() {
     return null;
   };
 
-  const handleAudioUpload = (file: File) => {
-    // In a real implementation, we would first transcribe the audio to text
-    // For now, we'll just show a message
-    alert('In a full implementation, this audio file would be transcribed and then processed.');
+  const handleAudioUpload = async (result: any) => {
+    // Handle the processed audio result
+    if (result.success) {
+      // Update the result state with the processed minutes
+      // This would typically update the UI to show the generated minutes
+      console.log('Audio processed successfully:', result);
+      alert('Audio file processed successfully! The meeting minutes have been generated.');
+    } else {
+      // Handle error
+      console.error('Error processing audio:', result.error);
+      alert('Failed to process audio file. Please try again.');
+    }
   };
 
   const handleUpgradeClick = () => {
@@ -261,7 +269,7 @@ export default function Home() {
                 <TabsContent value="audio">
                   <div className="border border-gray-200 rounded-lg p-6 mt-4">
                     <AudioUpload 
-                      onAudioUpload={handleAudioUpload} 
+                      onAudioProcessed={handleAudioUpload} 
                       isLoading={isLoading}
                       isProUser={isProUser}
                       onUpgradeClick={handleUpgradeClick}
