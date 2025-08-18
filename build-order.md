@@ -40,9 +40,9 @@
 
 ## Phase 3 — Editing & UX Delight
 1. Inline editing
-   - [ ] Section-by-section editing
-   - [ ] Add/remove sections dynamically
-   - [ ] Auto-save with **auto-versioning** for each edit
+   - [x] Section-by-section editing
+   - [x] Add/remove sections dynamically
+   - [x] Auto-save with **auto-versioning** for each edit
 2. UX polish
    - [ ] AI processing animation + countdown timer
    - [ ] Mobile responsiveness

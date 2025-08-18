@@ -49,5 +49,11 @@ export default defineSchema({
     ),
     createdAt: v.number(),
     updatedAt: v.number(),
-  }).index("by_userId", ["userId"]),
+    // Versioning fields
+    version: v.optional(v.number()),
+    parentId: v.optional(v.id("meetingMinutes")),
+    isLatest: v.optional(v.boolean()),
+  }).index("by_userId", ["userId"])
+    .index("by_parentId", ["parentId"])
+    .index("by_userId_and_isLatest", ["userId", "isLatest"]),
 });

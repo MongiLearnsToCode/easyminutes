@@ -10,7 +10,7 @@ import { FileUpload } from '@/components/file-upload';
 import { AudioUpload } from '@/components/audio-upload';
 import { MeetingMinutesDisplay } from '@/components/meeting-minutes-display';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useQuery } from 'convex/react';
+import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { useProcessMeetingNotes } from '@/hooks/use-process-meeting-notes';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -24,6 +24,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('text');
   const [showMinutes, setShowMinutes] = useState(false);
   const { processNotes, isLoading, result } = useProcessMeetingNotes();
+  const [saveEditedMinutes] = useMutation(api.save_edited_minutes.saveEditedMeetingMinutes);
   
   // Sync user profile with Convex
   useSyncUserProfile();
@@ -106,7 +107,27 @@ export default function Home() {
                   Generate New Minutes
                 </Button>
               </div>
-              <MeetingMinutesDisplay minutes={result.meetingMinutes} />
+              <MeetingMinutesDisplay 
+                minutes={result.meetingMinutes} 
+                onSave={async (editedMinutes) => {
+                  // Save the edited minutes with versioning
+                  if (result && user?.id && result.minutesId) {
+                    try {
+                      const saveResult = await saveEditedMinutes({
+                        originalMinutesId: result.minutesId,
+                        editedMinutes: editedMinutes,
+                        userId: user.id,
+                      });
+                      
+                      // Update the result with the new version
+                      result.meetingMinutes = editedMinutes;
+                      console.log("Minutes saved successfully with version:", saveResult.version);
+                    } catch (error) {
+                      console.error("Error saving edited minutes:", error);
+                    }
+                  }
+                }}
+              />
             </div>
           ) : (
             <>
