@@ -6,14 +6,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ExportButton } from '@/components/export-button';
-import { useQuery } from 'convex/react';
+import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { useUser } from '@clerk/clerk-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { EditableSection } from '@/components/editable-section';
 import { Button } from '@/components/ui/button';
-import { Plus, Save, X } from 'lucide-react';
+import { Plus, Save, X, Share } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { SaveUpgradePrompt } from '@/components/save-upgrade-prompt';
 
 interface EditableMeetingMinutes extends MeetingMinutes {
   edited?: boolean;
@@ -32,12 +33,22 @@ export function MeetingMinutesDisplay({ minutes, onUpgradeClick, onSave }: Meeti
   });
   
   const isProUser = userProfile?.plan === 'pro';
+  const [createShareableLink] = useMutation(api.create_shareable_link.createShareableLink);
+  const [shareableLink, setShareableLink] = useState<string | null>(null);
+  const [isSharing, setIsSharing] = useState(false);
+  const [showSaveUpgradePrompt, setShowSaveUpgradePrompt] = useState(false);
   
   // Create a local copy of the minutes for editing
   const [editableMinutes, setEditableMinutes] = useState<EditableMeetingMinutes>({ ...minutes });
   const [isEditing, setIsEditing] = useState(false);
 
   const handleSave = () => {
+    if (!isProUser) {
+      // Show upgrade prompt for free users
+      setShowSaveUpgradePrompt(true);
+      return;
+    }
+    
     if (onSave) {
       onSave({ ...editableMinutes, edited: true });
     }
@@ -82,6 +93,17 @@ export function MeetingMinutesDisplay({ minutes, onUpgradeClick, onSave }: Meeti
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto px-4 sm:px-6">
+      {/* Save Upgrade Prompt */}
+      {showSaveUpgradePrompt && (
+        <SaveUpgradePrompt 
+          onUpgradeClick={() => {
+            setShowSaveUpgradePrompt(false);
+            onUpgradeClick?.();
+          }}
+          onDismiss={() => setShowSaveUpgradePrompt(false)}
+        />
+      )}
+      
       {/* Header */}
       <div className="text-center space-y-4 py-6">
         <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">{editableMinutes.title}</h1>
@@ -109,6 +131,32 @@ export function MeetingMinutesDisplay({ minutes, onUpgradeClick, onSave }: Meeti
               </Button>
             </>
           )}
+          <Button 
+            onClick={async () => {
+              if (!isProUser) {
+                onUpgradeClick?.();
+                return;
+              }
+              
+              // Create shareable link
+              setIsSharing(true);
+              try {
+                // In a real implementation, we would pass the actual minutes ID
+                // For now, we'll just show an alert
+                alert('In a full implementation, this would create a shareable link for your meeting minutes.');
+              } catch (error) {
+                console.error('Error creating shareable link:', error);
+              } finally {
+                setIsSharing(false);
+              }
+            }} 
+            variant="outline" 
+            className="w-full sm:w-auto"
+            disabled={isSharing}
+          >
+            <Share className="h-4 w-4 mr-2" />
+            {isSharing ? 'Sharing...' : 'Share'}
+          </Button>
           <ExportButton 
             minutes={editableMinutes} 
             filename={editableMinutes.title}
