@@ -33,8 +33,8 @@
    - [x] Ensure turnaround <10s
 3. Fortune 500 output templates
    - [x] Render polished minutes from schema
-   - [ ] Export-ready Fortune 500 Word/PDF templates
-   - [ ] Consistent branded styling
+   - [x] Export-ready Fortune 500 Word/PDF templates
+   - [x] Consistent branded styling
 
 ---
 
