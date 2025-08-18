@@ -5,7 +5,7 @@ import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
 // Function to export meeting minutes as a Word document
 export async function exportToWord(minutes: MeetingMinutes, filename: string = 'meeting-minutes.docx') {
-  // Create a new document with professional styling
+  // Create a new document with professional Fortune 500 styling
   const doc = new Document({
     styles: {
       default: {
@@ -41,24 +41,51 @@ export async function exportToWord(minutes: MeetingMinutes, filename: string = '
       },
     },
     sections: [{
-      properties: {},
+      properties: {
+        page: {
+          margin: {
+            top: 720, // 1 inch
+            right: 720, // 1 inch
+            bottom: 720, // 1 inch
+            left: 720, // 1 inch
+          },
+        },
+      },
       children: [
-        // Company Header (if you want to add a company logo or name)
+        // Company Header (Watermark)
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: "CONFIDENTIAL",
+              bold: true,
+              size: 20,
+              color: "CCCCCC",
+            }),
+          ],
+          alignment: AlignmentType.RIGHT,
+          spacing: { after: 120 },
+        }),
+        
         // Title
         new Paragraph({
           text: minutes.title,
           heading: HeadingLevel.HEADING_1,
         }),
         
-        // Date
+        // Date and Meeting Info
         new Paragraph({
-          text: `Generated on ${new Date().toLocaleDateString('en-US', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          })}`,
+          children: [
+            new TextRun({
+              text: `Generated on: ${new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}`,
+              bold: true,
+            }),
+          ],
           alignment: AlignmentType.CENTER,
-          spacing: { after: 400 },
+          spacing: { after: 200 },
         }),
         
         // Executive Summary & Action Minutes
@@ -113,6 +140,12 @@ export async function exportToWord(minutes: MeetingMinutes, filename: string = '
           ],
           width: { size: 100, type: WidthType.PERCENTAGE },
           margins: { top: 100, bottom: 100 },
+          borders: {
+            top: { style: BorderStyle.SINGLE, size: 1, color: "2F5496" },
+            bottom: { style: BorderStyle.SINGLE, size: 1, color: "2F5496" },
+            left: { style: BorderStyle.SINGLE, size: 1, color: "2F5496" },
+            right: { style: BorderStyle.SINGLE, size: 1, color: "2F5496" },
+          },
         }),
         
         // Decisions Made
@@ -120,15 +153,20 @@ export async function exportToWord(minutes: MeetingMinutes, filename: string = '
           text: "Decisions Made",
           heading: HeadingLevel.HEADING_2,
         }),
-        ...minutes.decisions.map(decision => 
+        ...minutes.decisions.map((decision, index) => 
           new Paragraph({
             children: [
-              new TextRun({ text: decision.description, break: 1 }),
               new TextRun({ 
-                text: `Made by: ${decision.madeBy} | Date: ${decision.date}`, 
+                text: `${index + 1}. ${decision.description}`, 
+                break: 1,
+                bold: false,
+              }),
+              new TextRun({ 
+                text: `   Made by: ${decision.madeBy} | Date: ${decision.date}`, 
                 break: 1,
                 italics: true,
                 size: 20,
+                color: "666666",
               }),
             ],
             spacing: { after: 200 },
@@ -140,17 +178,22 @@ export async function exportToWord(minutes: MeetingMinutes, filename: string = '
           text: "Risks & Mitigations",
           heading: HeadingLevel.HEADING_2,
         }),
-        ...minutes.risks.map(risk => [
+        ...minutes.risks.map((risk, index) => [
           new Paragraph({
             children: [
-              new TextRun({ text: "Risk: ", bold: true }),
-              new TextRun({ text: risk.description, break: 1 }),
+              new TextRun({ 
+                text: `Risk ${index + 1}: ${risk.description}`, 
+                bold: true,
+                break: 1,
+              }),
             ],
           }),
           new Paragraph({
             children: [
-              new TextRun({ text: "Mitigation: ", bold: true }),
-              new TextRun({ text: risk.mitigation, break: 1 }),
+              new TextRun({ 
+                text: `Mitigation: ${risk.mitigation}`, 
+                break: 1,
+              }),
             ],
             spacing: { after: 300 },
           }),
@@ -166,25 +209,33 @@ export async function exportToWord(minutes: MeetingMinutes, filename: string = '
             new TableRow({
               children: [
                 new TableCell({
+                  children: [new Paragraph({ text: "#", bold: true })],
+                  width: { size: 5, type: WidthType.PERCENTAGE },
+                  shading: { fill: "D9E1F2" }, // Light blue header
+                }),
+                new TableCell({
                   children: [new Paragraph({ text: "Description", bold: true })],
-                  width: { size: 40, type: WidthType.PERCENTAGE },
+                  width: { size: 55, type: WidthType.PERCENTAGE },
                   shading: { fill: "D9E1F2" }, // Light blue header
                 }),
                 new TableCell({
                   children: [new Paragraph({ text: "Owner", bold: true })],
-                  width: { size: 30, type: WidthType.PERCENTAGE },
+                  width: { size: 20, type: WidthType.PERCENTAGE },
                   shading: { fill: "D9E1F2" }, // Light blue header
                 }),
                 new TableCell({
                   children: [new Paragraph({ text: "Deadline", bold: true })],
-                  width: { size: 30, type: WidthType.PERCENTAGE },
+                  width: { size: 20, type: WidthType.PERCENTAGE },
                   shading: { fill: "D9E1F2" }, // Light blue header
                 }),
               ],
             }),
-            ...minutes.actionItems.map(item => 
+            ...minutes.actionItems.map((item, index) => 
               new TableRow({
                 children: [
+                  new TableCell({
+                    children: [new Paragraph(`${index + 1}`)],
+                  }),
                   new TableCell({
                     children: [new Paragraph(item.description)],
                   }),
@@ -200,6 +251,12 @@ export async function exportToWord(minutes: MeetingMinutes, filename: string = '
           ],
           width: { size: 100, type: WidthType.PERCENTAGE },
           margins: { top: 100, bottom: 100 },
+          borders: {
+            top: { style: BorderStyle.SINGLE, size: 1, color: "2F5496" },
+            bottom: { style: BorderStyle.SINGLE, size: 1, color: "2F5496" },
+            left: { style: BorderStyle.SINGLE, size: 1, color: "2F5496" },
+            right: { style: BorderStyle.SINGLE, size: 1, color: "2F5496" },
+          },
         }),
         
         // Observations & Insights
@@ -207,12 +264,30 @@ export async function exportToWord(minutes: MeetingMinutes, filename: string = '
           text: "Observations & Insights",
           heading: HeadingLevel.HEADING_2,
         }),
-        ...minutes.observations.map(observation => 
+        ...minutes.observations.map((observation, index) => 
           new Paragraph({
-            text: observation.description,
+            children: [
+              new TextRun({ 
+                text: `${index + 1}. ${observation.description}`, 
+                break: 1,
+              }),
+            ],
             spacing: { after: 200 },
           })
         ),
+        
+        // Footer
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: "Generated by EasyMinutes - Fortune 500 Standard Meeting Minutes",
+              size: 18,
+              color: "666666",
+            }),
+          ],
+          alignment: AlignmentType.CENTER,
+          spacing: { before: 400 },
+        }),
       ],
     }],
   });
@@ -237,11 +312,12 @@ export async function exportToPdf(minutes: MeetingMinutes, filename: string = 'm
   const lineHeight = 20;
   let yPosition = pageHeight - 70; // Start from top with some margin
   
-  // Define colors for professional look
+  // Define colors for professional Fortune 500 look
   const primaryColor = rgb(0.18, 0.33, 0.59); // Dark blue
   const secondaryColor = rgb(0.85, 0.88, 0.95); // Light blue for headers
   const blackColor = rgb(0, 0, 0);
   const grayColor = rgb(0.3, 0.3, 0.3);
+  const lightGrayColor = rgb(0.8, 0.8, 0.8);
   
   // Helper function to add text to PDF
   const addText = (text: string, fontSize: number = 12, isBold: boolean = false, isHeading: boolean = false, color = blackColor) => {
@@ -311,7 +387,7 @@ export async function exportToPdf(minutes: MeetingMinutes, filename: string = 'm
   };
   
   // Helper function to draw a table row
-  const drawTableRow = (cells: string[], columnWidths: number[], isHeader: boolean = false) => {
+  const drawTableRow = (cells: string[], columnWidths: number[], isHeader: boolean = false, rowIndex: number = 0) => {
     if (yPosition < 100) {
       // Add a new page if we're near the bottom
       page = pdfDoc.addPage([612, 792]);
@@ -326,6 +402,15 @@ export async function exportToPdf(minutes: MeetingMinutes, filename: string = 'm
         width: pageWidth - 2 * margin,
         height: 25,
         color: secondaryColor,
+      });
+    } else if (rowIndex % 2 === 0) {
+      // Alternate row coloring for better readability
+      page.drawRectangle({
+        x: margin,
+        y: yPosition - 15,
+        width: pageWidth - 2 * margin,
+        height: 25,
+        color: rgb(0.95, 0.95, 0.95),
       });
     }
     
@@ -342,6 +427,16 @@ export async function exportToPdf(minutes: MeetingMinutes, filename: string = 'm
         color: isHeader ? primaryColor : blackColor,
       });
       
+      // Draw cell border
+      page.drawRectangle({
+        x: xPosition,
+        y: yPosition - 15,
+        width: columnWidths[index],
+        height: cellHeight,
+        borderColor: lightGrayColor,
+        borderWidth: 0.5,
+      });
+      
       // Move to next column
       xPosition += columnWidths[index];
     });
@@ -350,15 +445,24 @@ export async function exportToPdf(minutes: MeetingMinutes, filename: string = 'm
     yPosition -= cellHeight;
   };
   
+  // Add watermark
+  page.drawText("CONFIDENTIAL", {
+    x: pageWidth - margin - 100,
+    y: pageHeight - 30,
+    size: 14,
+    font: boldFont,
+    color: rgb(0.8, 0.8, 0.8),
+  });
+  
   // Title
   addText(minutes.title, 20, true, true, primaryColor);
   
   // Date
-  addText(`Generated on ${new Date().toLocaleDateString('en-US', { 
+  addText(`Generated on: ${new Date().toLocaleDateString('en-US', { 
     year: 'numeric', 
     month: 'long', 
     day: 'numeric' 
-  })}`, 12, false, false, grayColor);
+  })}`, 12, true, false, blackColor);
   
   yPosition -= 30;
   
@@ -380,8 +484,8 @@ export async function exportToPdf(minutes: MeetingMinutes, filename: string = 'm
     const columnWidths = [(pageWidth - 2 * margin) * 0.5, (pageWidth - 2 * margin) * 0.5];
     drawTableRow(["Name", "Role"], columnWidths, true);
     
-    minutes.attendees.forEach(attendee => {
-      drawTableRow([attendee.name, attendee.role], columnWidths);
+    minutes.attendees.forEach((attendee, index) => {
+      drawTableRow([attendee.name, attendee.role], columnWidths, false, index);
     });
     
     yPosition -= 10;
@@ -391,9 +495,9 @@ export async function exportToPdf(minutes: MeetingMinutes, filename: string = 'm
   
   // Decisions Made
   addText("Decisions Made", 16, true, true, primaryColor);
-  minutes.decisions.forEach(decision => {
-    addText(decision.description);
-    addText(`Made by: ${decision.madeBy} | Date: ${decision.date}`, 10, false, false, grayColor);
+  minutes.decisions.forEach((decision, index) => {
+    addText(`${index + 1}. ${decision.description}`);
+    addText(`   Made by: ${decision.madeBy} | Date: ${decision.date}`, 10, false, false, grayColor);
     yPosition -= 15;
   });
   
@@ -401,9 +505,9 @@ export async function exportToPdf(minutes: MeetingMinutes, filename: string = 'm
   
   // Risks & Mitigations
   addText("Risks & Mitigations", 16, true, true, primaryColor);
-  minutes.risks.forEach(risk => {
-    addText(`Risk: ${risk.description}`, 12, true);
-    addText(risk.mitigation);
+  minutes.risks.forEach((risk, index) => {
+    addText(`Risk ${index + 1}: ${risk.description}`, 12, true);
+    addText(`Mitigation: ${risk.mitigation}`);
     yPosition -= 15;
   });
   
@@ -414,11 +518,11 @@ export async function exportToPdf(minutes: MeetingMinutes, filename: string = 'm
   
   // Draw action items table
   if (minutes.actionItems.length > 0) {
-    const columnWidths = [(pageWidth - 2 * margin) * 0.4, (pageWidth - 2 * margin) * 0.3, (pageWidth - 2 * margin) * 0.3];
-    drawTableRow(["Description", "Owner", "Deadline"], columnWidths, true);
+    const columnWidths = [(pageWidth - 2 * margin) * 0.05, (pageWidth - 2 * margin) * 0.55, (pageWidth - 2 * margin) * 0.2, (pageWidth - 2 * margin) * 0.2];
+    drawTableRow(["#", "Description", "Owner", "Deadline"], columnWidths, true);
     
-    minutes.actionItems.forEach(item => {
-      drawTableRow([item.description, item.owner, item.deadline], columnWidths);
+    minutes.actionItems.forEach((item, index) => {
+      drawTableRow([`${index + 1}`, item.description, item.owner, item.deadline], columnWidths, false, index);
     });
     
     yPosition -= 10;
@@ -428,9 +532,24 @@ export async function exportToPdf(minutes: MeetingMinutes, filename: string = 'm
   
   // Observations & Insights
   addText("Observations & Insights", 16, true, true, primaryColor);
-  minutes.observations.forEach(observation => {
-    addText(observation.description);
+  minutes.observations.forEach((observation, index) => {
+    addText(`${index + 1}. ${observation.description}`);
     yPosition -= 15;
+  });
+  
+  // Add footer
+  yPosition -= 30;
+  if (yPosition < 100) {
+    page = pdfDoc.addPage([612, 792]);
+    yPosition = pageHeight - 70;
+  }
+  
+  page.drawText("Generated by EasyMinutes - Fortune 500 Standard Meeting Minutes", {
+    x: margin,
+    y: 30,
+    size: 10,
+    font: font,
+    color: grayColor,
   });
   
   // Serialize the PDF to bytes

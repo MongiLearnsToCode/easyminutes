@@ -59,7 +59,7 @@
    - [x] Webhooks → Convex update Pro status
    - [x] Gate Pro-only features using Clerk roles/metadata (plan = "pro")
 3. Pro-only features
-   - [ ] Export (PDF + DOCX with Fortune 500 template)
+   - [x] Export (PDF + DOCX with Fortune 500 template)
    - [ ] Shareable link (stored in Convex)
    - [ ] Email integration (send Action Minutes directly)
    - [ ] Audio upload + transcription via Gemini (speech-to-text)
