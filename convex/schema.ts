@@ -88,7 +88,25 @@ export default defineSchema({
     failedGenerations: v.number(),
     totalProcessingTimeMs: v.number(),
     under2MinuteGenerations: v.number(),
+    proConversions: v.optional(v.number()),
+    firstProConversionAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_userId", ["userId"]),
+  
+  // Table for tracking subscription events
+  subscriptionEvents: defineTable({
+    userId: v.string(),
+    eventType: v.union(
+      v.literal("conversion"), // Free user converted to Pro
+      v.literal("cancellation"), // Pro user cancelled subscription
+      v.literal("expiration"), // Pro subscription expired
+      v.literal("renewal") // Pro subscription renewed
+    ),
+    previousPlan: v.union(v.literal("free"), v.literal("pro")),
+    newPlan: v.union(v.literal("free"), v.literal("pro")),
+    timestamp: v.number(),
+  }).index("by_userId", ["userId"])
+    .index("by_timestamp", ["timestamp"])
+    .index("by_eventType", ["eventType"]),
 });

@@ -40,6 +40,10 @@ export async function POST(request: NextRequest) {
         // Handle cancelled subscription
         await handleSubscriptionCancelled(data);
         break;
+      case 'subscription_renewed':
+        // Handle renewed subscription
+        await handleSubscriptionRenewed(data);
+        break;
       default:
         console.log('Unhandled LemonSqueezy event:', eventType);
     }
@@ -59,6 +63,15 @@ async function handleOrderCreated(data: any) {
   if (userId) {
     // Update user's Pro status in Convex
     await updateProStatusInConvex(userId, true, customerId);
+    
+    // Track subscription conversion event
+    await trackSubscriptionEvent({
+      userId,
+      eventType: 'conversion',
+      previousPlan: 'free',
+      newPlan: 'pro',
+      timestamp: Date.now(),
+    });
   }
 }
 
@@ -70,6 +83,15 @@ async function handleSubscriptionCreated(data: any) {
   if (userId) {
     // Update user's Pro status in Convex
     await updateProStatusInConvex(userId, true, customerId);
+    
+    // Track subscription conversion event
+    await trackSubscriptionEvent({
+      userId,
+      eventType: 'conversion',
+      previousPlan: 'free',
+      newPlan: 'pro',
+      timestamp: Date.now(),
+    });
   }
 }
 
@@ -80,6 +102,15 @@ async function handleSubscriptionExpired(data: any) {
   if (userId) {
     // Update user's Pro status in Convex
     await updateProStatusInConvex(userId, false, null);
+    
+    // Track subscription expiration event
+    await trackSubscriptionEvent({
+      userId,
+      eventType: 'expiration',
+      previousPlan: 'pro',
+      newPlan: 'free',
+      timestamp: Date.now(),
+    });
   }
 }
 
@@ -90,6 +121,31 @@ async function handleSubscriptionCancelled(data: any) {
   if (userId) {
     // Update user's Pro status in Convex
     await updateProStatusInConvex(userId, false, null);
+    
+    // Track subscription cancellation event
+    await trackSubscriptionEvent({
+      userId,
+      eventType: 'cancellation',
+      previousPlan: 'pro',
+      newPlan: 'free',
+      timestamp: Date.now(),
+    });
+  }
+}
+
+// Handle subscription renewed event
+async function handleSubscriptionRenewed(data: any) {
+  const userId = data.attributes.custom_data?.user_id;
+  
+  if (userId) {
+    // Track subscription renewal event
+    await trackSubscriptionEvent({
+      userId,
+      eventType: 'renewal',
+      previousPlan: 'pro',
+      newPlan: 'pro',
+      timestamp: Date.now(),
+    });
   }
 }
 
@@ -117,5 +173,38 @@ async function updateProStatusInConvex(userId: string, isPro: boolean, customerI
   } catch (error) {
     console.error('Error updating Pro status in Convex and Clerk:', error);
     return { success: false, error: 'Failed to update Pro status in Convex and Clerk' };
+  }
+}
+
+// Function to track subscription events
+async function trackSubscriptionEvent(event: {
+  userId: string;
+  eventType: 'conversion' | 'cancellation' | 'expiration' | 'renewal';
+  previousPlan: 'free' | 'pro';
+  newPlan: 'free' | 'pro';
+  timestamp: number;
+}) {
+  try {
+    // In a real implementation, we would make a request to our Convex backend
+    // to track the subscription event
+    
+    // For now, we'll just log the action
+    console.log('Tracking subscription event:', event);
+    
+    // In a real implementation, this would look something like:
+    // const result = await fetch('/api/convex', {
+    //   method: 'POST',
+    //   headers: { 'Content-Type': 'application/json' },
+    //   body: JSON.stringify({
+    //     mutation: 'trackSubscriptionEvent',
+    //     args: event
+    //   })
+    // });
+    // return await result.json();
+    
+    return { success: true };
+  } catch (error) {
+    console.error('Error tracking subscription event:', error);
+    return { success: false, error: 'Failed to track subscription event' };
   }
 }
