@@ -12,9 +12,10 @@ import { useUser } from '@clerk/clerk-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { EditableSection } from '@/components/editable-section';
 import { Button } from '@/components/ui/button';
-import { Plus, Save, X, Share } from 'lucide-react';
+import { Plus, Save, X, Share, Mail } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { SaveUpgradePrompt } from '@/components/save-upgrade-prompt';
+import { EmailDialog } from '@/components/email-dialog';
 
 interface EditableMeetingMinutes extends MeetingMinutes {
   edited?: boolean;
@@ -127,6 +128,11 @@ export function MeetingMinutesDisplay({ minutes, isProUser = false, onUpgradeCli
               </Button>
             </>
           )}
+          <EmailDialog 
+            minutes={editableMinutes} 
+            isProUser={isProUser}
+            onUpgradeClick={onUpgradeClick}
+          />
           <Button 
             onClick={async () => {
               if (!isProUser) {
