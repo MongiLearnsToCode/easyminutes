@@ -73,12 +73,41 @@
    - [x] Track repeat usage within 7 days
    - [x] Track NPS collection (survey integration)
 2. Error tracking
-   - [ ] Capture Gemini API failures
-   - [ ] Log failed uploads
-   - [ ] Alert/report fallback usage
+   - [x] Capture Gemini API failures
+   - [x] Log failed uploads
+   - [x] Alert/report fallback usage
 3. A/B testing
-   - [ ] Setup feature flags in Convex
-   - [ ] Experiment with upgrade CTAs
+   - [x] Setup feature flags in Convex
+   - [x] Experiment with upgrade CTAs
+
+---
+
+## Phase 6 — Deployment Preparation
+1. Environment configuration
+   - [ ] Configure LemonSqueezy credentials (API key, webhook secret, store ID)
+   - [ ] Setup email service credentials (SMTP settings)
+   - [ ] Configure Gemini API key for production
+   - [ ] Set up Clerk production credentials
+2. Production deployment
+   - [ ] Deploy Convex functions to production
+   - [ ] Deploy Next.js frontend to Vercel
+   - [ ] Configure custom domain and SSL certificates
+3. Payment integration completion
+   - [ ] Finalize LemonSqueezy product setup (Pro Plan subscription)
+   - [ ] Configure webhook endpoints in LemonSqueezy dashboard
+   - [ ] Test payment flow with test transactions
+4. Security hardening
+   - [ ] Generate production session secrets
+   - [ ] Configure CORS policies for production domains
+   - [ ] Set up rate limiting for API endpoints
+5. Monitoring setup
+   - [ ] Configure error tracking (Sentry.io or similar)
+   - [ ] Set up performance monitoring
+   - [ ] Configure uptime monitoring and alerts
+6. CI/CD pipeline
+   - [ ] Set up automated testing pipeline
+   - [ ] Configure automatic deployments on main branch pushes
+   - [ ] Set up staging environment for testing
 
 ---
 
