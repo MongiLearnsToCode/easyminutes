@@ -2,14 +2,16 @@
 
 import { useUser, useAuth } from '@clerk/clerk-react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import UserProfile from '@/components/user-profile';
 import { useSyncUserProfile } from '@/hooks/use-sync-user-profile';
+import { TextPasteBox } from '@/components/text-paste-box';
 
 export default function Home() {
   const { isSignedIn, user, isLoaded } = useUser();
   const { signOut } = useAuth();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   
   // Sync user profile with Convex
   useSyncUserProfile();
@@ -20,6 +22,15 @@ export default function Home() {
       router.push('/sign-in');
     }
   }, [isLoaded, isSignedIn, router]);
+
+  const handleGenerate = (text: string) => {
+    setIsLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+      console.log('Generating minutes for text:', text);
+      setIsLoading(false);
+    }, 1500);
+  };
 
   if (!isLoaded) {
     return <div>Loading...</div>;
@@ -62,19 +73,8 @@ export default function Home() {
             </div>
           )}
           
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-            <div className="flex flex-col items-center justify-center space-y-4">
-              <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16" />
-              <p className="text-gray-500">
-                Upload document or paste text to get started
-              </p>
-              <button
-                disabled
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
-              >
-                Generate Minutes
-              </button>
-            </div>
+          <div className="border border-gray-200 rounded-lg p-6">
+            <TextPasteBox onGenerate={handleGenerate} isLoading={isLoading} />
           </div>
         </div>
       </main>
