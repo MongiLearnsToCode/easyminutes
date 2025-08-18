@@ -22,17 +22,13 @@ interface EditableMeetingMinutes extends MeetingMinutes {
 
 interface MeetingMinutesDisplayProps {
   minutes: MeetingMinutes;
+  isProUser?: boolean;
   onUpgradeClick?: () => void;
   onSave?: (minutes: EditableMeetingMinutes) => void;
 }
 
-export function MeetingMinutesDisplay({ minutes, onUpgradeClick, onSave }: MeetingMinutesDisplayProps) {
+export function MeetingMinutesDisplay({ minutes, isProUser = false, onUpgradeClick, onSave }: MeetingMinutesDisplayProps) {
   const { user } = useUser();
-  const userProfile = useQuery(api.user_profile.getUserProfileByUserId, {
-    userId: user?.id || '',
-  });
-  
-  const isProUser = userProfile?.plan === 'pro';
   const [createShareableLink] = useMutation(api.create_shareable_link.createShareableLink);
   const [shareableLink, setShareableLink] = useState<string | null>(null);
   const [isSharing, setIsSharing] = useState(false);

@@ -93,14 +93,14 @@ async function handleSubscriptionCancelled(data: any) {
   }
 }
 
-// Function to update user's Pro status in Convex
+// Function to update user's Pro status in Convex and Clerk
 async function updateProStatusInConvex(userId: string, isPro: boolean, customerId: string | null) {
   try {
     // In a real implementation, we would make a request to our Convex backend
     // to update the user's Pro status using the updateUserProStatus mutation
     
     // For now, we'll just log the action
-    console.log('Updating Pro status in Convex for user:', userId, 'isPro:', isPro, 'customerId:', customerId);
+    console.log('Updating Pro status in Convex and Clerk for user:', userId, 'isPro:', isPro, 'customerId:', customerId);
     
     // In a real implementation, this would look something like:
     // const result = await fetch('/api/convex', {
@@ -115,7 +115,7 @@ async function updateProStatusInConvex(userId: string, isPro: boolean, customerI
     
     return { success: true };
   } catch (error) {
-    console.error('Error updating Pro status in Convex:', error);
-    return { success: false, error: 'Failed to update Pro status in Convex' };
+    console.error('Error updating Pro status in Convex and Clerk:', error);
+    return { success: false, error: 'Failed to update Pro status in Convex and Clerk' };
   }
 }

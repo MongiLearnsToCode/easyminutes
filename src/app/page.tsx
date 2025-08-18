@@ -171,6 +171,7 @@ export default function Home() {
               </div>
               <MeetingMinutesDisplay 
                 minutes={result.meetingMinutes} 
+                isProUser={isProUser}
                 onSave={async (editedMinutes) => {
                   // Save the edited minutes with versioning
                   if (result && user?.id && result.minutesId) {
@@ -189,6 +190,7 @@ export default function Home() {
                     }
                   }
                 }}
+                onUpgradeClick={handleUpgradeClick}
               />
             </div>
           ) : (
