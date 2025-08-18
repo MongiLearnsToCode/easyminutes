@@ -81,11 +81,11 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <AIProcessingAnimation isLoading={isLoading} estimatedTime={10} />
       <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
           <h1 className="text-xl font-bold text-gray-900">EasyMinutes</h1>
           {isSignedIn && (
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <span className="text-sm text-gray-700 text-center sm:text-left">
                 Welcome, {user?.firstName} {user?.lastName}
               </span>
               <button
@@ -100,12 +100,12 @@ export default function Home() {
       </header>
 
       <main className="flex-grow flex flex-col items-center justify-center p-4">
-        <div className="bg-white rounded-lg shadow-md p-6 max-w-4xl w-full">
+        <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 max-w-4xl w-full">
           {showMinutes && result?.success && result.meetingMinutes ? (
             <div>
-              <div className="flex justify-between items-center mb-6">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
                 <h2 className="text-2xl font-bold text-gray-900">Meeting Minutes</h2>
-                <Button onClick={handleNewMinutes} variant="outline">
+                <Button onClick={handleNewMinutes} variant="outline" className="w-full sm:w-auto">
                   Generate New Minutes
                 </Button>
               </div>

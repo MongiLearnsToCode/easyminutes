@@ -45,7 +45,7 @@
    - [x] Auto-save with **auto-versioning** for each edit
 2. UX polish
    - [x] AI processing animation + countdown timer
-   - [ ] Mobile responsiveness
+   - [x] Mobile responsiveness
    - [ ] Error/success messages with fallback (retry or fail-gracefully)
 
 ---

@@ -81,29 +81,29 @@ export function MeetingMinutesDisplay({ minutes, onUpgradeClick, onSave }: Meeti
   };
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
+    <div className="space-y-8 max-w-4xl mx-auto px-4 sm:px-6">
       {/* Header */}
       <div className="text-center space-y-4 py-6">
-        <h1 className="text-4xl font-bold text-gray-900">{editableMinutes.title}</h1>
-        <p className="text-lg text-gray-600">
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">{editableMinutes.title}</h1>
+        <p className="text-base sm:text-lg text-gray-600">
           Generated on {new Date().toLocaleDateString('en-US', { 
             year: 'numeric', 
             month: 'long', 
             day: 'numeric' 
           })}
         </p>
-        <div className="flex justify-center space-x-2 pt-4">
+        <div className="flex flex-col sm:flex-row justify-center gap-2 pt-4">
           {!isEditing ? (
-            <Button onClick={() => setIsEditing(true)} variant="outline">
+            <Button onClick={() => setIsEditing(true)} variant="outline" className="w-full sm:w-auto">
               Edit Minutes
             </Button>
           ) : (
             <>
-              <Button onClick={handleSave} variant="default">
+              <Button onClick={handleSave} variant="default" className="w-full sm:w-auto">
                 <Save className="h-4 w-4 mr-2" />
                 Save Changes
               </Button>
-              <Button onClick={handleCancel} variant="outline">
+              <Button onClick={handleCancel} variant="outline" className="w-full sm:w-auto">
                 <X className="h-4 w-4 mr-2" />
                 Cancel
               </Button>
@@ -114,6 +114,7 @@ export function MeetingMinutesDisplay({ minutes, onUpgradeClick, onSave }: Meeti
             filename={editableMinutes.title}
             isProUser={isProUser}
             onUpgradeClick={onUpgradeClick}
+            className="w-full sm:w-auto"
           />
         </div>
       </div>
@@ -148,7 +149,7 @@ export function MeetingMinutesDisplay({ minutes, onUpgradeClick, onSave }: Meeti
       {/* Attendees */}
       <section className="space-y-4">
         <h2 className="text-2xl font-bold text-gray-900 border-l-4 border-green-600 pl-4 py-3">Attendees</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {editableMinutes.attendees.map((attendee, index) => (
             <Card key={index} className="hover:shadow-md transition-shadow">
               <CardContent className="pt-6">
@@ -219,7 +220,7 @@ export function MeetingMinutesDisplay({ minutes, onUpgradeClick, onSave }: Meeti
       {/* Action Items */}
       <section className="space-y-4">
         <h2 className="text-2xl font-bold text-gray-900 border-l-4 border-yellow-600 pl-4 py-3">Action Items</h2>
-        <div className="border rounded-lg overflow-hidden">
+        <div className="border rounded-lg overflow-x-auto">
           <Table>
             <TableHeader className="bg-gray-100">
               <TableRow>
@@ -249,10 +250,10 @@ export function MeetingMinutesDisplay({ minutes, onUpgradeClick, onSave }: Meeti
 
       {/* Observations & Insights */}
       <section className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <h2 className="text-2xl font-bold text-gray-900 border-l-4 border-indigo-600 pl-4 py-3">Observations & Insights</h2>
           {isEditing && (
-            <Button onClick={addObservation} variant="outline" size="sm">
+            <Button onClick={addObservation} variant="outline" size="sm" className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Add Observation
             </Button>
