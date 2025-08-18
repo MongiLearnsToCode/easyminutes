@@ -69,4 +69,26 @@ export default defineSchema({
   }).index("by_minutesId", ["minutesId"])
     .index("by_shareId", ["shareId"])
     .index("by_userId", ["userId"]),
+  
+  // Table for tracking processing times
+  processingTimeEvents: defineTable({
+    userId: v.string(),
+    processingTimeMs: v.number(),
+    success: v.boolean(),
+    inputType: v.union(v.literal("text"), v.literal("file"), v.literal("audio")),
+    timestamp: v.number(),
+  }).index("by_userId", ["userId"])
+    .index("by_timestamp", ["timestamp"]),
+  
+  // Table for user analytics
+  userAnalytics: defineTable({
+    userId: v.string(),
+    totalGenerations: v.number(),
+    successfulGenerations: v.number(),
+    failedGenerations: v.number(),
+    totalProcessingTimeMs: v.number(),
+    under2MinuteGenerations: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_userId", ["userId"]),
 });

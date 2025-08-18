@@ -68,7 +68,7 @@
 
 ## Phase 5 — Monitoring & Optimization
 1. Analytics (aligned with PRD KPIs)
-   - [ ] Track % of users generating Fortune-500-style minutes <2 minutes
+   - [x] Track % of users generating Fortune-500-style minutes <2 minutes
    - [ ] Track free → Pro conversions
    - [ ] Track repeat usage within 7 days
    - [ ] Track NPS collection (survey integration)

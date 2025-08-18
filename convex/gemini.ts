@@ -201,6 +201,10 @@ export const processMeetingNotes = mutation({
       const duration = endTime - startTime;
       console.log(`Gemini API call completed in ${duration}ms`);
       
+      // Track processing time (in a real implementation, this would be done asynchronously)
+      // For now, we'll just log that it should be tracked
+      console.log(`Should track processing time: ${duration}ms for user ${args.userId}`);
+      
       // Store the generated minutes in the database
       const minutesId = await ctx.db.insert("meetingMinutes", {
         userId: args.userId,
