@@ -50,6 +50,10 @@ export function MeetingMinutesDisplay({ minutes, isProUser = false, onUpgradeCli
       onSave({ ...editableMinutes, edited: true });
     }
     setIsEditing(false);
+    
+    // Track user activity
+    // TODO: Implement actual tracking
+    console.log('Tracking user activity: edit_minutes');
   };
 
   const handleCancel = () => {
@@ -151,6 +155,10 @@ export function MeetingMinutesDisplay({ minutes, isProUser = false, onUpgradeCli
                 // In a real implementation, we would need to pass the actual minutes ID
                 // This is a placeholder implementation
                 alert('In a full implementation, this would create a shareable link for your meeting minutes.');
+                
+                // Track user activity
+                // TODO: Implement actual tracking
+                console.log('Tracking user activity: share_minutes');
                 
                 // TODO: Get the actual minutes ID from the context
                 // const result = await createShareableLink({

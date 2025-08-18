@@ -56,6 +56,10 @@ export function EmailDialog({ minutes, onUpgradeClick, isProUser = false }: Emai
         message: `Meeting minutes sent successfully to ${recipientEmail}` 
       });
       
+      // Track user activity
+      // TODO: Implement actual tracking
+      console.log('Tracking user activity: email_minutes');
+      
       // Close the dialog after a short delay
       setTimeout(() => {
         setIsOpen(false);

@@ -70,7 +70,7 @@
 1. Analytics (aligned with PRD KPIs)
    - [x] Track % of users generating Fortune-500-style minutes <2 minutes
    - [x] Track free → Pro conversions
-   - [ ] Track repeat usage within 7 days
+   - [x] Track repeat usage within 7 days
    - [ ] Track NPS collection (survey integration)
 2. Error tracking
    - [ ] Capture Gemini API failures

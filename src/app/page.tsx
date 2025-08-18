@@ -90,30 +90,25 @@ export default function Home() {
   const handleGenerate = async (text: string) => {
     if (user?.id) {
       setLastTextInput(text);
-      await checkFreeLimitAndProcess(text, user.id);
+      await processNotes(text, user.id);
       setShowMinutes(true);
+      
+      // Track user activity
+      // TODO: Implement actual tracking
+      console.log('Tracking user activity: generate_minutes for user:', user.id);
     }
   };
 
   const handleFileUpload = async (file: File, text: string) => {
     if (user?.id) {
       setLastFileInput({ file, text });
-      await checkFreeLimitAndProcess(text, user.id);
+      await processNotes(text, user.id);
       setShowMinutes(true);
+      
+      // Track user activity
+      // TODO: Implement actual tracking
+      console.log('Tracking user activity: generate_minutes for user:', user.id);
     }
-  };
-  
-  // Helper function to fetch user profile
-  const fetchUserProfile = async (userId: string) => {
-    try {
-      const response = await fetch(`/api/user-profile?userId=${userId}`);
-      if (response.ok) {
-        return await response.json();
-      }
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-    }
-    return null;
   };
 
   const handleAudioUpload = async (result: any) => {
@@ -123,6 +118,10 @@ export default function Home() {
       // This would typically update the UI to show the generated minutes
       console.log('Audio processed successfully:', result);
       alert('Audio file processed successfully! The meeting minutes have been generated.');
+      
+      // Track user activity
+      // TODO: Implement actual tracking
+      console.log('Tracking user activity: generate_minutes for user:', user?.id);
     } else {
       // Handle error
       console.error('Error processing audio:', result.error);

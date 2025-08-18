@@ -167,6 +167,53 @@ export function AnalyticsDashboard({ userId }: AnalyticsDashboardProps) {
         </Card>
       </div>
       
+      {/* TODO: Implement the query to get repeat usage analytics */}
+      {/* const repeatUsageAnalytics = useQuery(api.get_repeat_usage_analytics.getRepeatUsageAnalytics, { days: 7 }); */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">Active Users (7D)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-gray-500">In selected period</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">Repeat Usage Rate</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0%</div>
+            <Progress value={0} className="mt-2" />
+            <p className="text-xs text-gray-500 mt-1">Users with 2+ activities</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">Highly Engaged</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-gray-500">Users with 5+ activities</p>
+            <Progress value={0} className="mt-2" />
+            <p className="text-xs text-gray-500 mt-1">In selected period</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">Avg. Activities/User</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-gray-500">In selected period</p>
+          </CardContent>
+        </Card>
+      </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
@@ -190,6 +237,17 @@ export function AnalyticsDashboard({ userId }: AnalyticsDashboardProps) {
           </CardContent>
         </Card>
       </div>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Repeat Usage Trends</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64 flex items-center justify-center">
+            <p className="text-gray-500">Chart visualization would go here</p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

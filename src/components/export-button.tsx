@@ -30,6 +30,10 @@ export function ExportButton({ minutes, filename, isProUser = false, onUpgradeCl
       } else {
         await exportToPdf(minutes, filename ? `${filename}.pdf` : undefined);
       }
+      
+      // Track user activity
+      // TODO: Implement actual tracking
+      console.log('Tracking user activity: export_minutes');
     } catch (error) {
       console.error(`Error exporting to ${format}:`, error);
       // In a real implementation, we would show an error message to the user

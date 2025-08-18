@@ -90,6 +90,10 @@ export default defineSchema({
     under2MinuteGenerations: v.number(),
     proConversions: v.optional(v.number()),
     firstProConversionAt: v.optional(v.number()),
+    totalEdits: v.optional(v.number()),
+    totalExports: v.optional(v.number()),
+    totalShares: v.optional(v.number()),
+    totalEmails: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_userId", ["userId"]),
@@ -109,4 +113,19 @@ export default defineSchema({
   }).index("by_userId", ["userId"])
     .index("by_timestamp", ["timestamp"])
     .index("by_eventType", ["eventType"]),
+  
+  // Table for tracking user activity events
+  userActivityEvents: defineTable({
+    userId: v.string(),
+    activityType: v.union(
+      v.literal("generate_minutes"),
+      v.literal("edit_minutes"),
+      v.literal("export_minutes"),
+      v.literal("share_minutes"),
+      v.literal("email_minutes")
+    ),
+    timestamp: v.number(),
+  }).index("by_userId", ["userId"])
+    .index("by_timestamp", ["timestamp"])
+    .index("by_activityType", ["activityType"]),
 });
