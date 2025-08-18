@@ -3,6 +3,7 @@
 import { useUser, useAuth } from '@clerk/clerk-react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import UserProfile from '@/components/user-profile';
 
 export default function Home() {
   const { isSignedIn, user, isLoaded } = useUser();
@@ -50,6 +51,12 @@ export default function Home() {
             Paste your meeting notes, upload a document, or record audio to
             quickly generate professional meeting minutes.
           </p>
+          
+          {isSignedIn && (
+            <div className="mb-6">
+              <UserProfile />
+            </div>
+          )}
           
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
             <div className="flex flex-col items-center justify-center space-y-4">
