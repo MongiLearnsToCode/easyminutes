@@ -44,7 +44,7 @@
    - [x] Add/remove sections dynamically
    - [x] Auto-save with **auto-versioning** for each edit
 2. UX polish
-   - [ ] AI processing animation + countdown timer
+   - [x] AI processing animation + countdown timer
    - [ ] Mobile responsiveness
    - [ ] Error/success messages with fallback (retry or fail-gracefully)
 

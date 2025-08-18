@@ -16,6 +16,7 @@ import { useProcessMeetingNotes } from '@/hooks/use-process-meeting-notes';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { AIProcessingAnimation } from '@/components/ai-processing-animation';
 
 export default function Home() {
   const { isSignedIn, user, isLoaded } = useUser();
@@ -78,6 +79,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+      <AIProcessingAnimation isLoading={isLoading} estimatedTime={10} />
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <h1 className="text-xl font-bold text-gray-900">EasyMinutes</h1>
