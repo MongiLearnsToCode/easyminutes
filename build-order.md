@@ -55,7 +55,7 @@
    - [x] Limit free generations to **3 per account/session**
    - [x] Upgrade prompts at **save/export/share**
 2. Subscription integration
-   - [ ] LemonSqueezy integration
+   - [x] LemonSqueezy integration
    - [ ] Webhooks → Convex update Pro status
    - [ ] Gate Pro-only features using Clerk roles/metadata (plan = "pro")
 3. Pro-only features

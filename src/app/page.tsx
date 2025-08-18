@@ -124,7 +124,9 @@ export default function Home() {
 
   const handleUpgradeClick = () => {
     // In a real implementation, this would redirect to the payment page
-    alert('Upgrade to Pro to unlock audio transcription!');
+    // For now, we'll just show an alert, but in a full implementation
+    // we would use the LemonSqueezy checkout
+    alert('Upgrade to Pro to unlock all premium features!');
   };
 
   const handleNewMinutes = () => {
