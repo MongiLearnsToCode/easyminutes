@@ -10,4 +10,44 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_userId", ["userId"]),
+  
+  meetingMinutes: defineTable({
+    userId: v.string(),
+    title: v.string(),
+    executiveSummary: v.string(),
+    actionMinutes: v.string(),
+    attendees: v.array(
+      v.object({
+        name: v.string(),
+        role: v.string(),
+      })
+    ),
+    decisions: v.array(
+      v.object({
+        description: v.string(),
+        madeBy: v.string(),
+        date: v.string(),
+      })
+    ),
+    risks: v.array(
+      v.object({
+        description: v.string(),
+        mitigation: v.string(),
+      })
+    ),
+    actionItems: v.array(
+      v.object({
+        description: v.string(),
+        owner: v.string(),
+        deadline: v.string(),
+      })
+    ),
+    observations: v.array(
+      v.object({
+        description: v.string(),
+      })
+    ),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_userId", ["userId"]),
 });

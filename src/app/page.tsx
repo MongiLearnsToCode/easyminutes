@@ -11,13 +11,16 @@ import { AudioUpload } from '@/components/audio-upload';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { useProcessMeetingNotes } from '@/hooks/use-process-meeting-notes';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 export default function Home() {
   const { isSignedIn, user, isLoaded } = useUser();
   const { signOut } = useAuth();
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('text');
+  const { processNotes, isLoading, result } = useProcessMeetingNotes();
   
   // Sync user profile with Convex
   useSyncUserProfile();
@@ -36,31 +39,22 @@ export default function Home() {
     }
   }, [isLoaded, isSignedIn, router]);
 
-  const handleGenerate = (text: string) => {
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Generating minutes for text:', text);
-      setIsLoading(false);
-    }, 1500);
+  const handleGenerate = async (text: string) => {
+    if (user?.id) {
+      await processNotes(text, user.id);
+    }
   };
 
-  const handleFileUpload = (file: File, text: string) => {
-    setIsLoading(true);
-    // Simulate API call with file content
-    setTimeout(() => {
-      console.log('Generating minutes for file:', file.name, 'with content:', text);
-      setIsLoading(false);
-    }, 1500);
+  const handleFileUpload = async (file: File, text: string) => {
+    if (user?.id) {
+      await processNotes(text, user.id);
+    }
   };
 
   const handleAudioUpload = (file: File) => {
-    setIsLoading(true);
-    // Simulate API call with audio file
-    setTimeout(() => {
-      console.log('Processing audio file:', file.name);
-      setIsLoading(false);
-    }, 1500);
+    // In a real implementation, we would first transcribe the audio to text
+    // For now, we'll just show a message
+    alert('In a full implementation, this audio file would be transcribed and then processed.');
   };
 
   const handleUpgradeClick = () => {
@@ -107,6 +101,26 @@ export default function Home() {
             <div className="mb-6">
               <UserProfile />
             </div>
+          )}
+          
+          {/* Display result or error */}
+          {result && !result.success && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                {result.error || 'Failed to generate meeting minutes. Please try again.'}
+              </AlertDescription>
+            </Alert>
+          )}
+          
+          {result && result.success && result.meetingMinutes && (
+            <Alert className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Meeting minutes generated successfully!</strong>
+                <p className="mt-2">Title: {result.meetingMinutes.title}</p>
+              </AlertDescription>
+            </Alert>
           )}
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
