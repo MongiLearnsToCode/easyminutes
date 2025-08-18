@@ -6,12 +6,15 @@ import { useEffect, useState } from 'react';
 import UserProfile from '@/components/user-profile';
 import { useSyncUserProfile } from '@/hooks/use-sync-user-profile';
 import { TextPasteBox } from '@/components/text-paste-box';
+import { FileUpload } from '@/components/file-upload';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function Home() {
   const { isSignedIn, user, isLoaded } = useUser();
   const { signOut } = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('text');
   
   // Sync user profile with Convex
   useSyncUserProfile();
@@ -28,6 +31,15 @@ export default function Home() {
     // Simulate API call
     setTimeout(() => {
       console.log('Generating minutes for text:', text);
+      setIsLoading(false);
+    }, 1500);
+  };
+
+  const handleFileUpload = (file: File, text: string) => {
+    setIsLoading(true);
+    // Simulate API call with file content
+    setTimeout(() => {
+      console.log('Generating minutes for file:', file.name, 'with content:', text);
       setIsLoading(false);
     }, 1500);
   };
@@ -73,9 +85,22 @@ export default function Home() {
             </div>
           )}
           
-          <div className="border border-gray-200 rounded-lg p-6">
-            <TextPasteBox onGenerate={handleGenerate} isLoading={isLoading} />
-          </div>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="text">Paste Text</TabsTrigger>
+              <TabsTrigger value="file">Upload File</TabsTrigger>
+            </TabsList>
+            <TabsContent value="text">
+              <div className="border border-gray-200 rounded-lg p-6 mt-4">
+                <TextPasteBox onGenerate={handleGenerate} isLoading={isLoading} />
+              </div>
+            </TabsContent>
+            <TabsContent value="file">
+              <div className="border border-gray-200 rounded-lg p-6 mt-4">
+                <FileUpload onFileUpload={handleFileUpload} isLoading={isLoading} />
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
     </div>
