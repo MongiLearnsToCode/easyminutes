@@ -7,7 +7,10 @@ import UserProfile from '@/components/user-profile';
 import { useSyncUserProfile } from '@/hooks/use-sync-user-profile';
 import { TextPasteBox } from '@/components/text-paste-box';
 import { FileUpload } from '@/components/file-upload';
+import { AudioUpload } from '@/components/audio-upload';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 
 export default function Home() {
   const { isSignedIn, user, isLoaded } = useUser();
@@ -18,6 +21,13 @@ export default function Home() {
   
   // Sync user profile with Convex
   useSyncUserProfile();
+  
+  // Get user profile from Convex to check if they're a Pro user
+  const userProfile = useQuery(api.user_profile.getUserProfileByUserId, {
+    userId: user?.id || '',
+  });
+  
+  const isProUser = userProfile?.plan === 'pro';
 
   // Redirect to sign-in if not authenticated
   useEffect(() => {
@@ -42,6 +52,20 @@ export default function Home() {
       console.log('Generating minutes for file:', file.name, 'with content:', text);
       setIsLoading(false);
     }, 1500);
+  };
+
+  const handleAudioUpload = (file: File) => {
+    setIsLoading(true);
+    // Simulate API call with audio file
+    setTimeout(() => {
+      console.log('Processing audio file:', file.name);
+      setIsLoading(false);
+    }, 1500);
+  };
+
+  const handleUpgradeClick = () => {
+    // In a real implementation, this would redirect to the payment page
+    alert('Upgrade to Pro to unlock audio transcription!');
   };
 
   if (!isLoaded) {
@@ -86,9 +110,12 @@ export default function Home() {
           )}
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="text">Paste Text</TabsTrigger>
               <TabsTrigger value="file">Upload File</TabsTrigger>
+              <TabsTrigger value="audio" disabled={!isProUser}>
+                Audio {isProUser ? '' : '(Pro)'}
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="text">
               <div className="border border-gray-200 rounded-lg p-6 mt-4">
@@ -98,6 +125,16 @@ export default function Home() {
             <TabsContent value="file">
               <div className="border border-gray-200 rounded-lg p-6 mt-4">
                 <FileUpload onFileUpload={handleFileUpload} isLoading={isLoading} />
+              </div>
+            </TabsContent>
+            <TabsContent value="audio">
+              <div className="border border-gray-200 rounded-lg p-6 mt-4">
+                <AudioUpload 
+                  onAudioUpload={handleAudioUpload} 
+                  isLoading={isLoading}
+                  isProUser={isProUser}
+                  onUpgradeClick={handleUpgradeClick}
+                />
               </div>
             </TabsContent>
           </Tabs>
