@@ -18,6 +18,9 @@ export default function UserProfile() {
     return <div>Loading...</div>;
   }
 
+  const freeGenerationsUsed = userProfile?.freeGenerationsUsed || 0;
+  const freeGenerationsRemaining = Math.max(0, 3 - freeGenerationsUsed);
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-xl font-bold mb-4">User Profile</h2>
@@ -30,6 +33,14 @@ export default function UserProfile() {
       <p>
         <span className="font-medium">Plan:</span> {userProfile?.plan}
       </p>
+      {userProfile?.plan === 'free' && (
+        <p>
+          <span className="font-medium">Free Generations:</span> {freeGenerationsUsed}/3 used
+          <span className={`ml-2 ${freeGenerationsRemaining === 0 ? 'text-red-600' : 'text-green-600'}`}>
+            ({freeGenerationsRemaining} remaining)
+          </span>
+        </p>
+      )}
       <p>
         <span className="font-medium">User ID:</span> {userProfile?.userId}
       </p>

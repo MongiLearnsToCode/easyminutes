@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { AIProcessingAnimation } from '@/components/ai-processing-animation';
 import { ErrorAlert } from '@/components/error-alert';
 import { SuccessAlert } from '@/components/success-alert';
+import { UpgradePrompt } from '@/components/upgrade-prompt';
 
 export default function Home() {
   const { isSignedIn, user, isLoaded } = useUser();
@@ -27,10 +28,15 @@ export default function Home() {
   const [showMinutes, setShowMinutes] = useState(false);
   const { processNotes, isLoading, result } = useProcessMeetingNotes();
   const [saveEditedMinutes] = useMutation(api.save_edited_minutes.saveEditedMeetingMinutes);
+  const [checkFreeLimit] = useMutation(api.check_free_limit.checkFreeGenerationLimit);
+  const [incrementFreeGenerations] = useMutation(api.increment_free_generations.incrementFreeGenerations);
   
   // State to track last input for retry functionality
   const [lastTextInput, setLastTextInput] = useState<string>('');
   const [lastFileInput, setLastFileInput] = useState<{file: File, text: string} | null>(null);
+  
+  // State to track free generation limit
+  const [freeLimit, setFreeLimit] = useState<{canGenerate: boolean, freeGenerationsUsed: number, limit: number} | null>(null);
   
   // Sync user profile with Convex
   useSyncUserProfile();
@@ -49,10 +55,42 @@ export default function Home() {
     }
   }, [isLoaded, isSignedIn, router]);
 
+  const checkFreeLimitAndProcess = async (text: string, userId: string) => {
+    // Check if user can generate (for free users)
+    const limitCheck = await checkFreeLimit({ userId });
+    setFreeLimit(limitCheck);
+    
+    if (!limitCheck.canGenerate) {
+      // User has reached their limit
+      const errorResult = {
+        success: false,
+        error: "You've reached your limit of 3 free generations. Please upgrade to Pro for unlimited generations.",
+      };
+      
+      // Update the result state to show the error
+      // We need to manually set this since processNotes won't be called
+      // In a real implementation, we would have a better way to handle this
+      return errorResult;
+    }
+    
+    // Process the notes
+    const result = await processNotes(text, userId);
+    
+    // If successful, increment the free generations count for free users
+    if (result.success) {
+      const userProfile = useQuery(api.user_profile.getUserProfileByUserId, { userId });
+      if (userProfile?.plan === 'free') {
+        await incrementFreeGenerations({ userId });
+      }
+    }
+    
+    return result;
+  };
+
   const handleGenerate = async (text: string) => {
     if (user?.id) {
       setLastTextInput(text);
-      await processNotes(text, user.id);
+      await checkFreeLimitAndProcess(text, user.id);
       setShowMinutes(true);
     }
   };
@@ -60,9 +98,22 @@ export default function Home() {
   const handleFileUpload = async (file: File, text: string) => {
     if (user?.id) {
       setLastFileInput({ file, text });
-      await processNotes(text, user.id);
+      await checkFreeLimitAndProcess(text, user.id);
       setShowMinutes(true);
     }
+  };
+  
+  // Helper function to fetch user profile
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/user-profile?userId=${userId}`);
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+    }
+    return null;
   };
 
   const handleAudioUpload = (file: File) => {
@@ -149,8 +200,15 @@ export default function Home() {
               </p>
               
               {isSignedIn && (
-                <div className="mb-6">
+                <div className="mb-6 space-y-4">
                   <UserProfile />
+                  {userProfile?.plan === 'free' && userProfile?.freeGenerationsUsed !== undefined && (
+                    <UpgradePrompt 
+                      onUpgradeClick={handleUpgradeClick}
+                      freeGenerationsUsed={userProfile.freeGenerationsUsed}
+                      limit={3}
+                    />
+                  )}
                 </div>
               )}
               

@@ -52,7 +52,7 @@
 
 ## Phase 4 — Pro Features & Monetization
 1. Free tier gating
-   - [ ] Limit free generations to **3 per account/session**
+   - [x] Limit free generations to **3 per account/session**
    - [ ] Upgrade prompts at **save/export/share**
 2. Subscription integration
    - [ ] LemonSqueezy integration

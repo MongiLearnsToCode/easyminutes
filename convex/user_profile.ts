@@ -8,6 +8,7 @@ export type UserProfile = {
   email: string;
   name: string;
   plan: "free" | "pro";
+  freeGenerationsUsed?: number;
   createdAt: number;
   updatedAt: number;
 };
@@ -43,6 +44,7 @@ export const storeUserProfile = mutation({
         email: args.email,
         name: args.name,
         plan: "free",
+        freeGenerationsUsed: 0,
         createdAt: timestamp,
         updatedAt: timestamp,
       });
