@@ -71,7 +71,7 @@
    - [x] Track % of users generating Fortune-500-style minutes <2 minutes
    - [x] Track free → Pro conversions
    - [x] Track repeat usage within 7 days
-   - [ ] Track NPS collection (survey integration)
+   - [x] Track NPS collection (survey integration)
 2. Error tracking
    - [ ] Capture Gemini API failures
    - [ ] Log failed uploads

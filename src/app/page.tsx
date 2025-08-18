@@ -19,6 +19,9 @@ import { AIProcessingAnimation } from '@/components/ai-processing-animation';
 import { ErrorAlert } from '@/components/error-alert';
 import { SuccessAlert } from '@/components/success-alert';
 import { UpgradePrompt } from '@/components/upgrade-prompt';
+import { NPSSurvey } from '@/components/nps-survey';
+import { useNPSSurvey } from '@/hooks/use-nps-survey';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 export default function Home() {
   const { isSignedIn, user, isLoaded } = useUser();
@@ -38,15 +41,33 @@ export default function Home() {
   // State to track free generation limit
   const [freeLimit, setFreeLimit] = useState<{canGenerate: boolean, freeGenerationsUsed: number, limit: number} | null>(null);
   
-  // Sync user profile with Convex
-  useSyncUserProfile();
+  // State for NPS survey
+  const [showNPSSurvey, setShowNPSSurvey] = useState(false);
   
-  // Get user profile from Convex to check if they're a Pro user
+  // Get user profile for Pro status
   const userProfile = useQuery(api.user_profile.getUserProfileByUserId, {
     userId: user?.id || '',
   });
   
   const isProUser = userProfile?.plan === 'pro';
+  
+  // Determine when to show NPS survey
+  const { shouldShowSurvey } = useNPSSurvey({
+    userId: user?.id || '',
+    enabled: isSignedIn && !!user && showMinutes && !!result?.success,
+  });
+  
+  // Show NPS survey when conditions are met
+  useEffect(() => {
+    if (shouldShowSurvey) {
+      // Add a slight delay before showing the survey
+      const timer = setTimeout(() => {
+        setShowNPSSurvey(true);
+      }, 5000); // Show after 5 seconds of successful generation
+      
+      return () => clearTimeout(timer);
+    }
+  }, [shouldShowSurvey]);
 
   // Redirect to sign-in if not authenticated
   useEffect(() => {
@@ -280,6 +301,16 @@ export default function Home() {
           )}
         </div>
       </main>
+      
+      {/* NPS Survey Dialog */}
+      <Dialog open={showNPSSurvey} onOpenChange={setShowNPSSurvey}>
+        <DialogContent className="sm:max-w-md p-0">
+          <NPSSurvey 
+            userId={user?.id || ''}
+            onDismiss={() => setShowNPSSurvey(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

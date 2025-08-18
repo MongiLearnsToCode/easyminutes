@@ -248,6 +248,65 @@ export function AnalyticsDashboard({ userId }: AnalyticsDashboardProps) {
           </div>
         </CardContent>
       </Card>
+      
+      {/* TODO: Implement the query to get NPS analytics */}
+      {/* const npsAnalytics = useQuery(api.get_nps_analytics.getNPSAnalytics); */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">Current NPS</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0</div>
+            <Progress value={0} className="mt-2" />
+            <p className="text-xs text-gray-500 mt-1">Target: 50+</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">Response Rate</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0%</div>
+            <Progress value={0} className="mt-2" />
+            <p className="text-xs text-gray-500 mt-1">Surveys submitted</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">Promoters</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0</div>
+            <p className="text-xs text-gray-500">Score 9-10</p>
+            <Progress value={0} className="mt-2" />
+            <p className="text-xs text-gray-500 mt-1">% of responses</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm font-medium">Average Score</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">0.0</div>
+            <p className="text-xs text-gray-500">Out of 10</p>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>NPS Distribution</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64 flex items-center justify-center">
+            <p className="text-gray-500">Chart visualization would go here</p>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

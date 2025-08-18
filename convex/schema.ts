@@ -94,6 +94,10 @@ export default defineSchema({
     totalExports: v.optional(v.number()),
     totalShares: v.optional(v.number()),
     totalEmails: v.optional(v.number()),
+    npsDetractors: v.optional(v.number()),
+    npsPassives: v.optional(v.number()),
+    npsPromoters: v.optional(v.number()),
+    firstNPSAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_userId", ["userId"]),
@@ -128,4 +132,18 @@ export default defineSchema({
   }).index("by_userId", ["userId"])
     .index("by_timestamp", ["timestamp"])
     .index("by_activityType", ["activityType"]),
+  
+  // Table for tracking NPS survey events
+  npsSurveyEvents: defineTable({
+    userId: v.string(),
+    eventType: v.union(
+      v.literal("survey_shown"), // Survey was displayed to user
+      v.literal("survey_submitted"), // User submitted the survey
+      v.literal("survey_dismissed") // User dismissed the survey
+    ),
+    score: v.optional(v.number()), // NPS score (0-10) when submitted
+    timestamp: v.number(),
+  }).index("by_userId", ["userId"])
+    .index("by_timestamp", ["timestamp"])
+    .index("by_eventType", ["eventType"]),
 });
