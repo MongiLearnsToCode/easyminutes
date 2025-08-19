@@ -185,7 +185,8 @@ export const processMeetingNotes = mutation({
         meetingMinutes = JSON.parse(text);
       } catch (parseError) {
         // If parsing fails, try to extract JSON from the response
-        const jsonMatch = text.match(/\{.*\}/s);
+        // Using [\s\S]* instead of .* to match across multiple lines without the /s flag
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           meetingMinutes = JSON.parse(jsonMatch[0]);
         } else {
