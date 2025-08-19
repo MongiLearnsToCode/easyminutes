@@ -97,7 +97,7 @@
    - [x] Configure webhook endpoints in LemonSqueezy dashboard
    - [x] Test payment flow with test transactions
 4. Security hardening
-   - [ ] Generate production session secrets
+   - [x] Generate production session secrets
    - [ ] Configure CORS policies for production domains
    - [ ] Set up rate limiting for API endpoints
 5. Monitoring setup
