@@ -99,7 +99,7 @@
 4. Security hardening
    - [x] Generate production session secrets
    - [x] Configure CORS policies for production domains
-   - [ ] Set up rate limiting for API endpoints
+   - [x] Set up rate limiting for API endpoints
 5. Monitoring setup
    - [ ] Configure error tracking (Sentry.io or similar)
    - [ ] Set up performance monitoring

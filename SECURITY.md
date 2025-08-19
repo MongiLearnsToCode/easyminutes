@@ -114,7 +114,7 @@ For Next.js applications, CORS is typically handled at the API route level or th
 Convex automatically handles CORS for most use cases, but you can configure specific settings in your Convex dashboard:
 
 1. In your Convex dashboard, navigate to your project settings
-2. Go to the "CORS" section
+2. Go to the \"CORS\" section
 3. Add your production domain(s) to the allowed origins:
    - For example: `https://yourdomain.com`
    - If you have a staging environment: `https://staging.yourdomain.com`
@@ -131,10 +131,10 @@ For webhooks from external services like LemonSqueezy:
 
 1. After deploying your CORS configuration, test it using curl or a browser:
    ```bash
-   curl -H "Origin: https://yourdomain.com" \
-        -H "Access-Control-Request-Method: POST" \
-        -H "Access-Control-Request-Headers: X-Requested-With" \
-        -X OPTIONS \
+   curl -H \"Origin: https://yourdomain.com\" \\
+        -H \"Access-Control-Request-Method: POST\" \\
+        -H \"Access-Control-Request-Headers: X-Requested-With\" \\
+        -X OPTIONS \\
         https://yourdomain.com/api/your-endpoint
    ```
 
@@ -149,35 +149,46 @@ Rate limiting helps prevent abuse of your API endpoints and protects against den
 
 ### Next.js Rate Limiting
 
-1. Install a rate limiting library like `express-rate-limit`:
+For Next.js applications, we'll implement rate limiting using a combination of in-memory storage and Redis for production environments.
+
+1. Install the required packages:
    ```bash
    npm install express-rate-limit
+   # For production with Redis:
+   npm install rate-limiter-flexible
    ```
 
-2. Create a rate limiter middleware:
+2. Create a rate limiter configuration:
    ```javascript
    // lib/rate-limiter.js
-   import rateLimit from 'express-rate-limit';
-
-   // Create a rate limiter
-   const limiter = rateLimit({
-     windowMs: 15 * 60 * 1000, // 15 minutes
-     max: 100, // limit each IP to 100 requests per windowMs
-     message: 'Too many requests from this IP, please try again later.',
+   import { RateLimiterMemory } from 'rate-limiter-flexible';
+   
+   // For production, you would use RateLimiterRedis with a Redis store
+   const rateLimiter = new RateLimiterMemory({
+     points: 10, // 10 requests
+     duration: 60, // per 1 minute
    });
-
-   export default limiter;
+   
+   export async function rateLimiterMiddleware(req, res, next) {
+     try {
+       const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+       await rateLimiter.consume(ip);
+       next();
+     } catch (error) {
+       res.status(429).json({ error: 'Too many requests, please try again later.' });
+     }
+   }
    ```
 
-3. Apply the rate limiter to specific API routes:
+3. Apply rate limiting to specific API routes:
    ```javascript
    // pages/api/your-endpoint.js
-   import limiter from '../../lib/rate-limiter';
-
+   import { rateLimiterMiddleware } from '../../lib/rate-limiter';
+   
    export default async function handler(req, res) {
      // Apply rate limiting
      await new Promise((resolve, reject) => {
-       limiter(req, res, (err) => {
+       rateLimiterMiddleware(req, res, (err) => {
          if (err) {
            reject(err);
          } else {
@@ -185,29 +196,125 @@ Rate limiting helps prevent abuse of your API endpoints and protects against den
          }
        });
      });
-
+   
      // Your API logic here
+     res.status(200).json({ message: 'Success' });
+   }
+   ```
+
+4. For production with Redis:
+   ```javascript
+   // lib/rate-limiter-redis.js
+   import { RateLimiterRedis } from 'rate-limiter-flexible';
+   import Redis from 'ioredis';
+   
+   const redisClient = new Redis(process.env.REDIS_URL);
+   
+   const rateLimiter = new RateLimiterRedis({
+     storeClient: redisClient,
+     keyPrefix: 'rateLimit',
+     points: 10, // 10 requests
+     duration: 60, // per 1 minute
+   });
+   
+   export async function rateLimiterMiddleware(req, res, next) {
+     try {
+       const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+       await rateLimiter.consume(ip);
+       next();
+     } catch (error) {
+       res.status(429).json({ error: 'Too many requests, please try again later.' });
+     }
    }
    ```
 
 ### Convex Rate Limiting
 
-Convex has built-in rate limiting, but you can implement additional application-level rate limiting:
+Convex has built-in rate limiting, but you can implement additional application-level rate limiting for specific functions:
 
 1. Create a Convex function to track request counts:
    ```javascript
    // convex/rateLimit.js
-   import { mutation } from './_generated/server';
+   import { mutation, query } from './_generated/server';
    import { v } from 'convex/values';
-
-   export const trackRequest = mutation({
+   
+   // Table to store rate limit data
+   // This would be defined in your schema:
+   // rateLimits: defineTable({
+   //   key: v.string(), // IP address or user ID
+   //   count: v.number(),
+   //   resetTime: v.number(),
+   // }).index(\"by_key\", [\"key\"])
+   
+   export const incrementRateLimit = mutation({
      args: {
-       ip: v.string(),
-       endpoint: v.string(),
+       key: v.string(),
+       limit: v.number(),
+       windowMs: v.number(),
      },
      handler: async (ctx, args) => {
-       // Track the request in your database
-       // Implement your rate limiting logic here
+       const now = Date.now();
+       const resetTime = now + args.windowMs;
+       
+       // Try to get existing rate limit record
+       const existing = await ctx.db
+         .query('rateLimits')
+         .withIndex('by_key', q => q.eq('key', args.key))
+         .unique();
+       
+       if (existing) {
+         // Check if we're still in the window
+         if (existing.resetTime > now) {
+           // Increment the count
+           if (existing.count >= args.limit) {
+             throw new Error('Rate limit exceeded');
+           }
+           
+           await ctx.db.patch(existing._id, {
+             count: existing.count + 1,
+           });
+         } else {
+           // Reset the count
+           await ctx.db.patch(existing._id, {
+             count: 1,
+             resetTime,
+           });
+         }
+       } else {
+         // Create a new rate limit record
+         await ctx.db.insert('rateLimits', {
+           key: args.key,
+           count: 1,
+           resetTime,
+         });
+       }
+     },
+   });
+   
+   export const checkRateLimit = query({
+     args: {
+       key: v.string(),
+     },
+     handler: async (ctx, args) => {
+       const existing = await ctx.db
+         .query('rateLimits')
+         .withIndex('by_key', q => q.eq('key', args.key))
+         .unique();
+       
+       if (!existing) {
+         return { allowed: true, count: 0, resetTime: 0 };
+       }
+       
+       const now = Date.now();
+       if (existing.resetTime <= now) {
+         return { allowed: true, count: 0, resetTime: 0 };
+       }
+       
+       return {
+         allowed: existing.count < 10, // Default limit
+         count: existing.count,
+         resetTime: existing.resetTime,
+       };
      },
    });
    ```
@@ -216,14 +323,22 @@ Convex has built-in rate limiting, but you can implement additional application-
    ```javascript
    // convex/yourFunction.js
    import { query } from './_generated/server';
-   import { trackRequest } from './rateLimit';
-
+   import { incrementRateLimit } from './rateLimit';
+   
    export const yourFunction = query({
      args: { /* your args */ },
      handler: async (ctx, args) => {
        // Check rate limit
        const ip = ctx.headers.get('x-forwarded-for') || 'unknown';
-       await trackRequest({ ip, endpoint: 'yourFunction' });
+       try {
+         await incrementRateLimit({
+           key: `function_yourFunction_${ip}`,
+           limit: 5, // 5 requests
+           windowMs: 60 * 1000, // per minute
+         });
+       } catch (error) {
+         throw new Error('Rate limit exceeded for this function');
+       }
        
        // Your function logic here
      },
@@ -232,34 +347,114 @@ Convex has built-in rate limiting, but you can implement additional application-
 
 ### Specific Rate Limits for Different Endpoints
 
-Different endpoints may require different rate limits:
+Different endpoints may require different rate limits based on their resource intensity:
 
 1. For the AI processing endpoint (which is resource-intensive):
    ```javascript
-   const aiProcessingLimiter = rateLimit({
-     windowMs: 60 * 60 * 1000, // 1 hour
-     max: 5, // limit each IP to 5 requests per hour
-     message: 'Too many AI processing requests. Please try again later.',
+   // lib/ai-rate-limiter.js
+   import { RateLimiterMemory } from 'rate-limiter-flexible';
+   
+   const aiProcessingLimiter = new RateLimiterMemory({
+     points: 2, // 2 requests
+     duration: 60 * 60, // per hour
    });
+   
+   export async function aiRateLimiterMiddleware(req, res, next) {
+     try {
+       const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+       await aiProcessingLimiter.consume(ip);
+       next();
+     } catch (error) {
+       res.status(429).json({
+         error: 'Too many AI processing requests. Please try again later.',
+         retryAfter: 60 * 60 // seconds
+       });
+     }
+   }
    ```
 
 2. For authentication endpoints:
    ```javascript
-   const authLimiter = rateLimit({
-     windowMs: 15 * 60 * 1000, // 15 minutes
-     max: 5, // limit each IP to 5 requests per windowMs
-     message: 'Too many authentication attempts. Please try again later.',
+   // lib/auth-rate-limiter.js
+   import { RateLimiterMemory } from 'rate-limiter-flexible';
+   
+   const authLimiter = new RateLimiterMemory({
+     points: 5, // 5 requests
+     duration: 15 * 60, // per 15 minutes
    });
+   
+   export async function authRateLimiterMiddleware(req, res, next) {
+     try {
+       const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+       await authLimiter.consume(ip);
+       next();
+     } catch (error) {
+       res.status(429).json({
+         error: 'Too many authentication attempts. Please try again later.',
+         retryAfter: 15 * 60 // seconds
+       });
+     }
+   }
    ```
 
 3. For webhooks (which should have higher limits):
    ```javascript
-   const webhookLimiter = rateLimit({
-     windowMs: 60 * 1000, // 1 minute
-     max: 100, // Higher limit for webhooks
-     message: 'Too many webhook requests.',
+   // lib/webhook-rate-limiter.js
+   import { RateLimiterMemory } from 'rate-limiter-flexible';
+   
+   const webhookLimiter = new RateLimiterMemory({
+     points: 100, // 100 requests
+     duration: 60, // per minute
    });
+   
+   export async function webhookRateLimiterMiddleware(req, res, next) {
+     try {
+       const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+       await webhookLimiter.consume(ip);
+       next();
+     } catch (error) {
+       res.status(429).json({
+         error: 'Too many webhook requests.',
+         retryAfter: 60 // seconds
+       });
+     }
+   }
    ```
+
+### Implementation in EasyMinutes
+
+For EasyMinutes, we should implement rate limiting on the following endpoints:
+
+1. **AI Processing Endpoint** (`/api/gemini/processMeetingNotes`):
+   - Restrictive rate limiting (2 requests per hour per IP)
+   - This is a resource-intensive operation
+
+2. **Authentication Endpoints**:
+   - Moderate rate limiting (5 requests per 15 minutes per IP)
+   - Prevents brute force attacks
+
+3. **Webhook Endpoints** (`/api/webhooks/lemonsqueezy`):
+   - Higher rate limiting (100 requests per minute per IP)
+   - These are server-to-server requests
+
+4. **File Upload Endpoints**:
+   - Moderate rate limiting (10 requests per minute per IP)
+   - Prevents abuse of file upload functionality
+
+### Monitoring Rate Limiting
+
+1. Log rate limiting events for monitoring:
+   ```javascript
+   // In your rate limiting middleware
+   if (rateLimitExceeded) {
+     console.log(`Rate limit exceeded for IP: ${ip} on endpoint: ${req.url}`);
+     // Send to your analytics service
+   }
+   ```
+
+2. Set up alerts for excessive rate limiting events:
+   - Monitor for IPs that are frequently hitting rate limits
+   - This could indicate abusive behavior or a need to adjust limits
 
 ## Additional Security Measures
 
