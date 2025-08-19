@@ -101,7 +101,7 @@
    - [x] Configure CORS policies for production domains
    - [x] Set up rate limiting for API endpoints
 5. Monitoring setup
-   - [ ] Configure error tracking (Sentry.io or similar)
+   - [x] Configure error tracking (Sentry.io or similar)
    - [ ] Set up performance monitoring
    - [ ] Configure uptime monitoring and alerts
 6. CI/CD pipeline
