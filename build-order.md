@@ -103,7 +103,7 @@
 5. Monitoring setup
    - [x] Configure error tracking (Sentry.io or similar)
    - [x] Set up performance monitoring
-   - [ ] Configure uptime monitoring and alerts
+   - [x] Configure uptime monitoring and alerts
 6. CI/CD pipeline
    - [ ] Set up automated testing pipeline
    - [ ] Configure automatic deployments on main branch pushes

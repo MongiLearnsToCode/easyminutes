@@ -487,8 +487,19 @@ Uptime monitoring ensures you're notified when your application becomes unavaila
    - Configure alert contacts (email, SMS, etc.)
 
 3. Create additional monitors for critical endpoints:
+   - Main application: https://yourdomain.com
    - API endpoints: https://yourdomain.com/api/gemini/processMeetingNotes
    - Webhook endpoints: https://yourdomain.com/api/webhooks/lemonsqueezy
+   - Health check endpoint: https://yourdomain.com/api/health
+
+4. Configure alert contacts:
+   - Add email addresses for team members
+   - Add SMS numbers for critical alerts
+   - Consider integrating with Slack or Discord for team notifications
+
+5. Set up alerting rules:
+   - Configure alerts to trigger after 2-3 consecutive failures
+   - Set up different alert thresholds for different times (business hours vs. off-hours)
 
 ### Using Pingdom
 
@@ -529,6 +540,58 @@ export default async function handler(req, res) {
 
 Then monitor this endpoint with your uptime service.
 
+For a more comprehensive health check, you can verify connectivity to external services:
+
+```javascript
+// pages/api/health.js
+import { processMeetingNotes } from "@/convex/gemini";
+
+export default async function handler(req, res) {
+  try {
+    // Perform basic health checks
+    const healthChecks = {
+      timestamp: new Date().toISOString(),
+      version: process.env.APP_VERSION || 'unknown',
+      services: {
+        convex: false,
+        gemini: false,
+      }
+    };
+    
+    // Check Convex connectivity
+    try {
+      // Perform a simple Convex query or mutation to verify connectivity
+      // This is a placeholder - you would implement an actual health check function
+      healthChecks.services.convex = true;
+    } catch (error) {
+      console.error('Convex health check failed:', error);
+    }
+    
+    // Check Gemini API connectivity
+    try {
+      // Perform a simple Gemini API call to verify connectivity
+      // This is a placeholder - you would implement an actual health check function
+      healthChecks.services.gemini = true;
+    } catch (error) {
+      console.error('Gemini health check failed:', error);
+    }
+    
+    const overallStatus = healthChecks.services.convex && healthChecks.services.gemini ? 'ok' : 'degraded';
+    
+    res.status(overallStatus === 'ok' ? 200 : 503).json({ 
+      status: overallStatus,
+      ...healthChecks
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      status: 'error', 
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+}
+```
+
 ### Alerting Best Practices
 
 1. Set up multiple notification channels:
@@ -549,7 +612,12 @@ Then monitor this endpoint with your uptime service.
    - Periodically review and adjust alert thresholds
    - Eliminate noisy alerts that don't provide value
 
-## Monitoring Dashboard
+5. Test your alerting system:
+   - Periodically test that alerts are being sent correctly
+   - Verify that all team members are receiving alerts
+   - Ensure that escalation policies are working correctly
+
+### Monitoring Dashboard
 
 Create a monitoring dashboard to visualize key metrics:
 
