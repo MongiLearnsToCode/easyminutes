@@ -62,3 +62,14 @@ For email functionality, you'll need to set up an email service provider. Here a
    - SMTP_PASSWORD: your_ses_smtp_password
    - SMTP_FROM_EMAIL: your_verified_sender@yourdomain.com
    - SMTP_FROM_NAME: EasyMinutes
+
+## Gemini API Key Configuration
+
+To use the AI processing features, you'll need a Gemini API key from Google AI:
+
+1. Go to [Google AI Studio](https://aistudio.google.com/)
+2. Sign in with your Google account
+3. Create a new API key
+4. Copy the API key and add it to your environment variables as `GEMINI_API_KEY`
+
+Note: For production use, make sure to set appropriate usage limits on your API key to prevent unexpected charges.

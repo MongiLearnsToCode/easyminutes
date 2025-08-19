@@ -86,7 +86,7 @@
 1. Environment configuration
    - [x] Configure LemonSqueezy credentials (API key, webhook secret, store ID)
    - [x] Setup email service credentials (SMTP settings)
-   - [ ] Configure Gemini API key for production
+   - [x] Configure Gemini API key for production
    - [ ] Set up Clerk production credentials
 2. Production deployment
    - [ ] Deploy Convex functions to production
