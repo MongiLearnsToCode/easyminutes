@@ -106,7 +106,7 @@
    - [x] Configure uptime monitoring and alerts
 6. CI/CD pipeline
    - [x] Set up automated testing pipeline
-   - [ ] Configure automatic deployments on main branch pushes
+   - [x] Configure automatic deployments on main branch pushes
    - [ ] Set up staging environment for testing
 
 ---

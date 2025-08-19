@@ -314,6 +314,97 @@ Automated deployments ensure that changes are quickly and consistently deployed 
      - `VERCEL_PROJECT_ID` - Your Vercel project ID
      - `CONVEX_DEPLOY_KEY` - Your Convex deployment key
 
+2. Generate a Convex deployment key:
+   ```bash
+   npx convex deploy --generate-deployment-key
+   ```
+
+3. Configure Vercel for automated deployments:
+   - In your Vercel project settings, go to "Git" → "Deploy Hooks"
+   - Create a new deploy hook for automatic deployments
+
+### Deployment Notifications
+
+1. Add Slack notifications to your deployment workflow:
+   ```yaml
+   # .github/workflows/deploy.yml
+   name: Deploy to Production
+   
+   on:
+     push:
+       branches: [ main ]
+   
+   jobs:
+     deploy:
+       runs-on: ubuntu-latest
+       
+       steps:
+       # ... previous steps
+       
+       - name: Deploy to Vercel
+         uses: amondnet/vercel-action@v25
+         with:
+           vercel-token: ${{ secrets.VERCEL_TOKEN }}
+           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+           vercel-args: '--prod'
+       
+       - name: Notify Slack on success
+         if: success()
+         uses: 8398a7/action-slack@v3
+         with:
+           status: ${{ job.status }}
+           channel: '#deployments'
+           webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+       
+       - name: Notify Slack on failure
+         if: failure()
+         uses: 8398a7/action-slack@v3
+         with:
+           status: ${{ job.status }}
+           channel: '#deployments'
+           webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+   ```
+
+2. Set up Slack webhook:
+   - Create a Slack app and webhook
+   - Add the webhook URL as a secret in your GitHub repository
+
+### Deployment Rollback
+
+1. Configure Vercel rollback:
+   - In your Vercel dashboard, you can rollback to previous deployments
+   - Use the Vercel CLI to rollback:
+     ```bash
+     vercel rollback
+     ```
+
+2. Add manual rollback to your workflow:
+   ```yaml
+   # .github/workflows/rollback.yml
+   name: Manual Rollback
+   
+   on:
+     workflow_dispatch:
+       inputs:
+         deploymentId:
+           description: 'Deployment ID to rollback to'
+           required: true
+   
+   jobs:
+     rollback:
+       runs-on: ubuntu-latest
+       
+       steps:
+       - name: Rollback Vercel deployment
+         uses: amondnet/vercel-action@v25
+         with:
+           vercel-token: ${{ secrets.VERCEL_TOKEN }}
+           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+           vercel-args: 'rollback ${{ github.event.inputs.deploymentId }}'
+   ```
+
 ## 3. Set up Staging Environment for Testing
 
 A staging environment allows you to test changes in a production-like environment before deploying to production.
