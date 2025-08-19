@@ -1,7 +1,7 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { validateAndNormalizeMeetingMinutes } from "./utils/meeting-minutes-validator";
+import { validateAndNormalizeMeetingMinutes } from "./utils/meeting_minutes_validator";
 
 // Define the structure for our meeting minutes
 export type MeetingMinutes = {

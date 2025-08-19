@@ -1,7 +1,7 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { validateAndNormalizeMeetingMinutes } from "./utils/meeting-minutes-validator";
+import { validateAndNormalizeMeetingMinutes } from "./utils/meeting_minutes_validator";
 
 // Utility function to add a timeout to a promise
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {

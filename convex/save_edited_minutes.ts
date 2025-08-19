@@ -1,6 +1,6 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { validateAndNormalizeMeetingMinutes } from "./utils/meeting-minutes-validator";
+import { validateAndNormalizeMeetingMinutes } from "./utils/meeting_minutes_validator";
 
 // Mutation to save edited meeting minutes with versioning
 export const saveEditedMeetingMinutes = mutation({
