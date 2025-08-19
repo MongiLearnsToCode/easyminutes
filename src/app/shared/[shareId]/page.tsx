@@ -3,15 +3,17 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import { use } from 'react';
 
-export default function SharedMinutesPage({ params }: { params: { shareId: string } }) {
+export default function SharedMinutesPage({ params }: { params: Promise<{ shareId: string }> }) {
+  const { shareId } = use(params);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
   // TODO: Implement the query to get shared meeting minutes
   // const sharedMinutes = useQuery(api.get_shared_minutes.getSharedMeetingMinutes, {
-  //   shareId: params.shareId,
+  //   shareId: shareId,
   // });
   
   // For now, we'll simulate the data
@@ -26,7 +28,7 @@ export default function SharedMinutesPage({ params }: { params: { shareId: strin
     }, 1000);
     
     return () => clearTimeout(timer);
-  }, [params.shareId]);
+  }, [shareId]);
   
   if (isLoading) {
     return (
