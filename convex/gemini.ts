@@ -81,7 +81,7 @@ export const processMeetingNotes = mutation({
     // For now, we'll proceed with the generation
     
     // Get the Gemini API key from Convex environment variables
-    const apiKey = ctx.env.GEMINI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       throw new Error("GEMINI_API_KEY is not configured in Convex environment variables");
     }
