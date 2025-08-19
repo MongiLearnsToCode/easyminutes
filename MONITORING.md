@@ -170,45 +170,306 @@ Sentry automatically captures Web Vitals, but you can also configure custom perf
    }
    ```
 
-### Custom Performance Metrics
+### Custom Performance Metrics for EasyMinutes
 
-1. Track processing time for AI operations:
+For EasyMinutes, we should track performance metrics for the following key operations:
+
+1. AI Processing Time:
    ```javascript
-   // In your Convex function
+   // In your Convex function for AI processing
    export const processMeetingNotes = mutation({
-     args: { /* your args */ },
+     args: { 
+       text: v.string(),
+       userId: v.string(),
+     },
      handler: async (ctx, args) => {
        const startTime = Date.now();
        
        try {
+         // Record start time for performance monitoring
+         const processingStartTime = Date.now();
+         
          // Your AI processing code here
          const result = await processWithGemini(args.text);
          
-         // Track processing time
-         const processingTime = Date.now() - startTime;
-         console.log(`Processing completed in ${processingTime}ms`);
+         // Record end time and calculate duration
+         const processingEndTime = Date.now();
+         const processingDuration = processingEndTime - processingStartTime;
+         
+         // Log performance metric
+         console.log(`AI processing completed in ${processingDuration}ms`);
+         
+         // Store performance data for analytics
+         await ctx.db.insert("processingTimeEvents", {
+           userId: args.userId,
+           processingTimeMs: processingDuration,
+           success: true,
+           inputType: "text",
+           timestamp: Date.now(),
+         });
          
          return result;
        } catch (error) {
-         const processingTime = Date.now() - startTime;
-         console.log(`Processing failed after ${processingTime}ms`);
+         const processingEndTime = Date.now();
+         const processingDuration = processingEndTime - startTime;
+         
+         // Store performance data for failed requests
+         await ctx.db.insert("processingTimeEvents", {
+           userId: args.userId,
+           processingTimeMs: processingDuration,
+           success: false,
+           inputType: "text",
+           timestamp: Date.now(),
+         });
+         
          throw error;
        }
      },
    });
    ```
 
-2. Monitor database performance:
-   - Track query times for Convex operations
-   - Identify slow queries that might need optimization
+2. File Upload Processing Time:
+   ```javascript
+   // In your file upload handler
+   export const processFileUpload = mutation({
+     args: { 
+       fileData: v.bytes(),
+       fileType: v.string(),
+       userId: v.string(),
+     },
+     handler: async (ctx, args) => {
+       const startTime = Date.now();
+       
+       try {
+         // Process file upload
+         const text = await extractTextFromFile(args.fileData, args.fileType);
+         
+         const processingEndTime = Date.now();
+         const processingDuration = processingEndTime - startTime;
+         
+         // Log performance metric
+         console.log(`File processing completed in ${processingDuration}ms`);
+         
+         // Store performance data
+         await ctx.db.insert("processingTimeEvents", {
+           userId: args.userId,
+           processingTimeMs: processingDuration,
+           success: true,
+           inputType: "file",
+           timestamp: Date.now(),
+         });
+         
+         return { text, processingTime: processingDuration };
+       } catch (error) {
+         const processingEndTime = Date.now();
+         const processingDuration = processingEndTime - startTime;
+         
+         // Store performance data for failed requests
+         await ctx.db.insert("processingTimeEvents", {
+           userId: args.userId,
+           processingTimeMs: processingDuration,
+           success: false,
+           inputType: "file",
+           timestamp: Date.now(),
+         });
+         
+         throw error;
+       }
+     },
+   });
+   ```
+
+3. Audio Transcription Time:
+   ```javascript
+   // In your audio processing handler
+   export const transcribeAudioAndProcessMeetingNotes = mutation({
+     args: {
+       audioData: v.bytes(),
+       audioMimeType: v.string(),
+       userId: v.string(),
+     },
+     handler: async (ctx, args) => {
+       const startTime = Date.now();
+       
+       try {
+         // Transcribe audio
+         const transcribedText = await simulateAudioTranscription(
+           args.audioData, 
+           args.audioMimeType
+         );
+         
+         // Process transcribed text
+         const processingResult = await processMeetingNotes({
+           text: transcribedText,
+           userId: args.userId,
+         });
+         
+         const processingEndTime = Date.now();
+         const processingDuration = processingEndTime - startTime;
+         
+         // Log performance metric
+         console.log(`Audio processing completed in ${processingDuration}ms`);
+         
+         // Store performance data
+         await ctx.db.insert("processingTimeEvents", {
+           userId: args.userId,
+           processingTimeMs: processingDuration,
+           success: true,
+           inputType: "audio",
+           timestamp: Date.now(),
+         });
+         
+         return processingResult;
+       } catch (error) {
+         const processingEndTime = Date.now();
+         const processingDuration = processingEndTime - startTime;
+         
+         // Store performance data for failed requests
+         await ctx.db.insert("processingTimeEvents", {
+           userId: args.userId,
+           processingTimeMs: processingDuration,
+           success: false,
+           inputType: "audio",
+           timestamp: Date.now(),
+         });
+         
+         throw error;
+       }
+     },
+   });
+   ```
+
+4. Frontend Performance Tracking:
+   ```javascript
+   // In your frontend components
+   import * as Sentry from "@sentry/nextjs";
+   
+   // Track user interactions
+   const handleGenerateMinutes = async (text) => {
+     const transaction = Sentry.startTransaction({
+       name: "generate-meeting-minutes",
+     });
+     
+     try {
+       // Start measuring
+       const startTime = performance.now();
+       
+       // Call the Convex function
+       const result = await processMeetingNotes({ text, userId });
+       
+       // End measuring
+       const endTime = performance.now();
+       const duration = endTime - startTime;
+       
+       console.log(`Meeting minutes generated in ${duration}ms`);
+       
+       return result;
+     } catch (error) {
+       Sentry.captureException(error);
+       throw error;
+     } finally {
+       transaction.finish();
+     }
+   };
+   ```
+
+### Performance Monitoring with Custom Analytics
+
+In addition to Sentry, we can use the existing analytics infrastructure in EasyMinutes to track performance:
+
+1. Track processing times in the existing `processingTimeEvents` table:
+   - This is already partially implemented in the code examples above
+   - The data is stored in Convex and can be queried for analytics
+
+2. Create analytics queries to monitor performance:
+   ```javascript
+   // convex/getPerformanceAnalytics.js
+   import { query } from "./_generated/server";
+   
+   export const getPerformanceAnalytics = query({
+     args: {},
+     handler: async (ctx) => {
+       // Get average processing times
+       const processingTimes = await ctx.db.query("processingTimeEvents").collect();
+       
+       const avgProcessingTime = processingTimes.reduce(
+         (sum, event) => sum + event.processingTimeMs, 
+         0
+       ) / processingTimes.length;
+       
+       // Get success rate
+       const successfulRequests = processingTimes.filter(event => event.success).length;
+       const successRate = successfulRequests / processingTimes.length;
+       
+       // Get processing times by input type
+       const processingTimesByType = {
+         text: processingTimes
+           .filter(event => event.inputType === "text")
+           .reduce((sum, event) => sum + event.processingTimeMs, 0) / 
+           processingTimes.filter(event => event.inputType === "text").length,
+         file: processingTimes
+           .filter(event => event.inputType === "file")
+           .reduce((sum, event) => sum + event.processingTimeMs, 0) / 
+           processingTimes.filter(event => event.inputType === "file").length,
+         audio: processingTimes
+           .filter(event => event.inputType === "audio")
+           .reduce((sum, event) => sum + event.processingTimeMs, 0) / 
+           processingTimes.filter(event => event.inputType === "audio").length,
+       };
+       
+       return {
+         avgProcessingTime,
+         successRate,
+         processingTimesByType,
+         totalRequests: processingTimes.length,
+       };
+     },
+   });
+   ```
+
+3. Display performance metrics in the analytics dashboard:
+   ```javascript
+   // components/analytics-dashboard.js
+   import { useQuery } from "convex/react";
+   import { api } from "@/convex/_generated/api";
+   
+   export function AnalyticsDashboard({ userId }) {
+     const performanceAnalytics = useQuery(
+       api.getPerformanceAnalytics.getPerformanceAnalytics
+     );
+     
+     return (
+       <div>
+         <h2>Performance Metrics</h2>
+         {performanceAnalytics && (
+           <div>
+             <p>Average Processing Time: {performanceAnalytics.avgProcessingTime.toFixed(2)}ms</p>
+             <p>Success Rate: {(performanceAnalytics.successRate * 100).toFixed(2)}%</p>
+             <p>Text Processing: {performanceAnalytics.processingTimesByType.text?.toFixed(2)}ms</p>
+             <p>File Processing: {performanceAnalytics.processingTimesByType.file?.toFixed(2)}ms</p>
+             <p>Audio Processing: {performanceAnalytics.processingTimesByType.audio?.toFixed(2)}ms</p>
+           </div>
+         )}
+       </div>
+     );
+   }
+   ```
 
 ### Performance Alerts
 
 1. Set up alerts for:
-   - High error rates
-   - Slow transaction times
+   - High error rates in processing functions
+   - Slow transaction times (e.g., processing times > 15 seconds)
    - Increased latency in API endpoints
    - Dropped transactions (which might indicate issues with your instrumentation)
+
+2. Configure Sentry alerts:
+   - Go to your Sentry project
+   - Navigate to "Alerts" → "Create Alert"
+   - Set up alerts for:
+     - High number of errors in a period
+     - High latency in transactions
+     - New issues that haven't been seen before
 
 ## 3. Configure Uptime Monitoring and Alerts
 
