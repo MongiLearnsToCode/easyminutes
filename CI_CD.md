@@ -518,6 +518,20 @@ A staging environment allows you to test changes in a production-like environmen
            vercel-args: '--target=staging'
    ```
 
+### Configure Staging in Convex
+
+1. Create a staging deployment in Convex:
+   ```bash
+   npx convex deploy --deployment-name staging
+   ```
+
+2. Set up environment-specific Convex configurations:
+   ```bash
+   # Set environment variables for staging
+   npx convex env set --deployment staging GEMINI_API_KEY your-staging-gemini-key
+   npx convex env set --deployment staging LEMONSQUEEZY_API_KEY your-staging-lemonsqueezy-key
+   ```
+
 ### Testing the Staging Environment
 
 1. Create a staging branch:
@@ -532,6 +546,12 @@ A staging environment allows you to test changes in a production-like environmen
    - Verify that the staging deployment workflow runs
    - Check that your changes are deployed to the staging environment
 
+3. Test end-to-end functionality:
+   - Test user authentication
+   - Test meeting minutes generation
+   - Test Pro features (in a limited way)
+   - Test payment flow with test transactions
+
 ### Promoting from Staging to Production
 
 1. Merge staging to main for production deployment:
@@ -545,6 +565,25 @@ A staging environment allows you to test changes in a production-like environmen
    - Create a pull request from staging to main
    - Have team members review the changes
    - Merge the pull request to trigger production deployment
+
+### Staging Environment Best Practices
+
+1. Keep staging data separate from production:
+   - Use a separate Convex deployment for staging
+   - Use different LemonSqueezy store for staging (if possible)
+   - Use test data in staging environment
+
+2. Automate staging environment updates:
+   - Set up a workflow to automatically deploy to staging on pushes to the staging branch
+   - Consider setting up a workflow to automatically update staging with main branch changes periodically
+
+3. Monitor staging environment:
+   - Set up the same monitoring as production (Sentry, etc.)
+   - Use staging for load testing before major releases
+
+4. Clean up staging data:
+   - Regularly clean up test data in staging
+   - Reset staging environment to a known state periodically
 
 ## CI/CD Best Practices
 

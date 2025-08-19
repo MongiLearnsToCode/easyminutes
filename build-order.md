@@ -107,7 +107,7 @@
 6. CI/CD pipeline
    - [x] Set up automated testing pipeline
    - [x] Configure automatic deployments on main branch pushes
-   - [ ] Set up staging environment for testing
+   - [x] Set up staging environment for testing
 
 ---
 
