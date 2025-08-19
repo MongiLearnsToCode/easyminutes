@@ -98,7 +98,7 @@
    - [x] Test payment flow with test transactions
 4. Security hardening
    - [x] Generate production session secrets
-   - [ ] Configure CORS policies for production domains
+   - [x] Configure CORS policies for production domains
    - [ ] Set up rate limiting for API endpoints
 5. Monitoring setup
    - [ ] Configure error tracking (Sentry.io or similar)

@@ -43,15 +43,19 @@ Cross-Origin Resource Sharing (CORS) policies control which domains are allowed 
 
 ### Next.js CORS Configuration
 
-1. Install the `cors` package:
+For Next.js applications, CORS is typically handled at the API route level or through middleware.
+
+1. If you have custom API routes that need CORS configuration, you can use the `cors` package:
    ```bash
    npm install cors
    npm install @types/cors --save-dev
    ```
 
-2. Create a CORS middleware in your Next.js API routes:
+2. Create a CORS middleware for specific API routes:
    ```javascript
+   // pages/api/your-endpoint.js
    import Cors from 'cors';
+   import { withSentry } from '@sentry/nextjs';
 
    // Initialize the cors middleware
    const cors = Cors({
@@ -72,30 +76,32 @@ Cross-Origin Resource Sharing (CORS) policies control which domains are allowed 
      });
    }
 
-   export default async function handler(req, res) {
+   async function handler(req, res) {
      // Run the cors middleware
      await runMiddleware(req, res, cors);
 
      // Your API logic here
+     res.status(200).json({ message: 'Success' });
    }
+
+   export default withSentry(handler);
    ```
 
-3. For a global CORS configuration, you can create a middleware that runs on all API routes:
+3. For a global CORS configuration in Next.js, you can use middleware (for Next.js 12+):
    ```javascript
    // middleware.js
-   import Cors from 'cors';
-
-   const cors = Cors({
-     origin: process.env.ALLOWED_ORIGINS?.split(',') || ['https://yourdomain.com'],
-     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-     credentials: true,
-   });
+   import { NextResponse } from 'next/server';
 
    export function middleware(request) {
-     // Apply CORS headers
-     const headers = {};
-     // Add CORS headers to response
-     return new Response(null, { headers });
+     const response = NextResponse.next();
+     
+     // Set CORS headers
+     response.headers.set('Access-Control-Allow-Origin', process.env.ALLOWED_ORIGINS || 'https://yourdomain.com');
+     response.headers.set('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
+     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+     response.headers.set('Access-Control-Allow-Credentials', 'true');
+     
+     return response;
    }
 
    export const config = {
@@ -105,11 +111,14 @@ Cross-Origin Resource Sharing (CORS) policies control which domains are allowed 
 
 ### Convex CORS Configuration
 
+Convex automatically handles CORS for most use cases, but you can configure specific settings in your Convex dashboard:
+
 1. In your Convex dashboard, navigate to your project settings
 2. Go to the "CORS" section
 3. Add your production domain(s) to the allowed origins:
    - For example: `https://yourdomain.com`
    - If you have a staging environment: `https://staging.yourdomain.com`
+   - For local development: `http://localhost:3000` (only for development)
 4. Configure the allowed methods and headers as needed
 
 ### Webhook CORS Considerations
@@ -117,6 +126,22 @@ Cross-Origin Resource Sharing (CORS) policies control which domains are allowed 
 For webhooks from external services like LemonSqueezy:
 1. Webhooks are server-to-server requests, so CORS doesn't apply to them
 2. However, you should validate webhook requests using secrets to ensure they're legitimate
+
+### Testing CORS Configuration
+
+1. After deploying your CORS configuration, test it using curl or a browser:
+   ```bash
+   curl -H "Origin: https://yourdomain.com" \
+        -H "Access-Control-Request-Method: POST" \
+        -H "Access-Control-Request-Headers: X-Requested-With" \
+        -X OPTIONS \
+        https://yourdomain.com/api/your-endpoint
+   ```
+
+2. Check that the response includes the appropriate CORS headers:
+   - `Access-Control-Allow-Origin`
+   - `Access-Control-Allow-Methods`
+   - `Access-Control-Allow-Headers`
 
 ## 3. Set up Rate Limiting for API Endpoints
 
@@ -131,6 +156,7 @@ Rate limiting helps prevent abuse of your API endpoints and protects against den
 
 2. Create a rate limiter middleware:
    ```javascript
+   // lib/rate-limiter.js
    import rateLimit from 'express-rate-limit';
 
    // Create a rate limiter
@@ -145,6 +171,7 @@ Rate limiting helps prevent abuse of your API endpoints and protects against den
 
 3. Apply the rate limiter to specific API routes:
    ```javascript
+   // pages/api/your-endpoint.js
    import limiter from '../../lib/rate-limiter';
 
    export default async function handler(req, res) {
