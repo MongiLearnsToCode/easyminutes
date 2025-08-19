@@ -84,7 +84,7 @@
 
 ## Phase 6 — Deployment Preparation
 1. Environment configuration
-   - [ ] Configure LemonSqueezy credentials (API key, webhook secret, store ID)
+   - [x] Configure LemonSqueezy credentials (API key, webhook secret, store ID)
    - [ ] Setup email service credentials (SMTP settings)
    - [ ] Configure Gemini API key for production
    - [ ] Set up Clerk production credentials
