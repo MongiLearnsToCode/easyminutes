@@ -75,6 +75,21 @@ Before setting up LemonSqueezy, ensure you have:
    - Click this to send a test webhook to your endpoint
    - Check your application logs to verify the webhook was received and processed correctly
 
+6. Verify webhook processing in your application:
+   - The webhook handler is implemented in `src/app/api/webhooks/lemonsqueezy/route.ts`
+   - It processes different events:
+     - `order_created`: Tracks new orders
+     - `subscription_created`: Updates user's Pro status to true
+     - `subscription_expired`: Updates user's Pro status to false
+     - `subscription_cancelled`: Updates user's Pro status to false
+     - `subscription_renewed`: Updates user's Pro status to true
+
+7. Check that the webhook handler correctly:
+   - Validates the webhook signature using the secret
+   - Identifies the user ID from the custom data
+   - Updates the user's Pro status in the Convex database
+   - Tracks subscription events for analytics
+
 ## 3. Test Payment Flow with Test Transactions
 
 1. Enable test mode in LemonSqueezy:

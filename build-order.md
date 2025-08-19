@@ -94,7 +94,7 @@
    - [x] Configure custom domain and SSL certificates
 3. Payment integration completion
    - [x] Finalize LemonSqueezy product setup (Pro Plan subscription)
-   - [ ] Configure webhook endpoints in LemonSqueezy dashboard
+   - [x] Configure webhook endpoints in LemonSqueezy dashboard
    - [ ] Test payment flow with test transactions
 4. Security hardening
    - [ ] Generate production session secrets
