@@ -9,22 +9,25 @@ export const getConversionAnalytics = query({
   },
   handler: async (ctx, args) => {
     // Get all subscription events within the date range
-    let eventsQuery = ctx.db.query("subscriptionEvents");
+    let events;
     
     if (args.startDate || args.endDate) {
-      eventsQuery = eventsQuery.withIndex("by_timestamp", (q) => {
-        let query = q;
-        if (args.startDate) {
-          query = query.gte("timestamp", args.startDate);
-        }
-        if (args.endDate) {
-          query = query.lte("timestamp", args.endDate);
-        }
-        return query;
-      });
+      const eventsQuery = ctx.db.query("subscriptionEvents")
+        .withIndex("by_timestamp", (q) => {
+          let query = q;
+          if (args.startDate) {
+            query = query.gte("timestamp", args.startDate);
+          }
+          if (args.endDate) {
+            query = query.lte("timestamp", args.endDate);
+          }
+          return query;
+        });
+      events = await eventsQuery.collect();
+    } else {
+      // No date range specified, get all events
+      events = await ctx.db.query("subscriptionEvents").collect();
     }
-    
-    const events = await eventsQuery.collect();
     
     // Calculate conversion metrics
     let totalConversions = 0;
