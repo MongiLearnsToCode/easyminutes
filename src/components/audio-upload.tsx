@@ -5,12 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, AudioLines, Lock, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 
 interface AudioUploadProps {
-  onAudioProcessed: (result: any) => void;
+  onAudioProcessed: (result: { success: boolean; error?: string; [key: string]: any }) => void;
   isLoading?: boolean;
   isProUser?: boolean;
   onUpgradeClick?: () => void;

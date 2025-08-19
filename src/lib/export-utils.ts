@@ -1,6 +1,6 @@
 import { MeetingMinutes } from '@/hooks/use-process-meeting-notes';
 import { saveAs } from 'file-saver';
-import { Document, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, BorderStyle, VerticalAlign } from 'docx';
+import { Document, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, BorderStyle } from 'docx';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
 // Function to export meeting minutes as a Word document

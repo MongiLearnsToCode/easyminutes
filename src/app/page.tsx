@@ -4,7 +4,6 @@ import { useUser, useAuth } from '@clerk/clerk-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import UserProfile from '@/components/user-profile';
-import { useSyncUserProfile } from '@/hooks/use-sync-user-profile';
 import { TextPasteBox } from '@/components/text-paste-box';
 import { FileUpload } from '@/components/file-upload';
 import { AudioUpload } from '@/components/audio-upload';
@@ -13,7 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { useProcessMeetingNotes } from '@/hooks/use-process-meeting-notes';
-import { AlertCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AIProcessingAnimation } from '@/components/ai-processing-animation';
 import { ErrorAlert } from '@/components/error-alert';
@@ -99,7 +97,7 @@ export default function Home() {
     
     // If successful, increment the free generations count for free users
     if (result.success) {
-      const userProfile = useQuery(api.user_profile.getUserProfileByUserId, { userId });
+      // We already have userProfile from the query above
       if (userProfile?.plan === 'free') {
         await incrementFreeGenerations({ userId });
       }
@@ -132,7 +130,7 @@ export default function Home() {
     }
   };
 
-  const handleAudioUpload = async (result: any) => {
+  const handleAudioUpload = async (result: { success: boolean; error?: string; [key: string]: any }) => {
     // Handle the processed audio result
     if (result.success) {
       // Update the result state with the processed minutes

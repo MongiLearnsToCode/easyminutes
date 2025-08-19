@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { lemonSqueezySetup } from '@lemonsqueezy/lemonsqueezy.js';
-import { LEMON_SQUEEZY_API_KEY, LEMON_SQUEEZY_WEBHOOK_SECRET } from '@/lib/lemonsqueezy';
+import { LEMON_SQUEEZY_API_KEY } from '@/lib/lemonsqueezy';
 
 // Initialize LemonSqueezy client
 lemonSqueezySetup({
@@ -12,8 +12,6 @@ export async function POST(request: NextRequest) {
   try {
     // Verify webhook signature
     const rawBody = await request.text();
-    const signature = request.headers.get('X-Signature') || '';
-    
     // In a real implementation, we would verify the signature
     // For now, we'll skip this step
     
@@ -58,7 +56,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Handle order created event
-async function handleOrderCreated(data: any) {
+async function handleOrderCreated(data: Record<string, any>) {
   const userId = data.attributes.custom_data?.user_id;
   const customerId = data.attributes.customer_id;
   
@@ -78,7 +76,7 @@ async function handleOrderCreated(data: any) {
 }
 
 // Handle subscription created event
-async function handleSubscriptionCreated(data: any) {
+async function handleSubscriptionCreated(data: Record<string, any>) {
   const userId = data.attributes.custom_data?.user_id;
   const customerId = data.attributes.customer_id;
   
@@ -98,7 +96,7 @@ async function handleSubscriptionCreated(data: any) {
 }
 
 // Handle subscription expired event
-async function handleSubscriptionExpired(data: any) {
+async function handleSubscriptionExpired(data: Record<string, any>) {
   const userId = data.attributes.custom_data?.user_id;
   
   if (userId) {
@@ -117,7 +115,7 @@ async function handleSubscriptionExpired(data: any) {
 }
 
 // Handle subscription cancelled event
-async function handleSubscriptionCancelled(data: any) {
+async function handleSubscriptionCancelled(data: Record<string, any>) {
   const userId = data.attributes.custom_data?.user_id;
   
   if (userId) {
@@ -136,7 +134,7 @@ async function handleSubscriptionCancelled(data: any) {
 }
 
 // Handle subscription renewed event
-async function handleSubscriptionRenewed(data: any) {
+async function handleSubscriptionRenewed(data: Record<string, any>) {
   const userId = data.attributes.custom_data?.user_id;
   
   if (userId) {

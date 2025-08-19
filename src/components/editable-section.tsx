@@ -6,13 +6,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Pencil, Save, X } from 'lucide-react';
 
 interface EditableSectionProps {
-  title: string;
   content: string;
   onSave: (content: string) => void;
   className?: string;
 }
 
-export function EditableSection({ title, content, onSave, className }: EditableSectionProps) {
+export function EditableSection({ content, onSave, className }: EditableSectionProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState(content);
 

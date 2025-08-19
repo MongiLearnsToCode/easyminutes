@@ -10,7 +10,7 @@ import { Mail } from 'lucide-react';
 import { useUser } from '@clerk/clerk-react';
 
 interface EmailDialogProps {
-  minutes: any; // The meeting minutes object
+  minutes: Record<string, any>; // The meeting minutes object
   onUpgradeClick?: () => void;
   isProUser?: boolean;
 }

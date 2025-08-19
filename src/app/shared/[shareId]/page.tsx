@@ -18,7 +18,7 @@ export default function SharedMinutesPage({ params }: { params: { shareId: strin
   // });
   
   // For now, we'll simulate the data
-  const sharedMinutes: any = null;
+  const sharedMinutes: Record<string, any> | null = null;
   
   useEffect(() => {
     // Simulate loading

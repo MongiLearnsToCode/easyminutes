@@ -31,11 +31,11 @@ export function AnalyticsDashboard({ userId }: AnalyticsDashboardProps) {
   
   // TODO: Implement the query to get user analytics
   // const userAnalytics = useQuery(api.get_analytics.getUserAnalytics, { userId });
-  const userAnalytics: any = null;
+  const userAnalytics: Record<string, any> | null = null;
   
   // TODO: Implement the query to get overall analytics
   // const overallAnalytics = useQuery(api.get_analytics.getOverallAnalytics);
-  const overallAnalytics: any = {
+  const overallAnalytics: Record<string, any> = {
     totalUsers: 124,
     totalGenerations: 456,
     successfulGenerations: 432,
@@ -47,7 +47,7 @@ export function AnalyticsDashboard({ userId }: AnalyticsDashboardProps) {
   
   // TODO: Implement the query to get conversion analytics
   // const conversionAnalytics = useQuery(api.get_conversion_analytics.getConversionAnalytics, dateRange);
-  const conversionAnalytics: any = {
+  const conversionAnalytics: Record<string, any> = {
     totalConversions: 23,
     totalCancellations: 5,
     totalExpirations: 2,
