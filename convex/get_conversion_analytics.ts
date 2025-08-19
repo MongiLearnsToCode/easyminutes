@@ -11,19 +11,27 @@ export const getConversionAnalytics = query({
     // Get all subscription events within the date range
     let events;
     
-    if (args.startDate || args.endDate) {
-      const eventsQuery = ctx.db.query("subscriptionEvents")
-        .withIndex("by_timestamp", (q) => {
-          let query = q;
-          if (args.startDate) {
-            query = query.gte("timestamp", args.startDate);
-          }
-          if (args.endDate) {
-            query = query.lte("timestamp", args.endDate);
-          }
-          return query;
-        });
-      events = await eventsQuery.collect();
+    if (args.startDate && args.endDate) {
+      // Both start and end dates are provided
+      events = await ctx.db.query("subscriptionEvents")
+        .withIndex("by_timestamp", (q) => 
+          q.gte("timestamp", args.startDate!).lte("timestamp", args.endDate!)
+        )
+        .collect();
+    } else if (args.startDate) {
+      // Only start date is provided
+      events = await ctx.db.query("subscriptionEvents")
+        .withIndex("by_timestamp", (q) => 
+          q.gte("timestamp", args.startDate!)
+        )
+        .collect();
+    } else if (args.endDate) {
+      // Only end date is provided
+      events = await ctx.db.query("subscriptionEvents")
+        .withIndex("by_timestamp", (q) => 
+          q.lte("timestamp", args.endDate!)
+        )
+        .collect();
     } else {
       // No date range specified, get all events
       events = await ctx.db.query("subscriptionEvents").collect();
