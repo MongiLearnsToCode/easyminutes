@@ -73,3 +73,19 @@ To use the AI processing features, you'll need a Gemini API key from Google AI:
 4. Copy the API key and add it to your environment variables as `GEMINI_API_KEY`
 
 Note: For production use, make sure to set appropriate usage limits on your API key to prevent unexpected charges.
+
+## Clerk Credentials Configuration
+
+To set up authentication, you'll need Clerk credentials:
+
+1. Go to [Clerk.dev](https://clerk.dev/) and sign up for an account
+2. Create a new application
+3. In the Clerk dashboard, go to "API Keys"
+4. Copy the "Publishable key" and "Secret key"
+5. Add them to your environment variables:
+   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` for the publishable key
+   - `CLERK_SECRET_KEY` for the secret key
+
+Make sure to also configure your production URLs in the Clerk dashboard under "URLs":
+- Frontend API URL: Your production frontend URL
+- Backend API URL: Your production backend URL (Convex URL)
