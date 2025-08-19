@@ -11,16 +11,17 @@ export const getConversionAnalytics = query({
     // Get all subscription events within the date range
     let eventsQuery = ctx.db.query("subscriptionEvents");
     
-    if (args.startDate) {
-      eventsQuery = eventsQuery.withIndex("by_timestamp", (q) => 
-        q.gte("timestamp", args.startDate)
-      );
-    }
-    
-    if (args.endDate) {
-      eventsQuery = eventsQuery.withIndex("by_timestamp", (q) => 
-        q.lte("timestamp", args.endDate)
-      );
+    if (args.startDate || args.endDate) {
+      eventsQuery = eventsQuery.withIndex("by_timestamp", (q) => {
+        let query = q;
+        if (args.startDate) {
+          query = query.gte("timestamp", args.startDate);
+        }
+        if (args.endDate) {
+          query = query.lte("timestamp", args.endDate);
+        }
+        return query;
+      });
     }
     
     const events = await eventsQuery.collect();
