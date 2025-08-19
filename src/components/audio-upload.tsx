@@ -28,7 +28,7 @@ export function AudioUpload({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const transcribeAudio = useMutation(api.transcribe_audio.transcribeAudioAndProcessMeetingNotes);
 
-  const handleFileChange = (e: React.ChangeEvent&lt;HTMLInputElement&gt;) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
