@@ -6,23 +6,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ExportButton } from '@/components/export-button';
-import { useQuery, useMutation } from 'convex/react';
+import { useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { useUser } from '@clerk/clerk-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { EditableSection } from '@/components/editable-section';
 import { Button } from '@/components/ui/button';
 import { Plus, Save, X, Share, Mail } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import { SaveUpgradePrompt } from '@/components/save-upgrade-prompt';
 import { EmailDialog } from '@/components/email-dialog';
+import { MeetingMinutes as TypedMeetingMinutes, Attendee, Decision, Risk, ActionItem, Observation } from '@/types/meeting-minutes';
 
-interface EditableMeetingMinutes extends MeetingMinutes {
+interface EditableMeetingMinutes extends TypedMeetingMinutes {
   edited?: boolean;
 }
 
 interface MeetingMinutesDisplayProps {
-  minutes: MeetingMinutes;
+  minutes: TypedMeetingMinutes;
   isProUser?: boolean;
   onUpgradeClick?: () => void;
   onSave?: (minutes: EditableMeetingMinutes) => void;
@@ -36,7 +36,7 @@ export function MeetingMinutesDisplay({ minutes, isProUser = false, onUpgradeCli
   const [showSaveUpgradePrompt, setShowSaveUpgradePrompt] = useState(false);
   
   // Create a local copy of the minutes for editing
-  const [editableMinutes, setEditableMinutes] = useState<EditableMeetingMinutes>({ ...minutes });
+  const [editableMinutes, setEditableMinutes] = useState<EditableMeetingMinutes>({ ...minutes } as EditableMeetingMinutes);
   const [isEditing, setIsEditing] = useState(false);
 
   const handleSave = () => {
@@ -61,7 +61,10 @@ export function MeetingMinutesDisplay({ minutes, isProUser = false, onUpgradeCli
     setIsEditing(false);
   };
 
-  const updateSection = (section: keyof MeetingMinutes, value: any) => {
+  const updateSection = (
+    section: keyof TypedMeetingMinutes, 
+    value: string | Attendee[] | Decision[] | Risk[] | ActionItem[] | Observation[]
+  ) => {
     setEditableMinutes(prev => ({
       ...prev,
       [section]: value

@@ -11,7 +11,7 @@ import { MeetingMinutesDisplay } from '@/components/meeting-minutes-display';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
-import { useProcessMeetingNotes } from '@/hooks/use-process-meeting-notes';
+import { useProcessMeetingNotes, ProcessMeetingNotesResult } from '@/hooks/use-process-meeting-notes';
 import { Button } from '@/components/ui/button';
 import { AIProcessingAnimation } from '@/components/ai-processing-animation';
 import { ErrorAlert } from '@/components/error-alert';
@@ -81,7 +81,7 @@ export default function Home() {
     
     if (!limitCheck.canGenerate) {
       // User has reached their limit
-      const errorResult = {
+      const errorResult: ProcessMeetingNotesResult = {
         success: false,
         error: "You've reached your limit of 3 free generations. Please upgrade to Pro for unlimited generations.",
       };
@@ -130,7 +130,7 @@ export default function Home() {
     }
   };
 
-  const handleAudioUpload = async (result: { success: boolean; error?: string; [key: string]: any }) => {
+  const handleAudioUpload = async (result: ProcessMeetingNotesResult) => {
     // Handle the processed audio result
     if (result.success) {
       // Update the result state with the processed minutes

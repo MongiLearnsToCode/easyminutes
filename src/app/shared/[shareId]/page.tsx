@@ -1,9 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { MeetingMinutesDisplay } from '@/components/meeting-minutes-display';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 
@@ -18,7 +15,7 @@ export default function SharedMinutesPage({ params }: { params: { shareId: strin
   // });
   
   // For now, we'll simulate the data
-  const sharedMinutes: Record<string, any> | null = null;
+  const sharedMinutes: { [key: string]: string | number | boolean | object } | null = null;
   
   useEffect(() => {
     // Simulate loading

@@ -8,14 +8,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Mail } from 'lucide-react';
 import { useUser } from '@clerk/clerk-react';
+import { MeetingMinutes } from '@/types/meeting-minutes';
 
 interface EmailDialogProps {
-  minutes: Record<string, any>; // The meeting minutes object
+  minutes: MeetingMinutes; // The meeting minutes object
   onUpgradeClick?: () => void;
   isProUser?: boolean;
 }
 
 export function EmailDialog({ minutes, onUpgradeClick, isProUser = false }: EmailDialogProps) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { user } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [recipientEmail, setRecipientEmail] = useState('');

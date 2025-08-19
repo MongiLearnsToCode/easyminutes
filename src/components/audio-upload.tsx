@@ -7,9 +7,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, AudioLines, Lock, Loader2 } from 'lucide-react';
 import { useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { AudioProcessingResult } from '@/types/audio-processing';
 
 interface AudioUploadProps {
-  onAudioProcessed: (result: { success: boolean; error?: string; [key: string]: any }) => void;
+  onAudioProcessed: (result: AudioProcessingResult) => void;
   isLoading?: boolean;
   isProUser?: boolean;
   onUpgradeClick?: () => void;
@@ -27,7 +28,7 @@ export function AudioUpload({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const transcribeAudio = useMutation(api.transcribe_audio.transcribeAudioAndProcessMeetingNotes);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent&lt;HTMLInputElement&gt;) => {
     e.preventDefault();
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
@@ -74,7 +75,8 @@ export function AudioUpload({
       const arrayBuffer = await file.arrayBuffer();
       
       // Convert to base64 for transmission
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      // Note: We're not using this variable, but keeping the conversion for reference
+      // const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
       
       // Call the Convex mutation to transcribe and process the audio
       // Note: In a real implementation, you might want to stream the file or use a different approach

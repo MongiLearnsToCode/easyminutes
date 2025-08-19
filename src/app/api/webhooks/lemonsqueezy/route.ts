@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { lemonSqueezySetup } from '@lemonsqueezy/lemonsqueezy.js';
 import { LEMON_SQUEEZY_API_KEY } from '@/lib/lemonsqueezy';
+import { LemonSqueezyWebhookData, SubscriptionEvent } from '@/types/lemonsqueezy';
 
 // Initialize LemonSqueezy client
 lemonSqueezySetup({
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
     // For now, we'll skip this step
     
     // Parse the webhook payload
-    const payload = JSON.parse(rawBody);
+    const payload: { meta: { event_name: string }; data: LemonSqueezyWebhookData } = JSON.parse(rawBody);
     const eventType = payload.meta.event_name;
     const data = payload.data;
     
@@ -56,13 +57,13 @@ export async function POST(request: NextRequest) {
 }
 
 // Handle order created event
-async function handleOrderCreated(data: Record<string, any>) {
+async function handleOrderCreated(data: LemonSqueezyWebhookData) {
   const userId = data.attributes.custom_data?.user_id;
   const customerId = data.attributes.customer_id;
   
   if (userId) {
     // Update user's Pro status in Convex
-    await updateProStatusInConvex(userId, true, customerId);
+    await updateProStatusInConvex(userId, true, customerId || null);
     
     // Track subscription conversion event
     await trackSubscriptionEvent({
@@ -76,13 +77,13 @@ async function handleOrderCreated(data: Record<string, any>) {
 }
 
 // Handle subscription created event
-async function handleSubscriptionCreated(data: Record<string, any>) {
+async function handleSubscriptionCreated(data: LemonSqueezyWebhookData) {
   const userId = data.attributes.custom_data?.user_id;
   const customerId = data.attributes.customer_id;
   
   if (userId) {
     // Update user's Pro status in Convex
-    await updateProStatusInConvex(userId, true, customerId);
+    await updateProStatusInConvex(userId, true, customerId || null);
     
     // Track subscription conversion event
     await trackSubscriptionEvent({
@@ -96,7 +97,7 @@ async function handleSubscriptionCreated(data: Record<string, any>) {
 }
 
 // Handle subscription expired event
-async function handleSubscriptionExpired(data: Record<string, any>) {
+async function handleSubscriptionExpired(data: LemonSqueezyWebhookData) {
   const userId = data.attributes.custom_data?.user_id;
   
   if (userId) {
@@ -115,7 +116,7 @@ async function handleSubscriptionExpired(data: Record<string, any>) {
 }
 
 // Handle subscription cancelled event
-async function handleSubscriptionCancelled(data: Record<string, any>) {
+async function handleSubscriptionCancelled(data: LemonSqueezyWebhookData) {
   const userId = data.attributes.custom_data?.user_id;
   
   if (userId) {
@@ -134,7 +135,7 @@ async function handleSubscriptionCancelled(data: Record<string, any>) {
 }
 
 // Handle subscription renewed event
-async function handleSubscriptionRenewed(data: Record<string, any>) {
+async function handleSubscriptionRenewed(data: LemonSqueezyWebhookData) {
   const userId = data.attributes.custom_data?.user_id;
   
   if (userId) {
@@ -177,13 +178,7 @@ async function updateProStatusInConvex(userId: string, isPro: boolean, customerI
 }
 
 // Function to track subscription events
-async function trackSubscriptionEvent(event: {
-  userId: string;
-  eventType: 'conversion' | 'cancellation' | 'expiration' | 'renewal';
-  previousPlan: 'free' | 'pro';
-  newPlan: 'free' | 'pro';
-  timestamp: number;
-}) {
+async function trackSubscriptionEvent(event: SubscriptionEvent) {
   try {
     // In a real implementation, we would make a request to our Convex backend
     // to track the subscription event

@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { EMAIL_CONFIG } from './email-config';
+import { MeetingMinutes } from '@/types/meeting-minutes';
 
 // Create a transporter using the email configuration
 const transporter = nodemailer.createTransporter({
@@ -16,7 +17,7 @@ const transporter = nodemailer.createTransporter({
 export async function sendMeetingMinutesEmail(
   to: string,
   subject: string,
-  minutes: Record<string, any>, // The meeting minutes object
+  minutes: MeetingMinutes, // The meeting minutes object
   attachments?: Array<{ filename: string; content: Buffer }>
 ) {
   try {
@@ -51,9 +52,9 @@ export async function sendMeetingMinutesEmail(
 }
 
 // Function to format meeting minutes as HTML
-function formatMeetingMinutesAsHtml(minutes: Record<string, any>): string {
+function formatMeetingMinutesAsHtml(minutes: MeetingMinutes): string {
   // Create a professional HTML template for the meeting minutes
-  let html = `
+  const html = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -160,15 +161,15 @@ function formatMeetingMinutesAsHtml(minutes: Record<string, any>): string {
         <div class="section">
           <h2>Attendees</h2>
           <div>
-            ${minutes.attendees.map((attendee: Record<string, any>) => 
-              `<span class="attendee">${attendee.name} - ${attendee.role}</span>`
+            ${minutes.attendees.map((attendee) => 
+              `<span class=\"attendee\">${attendee.name} - ${attendee.role}</span>`
             ).join('')}
           </div>
         </div>
         
         <div class="section">
           <h2>Decisions Made</h2>
-          ${minutes.decisions.map((decision: Record<string, any>, index: number) => 
+          ${minutes.decisions.map((decision, index) => 
             `<div class="decision">
               <p><strong>${index + 1}. ${decision.description}</strong></p>
               <p>Made by: ${decision.madeBy} | Date: ${decision.date}</p>
@@ -178,8 +179,8 @@ function formatMeetingMinutesAsHtml(minutes: Record<string, any>): string {
         
         <div class="section">
           <h2>Risks & Mitigations</h2>
-          ${minutes.risks.map((risk: Record<string, any>, index: number) => 
-            `<div class="risk">
+          ${minutes.risks.map((risk, index) => 
+            `<div class=\"risk\">
               <p><strong>Risk ${index + 1}: ${risk.description}</strong></p>
               <p><strong>Mitigation:</strong> ${risk.mitigation}</p>
             </div>`
@@ -198,7 +199,7 @@ function formatMeetingMinutesAsHtml(minutes: Record<string, any>): string {
               </tr>
             </thead>
             <tbody>
-              ${minutes.actionItems.map((item: Record<string, any>, index: number) => 
+              ${minutes.actionItems.map((item, index) => 
                 `<tr>
                   <td>${index + 1}</td>
                   <td>${item.description}</td>
@@ -212,8 +213,8 @@ function formatMeetingMinutesAsHtml(minutes: Record<string, any>): string {
         
         <div class="section">
           <h2>Observations & Insights</h2>
-          ${minutes.observations.map((observation: Record<string, any>, index: number) => 
-            `<div class="observation">
+          ${minutes.observations.map((observation, index) => 
+            `<div class=\"observation\">
               <p>${index + 1}. ${observation.description}</p>
             </div>`
           ).join('')}

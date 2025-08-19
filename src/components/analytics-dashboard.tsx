@@ -1,13 +1,35 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
 
 interface AnalyticsDashboardProps {
   userId: string;
+}
+
+interface UserAnalytics {
+  totalUsers: number;
+  totalGenerations: number;
+  successfulGenerations: number;
+  successRate: number;
+  under2MinuteGenerations: number;
+  under2MinuteRate: number;
+  averageProcessingTime: number; // in milliseconds
+}
+
+interface ConversionAnalytics {
+  totalConversions: number;
+  totalCancellations: number;
+  totalExpirations: number;
+  totalRenewals: number;
+  uniqueUsersConverted: number;
+  uniqueUsersCancelled: number;
+  conversionRate: number;
+  churnRate: number;
+  retentionRate: number;
+  conversionsOverTime: Record<string, number>;
+  cancellationsOverTime: Record<string, number>;
 }
 
 export function AnalyticsDashboard({ userId }: AnalyticsDashboardProps) {
@@ -31,11 +53,11 @@ export function AnalyticsDashboard({ userId }: AnalyticsDashboardProps) {
   
   // TODO: Implement the query to get user analytics
   // const userAnalytics = useQuery(api.get_analytics.getUserAnalytics, { userId });
-  const userAnalytics: Record<string, any> | null = null;
+  const userAnalytics: UserAnalytics | null = null;
   
   // TODO: Implement the query to get overall analytics
   // const overallAnalytics = useQuery(api.get_analytics.getOverallAnalytics);
-  const overallAnalytics: Record<string, any> = {
+  const overallAnalytics: UserAnalytics = {
     totalUsers: 124,
     totalGenerations: 456,
     successfulGenerations: 432,
@@ -47,7 +69,7 @@ export function AnalyticsDashboard({ userId }: AnalyticsDashboardProps) {
   
   // TODO: Implement the query to get conversion analytics
   // const conversionAnalytics = useQuery(api.get_conversion_analytics.getConversionAnalytics, dateRange);
-  const conversionAnalytics: Record<string, any> = {
+  const conversionAnalytics: ConversionAnalytics = {
     totalConversions: 23,
     totalCancellations: 5,
     totalExpirations: 2,
