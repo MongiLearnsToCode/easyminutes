@@ -121,8 +121,21 @@ Before setting up LemonSqueezy, ensure you have:
 
 6. Test the user experience:
    - Log in as the test user
-   - Verify that Pro features are now accessible
+   - Verify that Pro features are now accessible:
+     - Audio upload functionality
+     - Export to PDF/DOCX
+     - Share meeting minutes
+     - Email meeting minutes
    - Test exporting minutes, sharing, and email functionality
+
+7. Verify analytics tracking:
+   - Check that subscription events are being tracked in your analytics
+   - Verify that user analytics are being updated correctly
+
+8. Test edge cases:
+   - Test what happens when a user cancels their subscription
+   - Test what happens when a subscription expires
+   - Test what happens when a subscription is renewed
 
 ## Troubleshooting
 
@@ -134,10 +147,16 @@ Before setting up LemonSqueezy, ensure you have:
 2. User not being upgraded to Pro:
    - Verify that the webhook is correctly updating the user's status in your database
    - Check that the user ID is being correctly passed in the custom data during checkout
+   - Verify that the `update_pro_status` Convex function is working correctly
 
 3. Checkout errors:
    - Ensure all required fields are filled out correctly in your product setup
    - Check that your store settings are correctly configured
+
+4. Pro features not accessible:
+   - Verify that the user's Pro status is correctly set in the database
+   - Check that the frontend is correctly checking the user's Pro status
+   - Verify that the feature gating is implemented correctly
 
 ## Production Checklist
 

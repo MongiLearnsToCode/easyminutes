@@ -95,7 +95,7 @@
 3. Payment integration completion
    - [x] Finalize LemonSqueezy product setup (Pro Plan subscription)
    - [x] Configure webhook endpoints in LemonSqueezy dashboard
-   - [ ] Test payment flow with test transactions
+   - [x] Test payment flow with test transactions
 4. Security hardening
    - [ ] Generate production session secrets
    - [ ] Configure CORS policies for production domains
