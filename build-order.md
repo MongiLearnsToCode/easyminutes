@@ -90,7 +90,7 @@
    - [x] Set up Clerk production credentials
 2. Production deployment
    - [x] Deploy Convex functions to production
-   - [ ] Deploy Next.js frontend to Vercel
+   - [x] Deploy Next.js frontend to Vercel
    - [ ] Configure custom domain and SSL certificates
 3. Payment integration completion
    - [ ] Finalize LemonSqueezy product setup (Pro Plan subscription)

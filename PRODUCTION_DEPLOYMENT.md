@@ -45,6 +45,21 @@ Before deploying to production, ensure you have:
    - In your Vercel project settings, go to "Environment Variables"
    - Add all the variables from your `.env.production` file
    - Make sure to use your production values, not development ones
+   - Important variables to configure:
+     - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+     - `CLERK_SECRET_KEY`
+     - `NEXT_PUBLIC_CONVEX_URL`
+     - `GEMINI_API_KEY`
+     - `LEMONSQUEEZY_API_KEY`
+     - `LEMONSQUEEZY_WEBHOOK_SECRET`
+     - `NEXT_PUBLIC_LEMONSQUEEZY_STORE_ID`
+     - `LEMON_SQUEEZY_PRO_VARIANT_ID`
+     - `SMTP_HOST`
+     - `SMTP_PORT`
+     - `SMTP_USER`
+     - `SMTP_PASSWORD`
+     - `SMTP_FROM_EMAIL`
+     - `SMTP_FROM_NAME`
 
 4. Configure build settings in Vercel:
    - Build Command: `next build`
