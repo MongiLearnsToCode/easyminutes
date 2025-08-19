@@ -91,7 +91,7 @@
 2. Production deployment
    - [x] Deploy Convex functions to production
    - [x] Deploy Next.js frontend to Vercel
-   - [ ] Configure custom domain and SSL certificates
+   - [x] Configure custom domain and SSL certificates
 3. Payment integration completion
    - [ ] Finalize LemonSqueezy product setup (Pro Plan subscription)
    - [ ] Configure webhook endpoints in LemonSqueezy dashboard

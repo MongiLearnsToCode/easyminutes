@@ -72,21 +72,48 @@ Before deploying to production, ensure you have:
 
 ### 3. Domain Configuration
 
-1. In your domain registrar's DNS settings, point your domain to Vercel:
-   - Add an A record pointing to Vercel's IP addresses
-   - Add a CNAME record for www subdomain (if needed)
+1. Purchase a domain (if you haven't already):
+   - You can purchase a domain from registrars like Namecheap, Google Domains, or GoDaddy
+   - For this guide, we'll assume you have a domain named `easyminutes.com`
 
-2. In Vercel dashboard:
+2. In your domain registrar's DNS settings, point your domain to Vercel:
+   - Add an A record pointing to Vercel's IP addresses:
+     - Name: `@` (or leave blank, depending on your registrar)
+     - Type: A
+     - Value: 76.76.21.21
+   - Add another A record with the same value for redundancy
+   - Add a CNAME record for www subdomain (if needed):
+     - Name: `www`
+     - Type: CNAME
+     - Value: cname.vercel-dns.com
+
+3. In Vercel dashboard:
    - Go to your project settings
    - Navigate to "Domains"
-   - Add your domain and follow the verification steps
+   - Add your domain (e.g., `easyminutes.com`) and follow the verification steps
+   - Add the www subdomain as well (e.g., `www.easyminutes.com`)
 
-3. SSL certificates are automatically provisioned by Vercel:
+4. SSL certificates are automatically provisioned by Vercel:
    - No additional steps are needed for SSL
    - Vercel handles certificate renewal automatically
+   - You can verify the SSL certificate status in the Vercel dashboard under "Domains"
 
-4. Update environment variables if needed:
-   - After your domain is configured, you may need to update URLs in your Clerk and LemonSqueezy dashboards
+5. Update environment variables in Vercel:
+   - After your domain is configured, update the following URLs in your environment variables:
+     - If you have any URLs in your Clerk dashboard that reference localhost, update them to your production domain
+     - Similarly, update any webhook URLs in your LemonSqueezy dashboard to use your production domain
+
+6. Update URLs in external services:
+   - **Clerk Dashboard**:
+     - Go to your Clerk dashboard
+     - Navigate to "URLs" settings
+     - Update the "Frontend API URL" to your production domain
+     - Update the "Backend API URL" to your Convex production URL
+   - **LemonSqueezy Dashboard**:
+     - Go to your LemonSqueezy dashboard
+     - Navigate to "Webhooks" settings
+     - Update the webhook URL to `https://yourdomain.com/api/webhooks/lemonsqueezy`
+     - Make sure to update the webhook secret in your Vercel environment variables if you regenerate it
 
 ## Post-Deployment Verification
 
