@@ -40,7 +40,9 @@ export const createShareableLink = mutation({
     });
     
     // Generate the shareable URL
-    const shareableUrl = `${ctx.url.host}/shared/${shareId}`;
+    // Use NEXT_PUBLIC_BASE_URL environment variable or fallback to localhost for development
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const shareableUrl = `${baseUrl}/shared/${shareId}`;
     
     return {
       success: true,
