@@ -32,7 +32,7 @@ export const getMeetingMinutesVersions = query({
     // Also get the original version (the one with no parentId or its own ID as parentId)
     const originalVersion = await ctx.db
       .query("meetingMinutes")
-      .filter((q) => q.field("_id").eq(parentId))
+      .filter((q) => q.eq(q.field("_id"), parentId))
       .unique();
     
     // Combine all versions and sort by version number
