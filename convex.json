@@ -6,5 +6,12 @@
     "externalPackages": [
       "@google/generative-ai"
     ]
+  },
+  "deploy": {
+    "externalDependencies": [
+      "convex",
+      "convex/values",
+      "convex/server"
+    ]
   }
 }
