@@ -74,7 +74,7 @@ export const getConversionAnalytics = query({
     
     // Calculate conversion rate
     const totalFreeUsers = await ctx.db.query("users")
-      .withIndex("by_userId", (q) => q.neq("plan", "pro")) // Simplified query
+      .filter((q) => q.neq(q.field("plan"), "pro"))
       .collect()
       .then(users => users.length);
       
