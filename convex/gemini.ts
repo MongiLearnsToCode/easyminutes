@@ -62,8 +62,8 @@ async function withRetry<T>(
 
       let delay = Math.min(baseDelay * Math.pow(2, i), 10000) + Math.random() * 1000;
 
-      if (error.toString().includes("429 Too Many Requests")) {
-        const retryDelayMatch = error.toString().match(/retryDelay\\\":\\\"(\d+)s/);
+      if ((error as any).toString().includes("429 Too Many Requests")) {
+        const retryDelayMatch = (error as any).toString().match(/retryDelay\\":\\"(\d+)s/);
         if (retryDelayMatch && retryDelayMatch[1]) {
           delay = parseInt(retryDelayMatch[1], 10) * 1000;
         } else {
