@@ -25,7 +25,7 @@ export const getLatestMeetingMinutesById = query({
       const latestVersion = await ctx.db
         .query("meetingMinutes")
         .withIndex("by_parentId", (q) => q.eq("parentId", minutes.parentId))
-        .filter((q) => q.field("isLatest").eq(true))
+        .filter((q) => q.eq(q.field("isLatest"), true))
         .unique();
       
       return latestVersion || minutes;
@@ -34,7 +34,7 @@ export const getLatestMeetingMinutesById = query({
       const latestVersion = await ctx.db
         .query("meetingMinutes")
         .withIndex("by_parentId", (q) => q.eq("parentId", args.minutesId))
-        .filter((q) => q.field("isLatest").eq(true))
+        .filter((q) => q.eq(q.field("isLatest"), true))
         .unique();
       
       return latestVersion || minutes;
