@@ -43,7 +43,7 @@ export function useProcessMeetingNotes() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<ProcessMeetingNotesResult | null>(null);
   
-  const processMeetingNotes = useAction(api.gemini.processMeetingNotes);
+  const processMeetingNotes = useAction(api.openai.processMeetingNotes);
 
   const processNotes = useCallback(async (text: string, userId: string) => {
     setIsLoading(true);
