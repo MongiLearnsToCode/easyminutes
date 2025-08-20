@@ -1,5 +1,5 @@
 // Import the necessary modules
-import { httpRouter } from "convex/server";
+import { httpRouter, httpAction } from "convex/server";
 
 // Create an HTTP router
 const http = httpRouter();
@@ -8,9 +8,9 @@ const http = httpRouter();
 http.route({
   path: "/api/health",
   method: "GET",
-  handler: async (ctx, request) => {
+  handler: httpAction(async (ctx, request) => {
     return new Response("OK", { status: 200 });
-  },
+  }),
 });
 
 // Export the HTTP router
