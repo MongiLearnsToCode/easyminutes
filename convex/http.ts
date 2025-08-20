@@ -8,7 +8,7 @@ const http = httpRouter();
 http.route({
   path: "/api/health",
   method: "GET",
-  handler: async (ctx) => {
+  handler: async (ctx, request) => {
     return new Response("OK", { status: 200 });
   },
 });
