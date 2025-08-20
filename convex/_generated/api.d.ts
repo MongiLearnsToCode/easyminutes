@@ -15,8 +15,6 @@ import type {
 } from "convex/server";
 import type * as check_free_limit from "../check_free_limit.js";
 import type * as create_shareable_link from "../create_shareable_link.js";
-import type * as gemini from "../gemini.js";
-import type * as gemini_mutations from "../gemini_mutations.js";
 import type * as get_analytics from "../get_analytics.js";
 import type * as get_conversion_analytics from "../get_conversion_analytics.js";
 import type * as get_latest_minutes from "../get_latest_minutes.js";
@@ -29,6 +27,8 @@ import type * as get_user_profile from "../get_user_profile.js";
 import type * as hello from "../hello.js";
 import type * as http from "../http.js";
 import type * as increment_free_generations from "../increment_free_generations.js";
+import type * as openai from "../openai.js";
+import type * as openai_mutations from "../openai_mutations.js";
 import type * as save_edited_minutes from "../save_edited_minutes.js";
 import type * as send_email from "../send_email.js";
 import type * as track_nps_survey from "../track_nps_survey.js";
@@ -53,8 +53,6 @@ import type * as utils_meeting_minutes_validator from "../utils/meeting_minutes_
 declare const fullApi: ApiFromModules<{
   check_free_limit: typeof check_free_limit;
   create_shareable_link: typeof create_shareable_link;
-  gemini: typeof gemini;
-  gemini_mutations: typeof gemini_mutations;
   get_analytics: typeof get_analytics;
   get_conversion_analytics: typeof get_conversion_analytics;
   get_latest_minutes: typeof get_latest_minutes;
@@ -67,6 +65,8 @@ declare const fullApi: ApiFromModules<{
   hello: typeof hello;
   http: typeof http;
   increment_free_generations: typeof increment_free_generations;
+  openai: typeof openai;
+  openai_mutations: typeof openai_mutations;
   save_edited_minutes: typeof save_edited_minutes;
   send_email: typeof send_email;
   track_nps_survey: typeof track_nps_survey;
