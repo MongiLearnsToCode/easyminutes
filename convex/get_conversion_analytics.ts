@@ -73,18 +73,18 @@ export const getConversionAnalytics = query({
     }
     
     // Calculate conversion rate
-    const totalFreeUsers = await ctx.db.query("users")
+    const freeUsers = await ctx.db.query("users")
       .filter((q) => q.neq(q.field("plan"), "pro"))
-      .collect()
-      .then(users => users.length);
+      .collect();
+    const totalFreeUsers = freeUsers.length;
       
     const conversionRate = totalFreeUsers > 0 ? (totalConversions / totalFreeUsers) * 100 : 0;
     
     // Calculate churn rate
-    const totalProUsers = await ctx.db.query("users")
-      .withIndex("by_userId", (q) => q.eq("plan", "pro"))
-      .collect()
-      .then(users => users.length);
+    const proUsers = await ctx.db.query("users")
+      .filter((q) => q.eq(q.field("plan"), "pro"))
+      .collect();
+    const totalProUsers = proUsers.length;
       
     const churnRate = totalProUsers > 0 ? ((totalCancellations + totalExpirations) / totalProUsers) * 100 : 0;
     
