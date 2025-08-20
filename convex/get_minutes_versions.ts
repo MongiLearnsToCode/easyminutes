@@ -14,7 +14,7 @@ export const getMeetingMinutesVersions = query({
       return [];
     }
     
-    let parentId: string;
+    let parentId: import("./_generated/dataModel").Id<"meetingMinutes">;
     
     // Determine the parent ID
     if (minutes.parentId) {
