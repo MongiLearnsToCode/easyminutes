@@ -19,7 +19,8 @@ import { SuccessAlert } from '@/components/success-alert';
 import { UpgradePrompt } from '@/components/upgrade-prompt';
 import { NPSSurvey } from '@/components/nps-survey';
 import { useNPSSurvey } from '@/hooks/use-nps-survey';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 export default function Home() {
   const { isSignedIn, user, isLoaded } = useUser();
@@ -308,6 +309,12 @@ export default function Home() {
       {/* NPS Survey Dialog */}
       <Dialog open={showNPSSurvey} onOpenChange={setShowNPSSurvey}>
         <DialogContent className="sm:max-w-md p-0">
+          <VisuallyHidden>
+            <DialogTitle>Net Promoter Score Survey</DialogTitle>
+            <DialogDescription>
+              A survey to gauge user satisfaction.
+            </DialogDescription>
+          </VisuallyHidden>
           <NPSSurvey 
             userId={user?.id || ''}
             onDismiss={() => setShowNPSSurvey(false)}
