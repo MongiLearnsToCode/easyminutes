@@ -116,7 +116,7 @@ export const transcribeAudioAndProcessMeetingNotes = action({
 
     // Call the Gemini API to process the transcribed text
     const processingResult = await withRetry(async () => {
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" });
       return await withTimeout(
         model.generateContent(processingPrompt),
         9000 // 9 second timeout to ensure we stay under 10s
