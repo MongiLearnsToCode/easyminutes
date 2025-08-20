@@ -30,7 +30,7 @@ interface MeetingMinutesDisplayProps {
 
 export function MeetingMinutesDisplay({ minutes, isProUser = false, onUpgradeClick, onSave }: MeetingMinutesDisplayProps) {
   const { user } = useUser();
-  const [createShareableLink] = useMutation(api.create_shareable_link.createShareableLink);
+  const createShareableLink = useMutation(api.create_shareable_link.createShareableLink);
   const [shareableLink, setShareableLink] = useState<string | null>(null);
   const [isSharing, setIsSharing] = useState(false);
   const [showSaveUpgradePrompt, setShowSaveUpgradePrompt] = useState(false);
@@ -193,11 +193,10 @@ export function MeetingMinutesDisplay({ minutes, isProUser = false, onUpgradeCli
             {isSharing ? 'Sharing...' : 'Share'}
           </Button>
           <ExportButton 
-            minutes={editableMinutes} 
+            minutes={{...editableMinutes, actionMinutes: editableMinutes.actionMinutes || ''}}
             filename={editableMinutes.title}
             isProUser={isProUser}
             onUpgradeClick={onUpgradeClick}
-            className="w-full sm:w-auto"
           />
         </div>
       </div>
@@ -207,8 +206,8 @@ export function MeetingMinutesDisplay({ minutes, isProUser = false, onUpgradeCli
       {/* Executive Summary & Action Minutes */}
       <section className="space-y-4">
         <h2 className="text-2xl font-bold text-gray-900 border-l-4 border-blue-600 pl-4 py-3">Executive Summary & Action Minutes</h2>
+        <h3 className="text-lg font-semibold text-gray-800">Executive Summary</h3>
         <EditableSection 
-          title="Executive Summary"
           content={editableMinutes.executiveSummary}
           onSave={updateExecutiveSummary}
           className={isEditing ? "border rounded-lg p-4" : ""}
@@ -216,8 +215,8 @@ export function MeetingMinutesDisplay({ minutes, isProUser = false, onUpgradeCli
         {editableMinutes.actionMinutes && (
           <Card className="border-l-4 border-blue-500 bg-blue-50">
             <CardContent className="pt-6">
+              <h3 className="text-lg font-semibold text-gray-800">Action Minutes</h3>
               <EditableSection 
-                title="Action Minutes"
                 content={editableMinutes.actionMinutes}
                 onSave={updateActionMinutes}
                 className={isEditing ? "border rounded-lg p-4" : ""}
@@ -346,8 +345,8 @@ export function MeetingMinutesDisplay({ minutes, isProUser = false, onUpgradeCli
           {editableMinutes.observations.map((observation, index) => (
             <Card key={index} className="hover:shadow-md transition-shadow">
               <CardContent className="pt-6 relative">
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">{`Observation ${index + 1}`}</h3>
                 <EditableSection 
-                  title={`Observation ${index + 1}`}
                   content={observation.description}
                   onSave={(content) => updateObservation(index, content)}
                   className={isEditing ? "border rounded-lg p-4 pr-12" : ""}

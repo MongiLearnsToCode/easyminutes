@@ -3,7 +3,7 @@ import { EMAIL_CONFIG } from './email-config';
 import { MeetingMinutes } from '@/types/meeting-minutes';
 
 // Create a transporter using the email configuration
-const transporter = nodemailer.createTransporter({
+const transporter = nodemailer.createTransport({
   host: EMAIL_CONFIG.host,
   port: EMAIL_CONFIG.port,
   secure: EMAIL_CONFIG.secure,

@@ -19,7 +19,8 @@ import { SuccessAlert } from '@/components/success-alert';
 import { UpgradePrompt } from '@/components/upgrade-prompt';
 import { NPSSurvey } from '@/components/nps-survey';
 import { useNPSSurvey } from '@/hooks/use-nps-survey';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
 export default function Home() {
   const { isSignedIn, user, isLoaded } = useUser();
@@ -28,9 +29,9 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('text');
   const [showMinutes, setShowMinutes] = useState(false);
   const { processNotes, isLoading, result } = useProcessMeetingNotes();
-  const [saveEditedMinutes] = useMutation(api.save_edited_minutes.saveEditedMeetingMinutes);
-  const [checkFreeLimit] = useMutation(api.check_free_limit.checkFreeGenerationLimit);
-  const [incrementFreeGenerations] = useMutation(api.increment_free_generations.incrementFreeGenerations);
+  const saveEditedMinutes = useMutation(api.save_edited_minutes.saveEditedMeetingMinutes);
+  const checkFreeLimit = useMutation(api.check_free_limit.checkFreeGenerationLimit);
+  const incrementFreeGenerations = useMutation(api.increment_free_generations.incrementFreeGenerations);
   
   // State to track last input for retry functionality
   const [lastTextInput, setLastTextInput] = useState<string>('');
@@ -52,7 +53,7 @@ export default function Home() {
   // Determine when to show NPS survey
   const { shouldShowSurvey } = useNPSSurvey({
     userId: user?.id || '',
-    enabled: isSignedIn && !!user && showMinutes && !!result?.success,
+    enabled: Boolean(isSignedIn && !!user && showMinutes && result !== null && result.success),
   });
   
   // Show NPS survey when conditions are met
@@ -209,7 +210,12 @@ export default function Home() {
                       });
                       
                       // Update the result with the new version
-                      result.meetingMinutes = editedMinutes;
+                      if (result) {
+                        result.meetingMinutes = {
+                          ...editedMinutes,
+                          actionMinutes: editedMinutes.actionMinutes || '',
+                        };
+                      }
                       console.log("Minutes saved successfully with version:", saveResult.version);
                     } catch (error) {
                       console.error("Error saving edited minutes:", error);
@@ -303,6 +309,12 @@ export default function Home() {
       {/* NPS Survey Dialog */}
       <Dialog open={showNPSSurvey} onOpenChange={setShowNPSSurvey}>
         <DialogContent className="sm:max-w-md p-0">
+          <VisuallyHidden>
+            <DialogTitle>Net Promoter Score Survey</DialogTitle>
+            <DialogDescription>
+              A survey to gauge user satisfaction.
+            </DialogDescription>
+          </VisuallyHidden>
           <NPSSurvey 
             userId={user?.id || ''}
             onDismiss={() => setShowNPSSurvey(false)}

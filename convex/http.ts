@@ -1,5 +1,6 @@
 // Import the necessary modules
-import { httpRouter, httpAction } from "convex/server";
+import { httpRouter } from "convex/server";
+import { httpAction } from "./_generated/server";
 
 // Create an HTTP router
 const http = httpRouter();
