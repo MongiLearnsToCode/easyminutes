@@ -9,18 +9,29 @@ export const getNPSAnalytics = query({
   },
   handler: async (ctx, args) => {
     // Get all NPS survey events within the date range
-    let eventsQuery = ctx.db.query("npsSurveyEvents");
+    let eventsQuery;
     
-    if (args.startDate) {
-      eventsQuery = eventsQuery.withIndex("by_timestamp", (q) => 
-        q.gte("timestamp", args.startDate)
-      );
-    }
-    
-    if (args.endDate) {
-      eventsQuery = eventsQuery.withIndex("by_timestamp", (q) => 
-        q.lte("timestamp", args.endDate)
-      );
+    if (args.startDate && args.endDate) {
+      // Both start and end dates are provided
+      eventsQuery = ctx.db.query("npsSurveyEvents")
+        .withIndex("by_timestamp", (q) => 
+          q.gte("timestamp", args.startDate).lte("timestamp", args.endDate)
+        );
+    } else if (args.startDate) {
+      // Only start date is provided
+      eventsQuery = ctx.db.query("npsSurveyEvents")
+        .withIndex("by_timestamp", (q) => 
+          q.gte("timestamp", args.startDate)
+        );
+    } else if (args.endDate) {
+      // Only end date is provided
+      eventsQuery = ctx.db.query("npsSurveyEvents")
+        .withIndex("by_timestamp", (q) => 
+          q.lte("timestamp", args.endDate)
+        );
+    } else {
+      // No date range specified, get all events
+      eventsQuery = ctx.db.query("npsSurveyEvents");
     }
     
     const events = await eventsQuery.collect();
