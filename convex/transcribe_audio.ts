@@ -21,26 +21,34 @@ async function withRetry<T>(
   maxRetries: number = 3,
   baseDelay: number = 1000
 ): Promise<T> {
-  let lastError: Error;
-  
+  let lastError: any;
+
   for (let i = 0; i <= maxRetries; i++) {
     try {
       return await fn();
     } catch (error) {
-      lastError = error as Error;
-      
-      // If this was the last retry, throw the error
+      lastError = error;
+
       if (i === maxRetries) {
         throw error;
       }
-      
-      // Exponential backoff with jitter
-      const delay = Math.min(baseDelay * Math.pow(2, i), 10000) + Math.random() * 1000;
+
+      let delay = Math.min(baseDelay * Math.pow(2, i), 10000) + Math.random() * 1000;
+
+      if (error.toString().includes("429 Too Many Requests")) {
+        const retryDelayMatch = error.toString().match(/retryDelay\\\":\\\"(\d+)s/);
+        if (retryDelayMatch && retryDelayMatch[1]) {
+          delay = parseInt(retryDelayMatch[1], 10) * 1000;
+        } else {
+          delay = 37000; // Default to 37 seconds if retryDelay is not found
+        }
+      }
+
       console.log(`Attempt ${i + 1} failed. Retrying in ${delay}ms...`);
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
-  
+
   throw lastError!;
 }
 
