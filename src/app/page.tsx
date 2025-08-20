@@ -28,9 +28,9 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('text');
   const [showMinutes, setShowMinutes] = useState(false);
   const { processNotes, isLoading, result } = useProcessMeetingNotes();
-  const [saveEditedMinutes] = useMutation(api.save_edited_minutes.saveEditedMeetingMinutes);
-  const [checkFreeLimit] = useMutation(api.check_free_limit.checkFreeGenerationLimit);
-  const [incrementFreeGenerations] = useMutation(api.increment_free_generations.incrementFreeGenerations);
+  const saveEditedMinutes = useMutation(api.save_edited_minutes.saveEditedMeetingMinutes);
+  const checkFreeLimit = useMutation(api.check_free_limit.checkFreeGenerationLimit);
+  const incrementFreeGenerations = useMutation(api.increment_free_generations.incrementFreeGenerations);
   
   // State to track last input for retry functionality
   const [lastTextInput, setLastTextInput] = useState<string>('');
@@ -52,7 +52,7 @@ export default function Home() {
   // Determine when to show NPS survey
   const { shouldShowSurvey } = useNPSSurvey({
     userId: user?.id || '',
-    enabled: isSignedIn && !!user && showMinutes && !!result?.success,
+    enabled: Boolean(isSignedIn && !!user && showMinutes && result !== null && result.success),
   });
   
   // Show NPS survey when conditions are met
@@ -209,7 +209,12 @@ export default function Home() {
                       });
                       
                       // Update the result with the new version
-                      result.meetingMinutes = editedMinutes;
+                      if (result) {
+                        result.meetingMinutes = {
+                          ...editedMinutes,
+                          actionMinutes: editedMinutes.actionMinutes || '',
+                        };
+                      }
                       console.log("Minutes saved successfully with version:", saveResult.version);
                     } catch (error) {
                       console.error("Error saving edited minutes:", error);

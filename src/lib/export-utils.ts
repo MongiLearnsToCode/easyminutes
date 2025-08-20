@@ -1,6 +1,6 @@
 import { MeetingMinutes } from '@/hooks/use-process-meeting-notes';
 import { saveAs } from 'file-saver';
-import { Document, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, BorderStyle } from 'docx';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType, BorderStyle } from 'docx';
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 
 // Function to export meeting minutes as a Word document
@@ -114,12 +114,12 @@ export async function exportToWord(minutes: MeetingMinutes, filename: string = '
             new TableRow({
               children: [
                 new TableCell({
-                  children: [new Paragraph({ text: "Name", bold: true })],
+                  children: [new Paragraph({ children: [new TextRun({ text: "Name", bold: true })] })],
                   width: { size: 50, type: WidthType.PERCENTAGE },
                   shading: { fill: "D9E1F2" }, // Light blue header
                 }),
                 new TableCell({
-                  children: [new Paragraph({ text: "Role", bold: true })],
+                  children: [new Paragraph({ children: [new TextRun({ text: "Role", bold: true })] })],
                   width: { size: 50, type: WidthType.PERCENTAGE },
                   shading: { fill: "D9E1F2" }, // Light blue header
                 }),
@@ -209,22 +209,22 @@ export async function exportToWord(minutes: MeetingMinutes, filename: string = '
             new TableRow({
               children: [
                 new TableCell({
-                  children: [new Paragraph({ text: "#", bold: true })],
+                  children: [new Paragraph({ children: [new TextRun({ text: "#", bold: true })] })],
                   width: { size: 5, type: WidthType.PERCENTAGE },
                   shading: { fill: "D9E1F2" }, // Light blue header
                 }),
                 new TableCell({
-                  children: [new Paragraph({ text: "Description", bold: true })],
+                  children: [new Paragraph({ children: [new TextRun({ text: "Description", bold: true })] })],
                   width: { size: 55, type: WidthType.PERCENTAGE },
                   shading: { fill: "D9E1F2" }, // Light blue header
                 }),
                 new TableCell({
-                  children: [new Paragraph({ text: "Owner", bold: true })],
+                  children: [new Paragraph({ children: [new TextRun({ text: "Owner", bold: true })] })],
                   width: { size: 20, type: WidthType.PERCENTAGE },
                   shading: { fill: "D9E1F2" }, // Light blue header
                 }),
                 new TableCell({
-                  children: [new Paragraph({ text: "Deadline", bold: true })],
+                  children: [new Paragraph({ children: [new TextRun({ text: "Deadline", bold: true })] })],
                   width: { size: 20, type: WidthType.PERCENTAGE },
                   shading: { fill: "D9E1F2" }, // Light blue header
                 }),
@@ -293,7 +293,7 @@ export async function exportToWord(minutes: MeetingMinutes, filename: string = '
   });
 
   // Convert to blob and save
-  const blob = await Document.create(doc).then(docxDoc => docxDoc.toBlob());
+  const blob = await Packer.toBlob(doc);
   saveAs(blob, filename);
 }
 
@@ -556,6 +556,6 @@ export async function exportToPdf(minutes: MeetingMinutes, filename: string = 'm
   const pdfBytes = await pdfDoc.save();
   
   // Create a Blob and save it
-  const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+  const blob = new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' });
   saveAs(blob, filename);
 }

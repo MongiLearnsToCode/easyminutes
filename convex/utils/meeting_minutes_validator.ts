@@ -1,4 +1,4 @@
-import { MeetingMinutes } from "./gemini";
+import { MeetingMinutes } from "../gemini";
 
 // Function to validate and normalize meeting minutes
 export function validateAndNormalizeMeetingMinutes(data: any): MeetingMinutes {
