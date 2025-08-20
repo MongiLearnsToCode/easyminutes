@@ -1,0 +1,10 @@
+{
+  "project": "easyminutes",
+  "team": "dlaminimongi",
+  "prodUrl": "https://wooden-hyena-20.convex.cloud",
+  "node": {
+    "externalPackages": [
+      "@google/generative-ai"
+    ]
+  }
+}

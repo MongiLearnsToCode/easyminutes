@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, AudioLines, Lock, Loader2 } from 'lucide-react';
-import { useMutation } from 'convex/react';
+import { useAction } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { AudioProcessingResult } from '@/types/audio-processing';
+import { useUser } from '@clerk/clerk-react';
 
 interface AudioUploadProps {
   onAudioProcessed: (result: AudioProcessingResult) => void;
@@ -26,7 +27,8 @@ export function AudioUpload({
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const transcribeAudio = useMutation(api.transcribe_audio.transcribeAudioAndProcessMeetingNotes);
+  const transcribeAudio = useAction(api.transcribe_audio.transcribeAudioAndProcessMeetingNotes);
+  const { user } = useUser();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
@@ -66,32 +68,35 @@ export function AudioUpload({
       onUpgradeClick?.();
       return;
     }
+
+    if (!user) {
+      setError('You must be logged in to upload audio.');
+      return;
+    }
     
     setIsProcessing(true);
     setError('');
     
     try {
-      // Read the file as ArrayBuffer
-      const arrayBuffer = await file.arrayBuffer();
-      
-      // Convert to base64 for transmission
-      // Note: We're not using this variable, but keeping the conversion for reference
-      // const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-      
-      // Call the Convex mutation to transcribe and process the audio
-      // Note: In a real implementation, you might want to stream the file or use a different approach
-      const result = await transcribeAudio({
-        audioData: arrayBuffer,
-        audioMimeType: file.type,
-        userId: 'user-id-placeholder', // This would be the actual user ID
-      });
-      
-      // Pass the result to the parent component
-      onAudioProcessed(result);
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const dataUrl = reader.result as string;
+        const result = await transcribeAudio({
+          audioAsDataUrl: dataUrl,
+          audioMimeType: file.type,
+          userId: user.id,
+        });
+        onAudioProcessed(result);
+        setIsProcessing(false);
+      };
+      reader.onerror = () => {
+        setError('Failed to read the audio file.');
+        setIsProcessing(false);
+      };
+      reader.readAsDataURL(file);
     } catch (err) {
       console.error('Error processing audio file:', err);
       setError('Failed to process audio file. Please try another file.');
-    } finally {
       setIsProcessing(false);
     }
   };

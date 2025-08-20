@@ -1,7 +1,9 @@
-import { mutation } from "./_generated/server";
+import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { validateAndNormalizeMeetingMinutes } from "./utils/meeting_minutes_validator";
+import { internal } from "./_generated/api";
+import type { MeetingMinutes } from "./gemini";
 
 // Utility function to add a timeout to a promise
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
@@ -42,46 +44,41 @@ async function withRetry<T>(
   throw lastError!;
 }
 
-// Mutation to transcribe audio and process meeting notes using Gemini API
-export const transcribeAudioAndProcessMeetingNotes = mutation({
+export interface TranscribeAudioResult {
+  success: boolean;
+  minutesId: any;
+  meetingMinutes: MeetingMinutes;
+  processingTime: number;
+}
+
+// Action to transcribe audio and process meeting notes using Gemini API
+export const transcribeAudioAndProcessMeetingNotes = action({
   args: {
-    audioData: v.bytes(), // The audio file data
-    audioMimeType: v.string(), // The MIME type of the audio file
+    // The audio file data is passed as a string, not bytes
+    // This is a temporary workaround for the issue with passing ArrayBuffer
+    // to actions. A better solution would be to use file storage.
+    audioAsDataUrl: v.string(),
+    audioMimeType: v.string(),
     userId: v.string(),
   },
-  handler: async (ctx, args) => {
-    // Check if user has remaining generations (implement in Pro gating phase)
-    // For now, we'll proceed with the generation
-    
+  handler: async (ctx, args): Promise<TranscribeAudioResult> => {
     // Get the Gemini API key from Convex environment variables
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       throw new Error("GEMINI_API_KEY is not configured in Convex environment variables");
     }
-    
-    try {
-      // Record start time for performance monitoring
-      const startTime = Date.now();
-      
-      // Initialize the Gemini API client
-      const genAI = new GoogleGenerativeAI(apiKey);
-      
-      // For audio transcription, we'll first transcribe the audio to text
-      // Then process the text using the existing Gemini function
-      
-      // Create the prompt for transcribing audio
-      // Note: As of now, the @google/generative-ai library doesn't directly support
-      // audio transcription. We'll simulate this process for now.
-      // In a production environment, you might use Google Cloud Speech-to-Text API
-      // or wait for Gemini to support audio input directly.
-      
-      // Simulate audio transcription
-      // In a real implementation, this would be replaced with actual transcription code
-      const transcribedText = await simulateAudioTranscription(args.audioData, args.audioMimeType);
-      
-      // Now process the transcribed text using the existing approach
-      // Create the enhanced prompt for generating Fortune-500 style meeting minutes
-      const processingPrompt = `
+
+    // Record start time for performance monitoring
+    const startTime = Date.now();
+
+    // Initialize the Gemini API client
+    const genAI = new GoogleGenerativeAI(apiKey);
+
+    // Simulate audio transcription
+    const transcribedText = await simulateAudioTranscription(args.audioAsDataUrl, args.audioMimeType);
+
+    // Now process the transcribed text using the existing approach
+    const processingPrompt = `
         You are an AI assistant specialized in creating professional meeting minutes following Fortune-500 standards. 
         Your task is to transform raw meeting notes into a structured, executive-ready document.
 
@@ -116,78 +113,72 @@ export const transcribeAudioAndProcessMeetingNotes = mutation({
         Meeting Notes to Process:
         ${transcribedText}
       `;
-      
-      // Call the Gemini API to process the transcribed text
-      const processingResult = await withRetry(async () => {
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-        return await withTimeout(
-          model.generateContent(processingPrompt),
-          9000 // 9 second timeout to ensure we stay under 10s
-        );
-      }, 2); // Retry up to 2 times
-      
-      const processingResponse = await processingResult.response;
-      const text = processingResponse.text();
-      
-      // Parse the JSON response
-      let meetingMinutes: any;
-      try {
-        meetingMinutes = JSON.parse(text);
-      } catch (parseError) {
-        // If parsing fails, try to extract JSON from the response
-        const jsonMatch = text.match(/\{.*\}/s);
-        if (jsonMatch) {
-          meetingMinutes = JSON.parse(jsonMatch[0]);
-        } else {
-          throw new Error("Failed to parse Gemini API response as JSON");
-        }
+
+    // Call the Gemini API to process the transcribed text
+    const processingResult = await withRetry(async () => {
+      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      return await withTimeout(
+        model.generateContent(processingPrompt),
+        9000 // 9 second timeout to ensure we stay under 10s
+      );
+    }, 2); // Retry up to 2 times
+
+    const processingResponse = await processingResult.response;
+    const text = processingResponse.text();
+
+    // Parse the JSON response
+    let meetingMinutes: any;
+    try {
+      meetingMinutes = JSON.parse(text);
+    } catch (parseError) {
+      // If parsing fails, try to extract JSON from the response
+      const jsonMatch = text.match(/\{.*\}/s);
+      if (jsonMatch) {
+        meetingMinutes = JSON.parse(jsonMatch[0]);
+      } else {
+        throw new Error("Failed to parse Gemini API response as JSON");
       }
-      
-      // Validate and normalize the meeting minutes
-      const normalizedMinutes = validateAndNormalizeMeetingMinutes(meetingMinutes);
-      
-      // Record end time and log performance
-      const endTime = Date.now();
-      const duration = endTime - startTime;
-      console.log(`Audio transcription and processing completed in ${duration}ms`);
-      
-      // Store the generated minutes in the database
-      const minutesId = await ctx.db.insert("meetingMinutes", {
-        userId: args.userId,
-        title: normalizedMinutes.title,
-        executiveSummary: normalizedMinutes.executiveSummary,
-        actionMinutes: normalizedMinutes.actionMinutes,
-        attendees: normalizedMinutes.attendees,
-        decisions: normalizedMinutes.decisions,
-        risks: normalizedMinutes.risks,
-        actionItems: normalizedMinutes.actionItems,
-        observations: normalizedMinutes.observations,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      });
-      
-      return {
-        success: true,
-        minutesId,
-        meetingMinutes: normalizedMinutes,
-        processingTime: duration,
-      };
-    } catch (error) {
-      console.error("Error transcribing audio and processing meeting notes with Gemini API:", error);
-      throw new Error(`Failed to transcribe audio and process meeting notes: ${error instanceof Error ? error.message : String(error)}`);
     }
+
+    // Validate and normalize the meeting minutes
+    const normalizedMinutes = validateAndNormalizeMeetingMinutes(meetingMinutes);
+
+    // Record end time and log performance
+    const endTime = Date.now();
+    const duration = endTime - startTime;
+    console.log(`Audio transcription and processing completed in ${duration}ms`);
+
+    // Store the generated minutes in the database by calling a mutation
+    const minutesId = await ctx.runMutation(internal.transcribe_audio_mutations.internalSaveTranscribedMinutes, {
+      userId: args.userId,
+      title: normalizedMinutes.title,
+      executiveSummary: normalizedMinutes.executiveSummary,
+      actionMinutes: normalizedMinutes.actionMinutes,
+      attendees: normalizedMinutes.attendees,
+      decisions: normalizedMinutes.decisions,
+      risks: normalizedMinutes.risks,
+      actionItems: normalizedMinutes.actionItems,
+      observations: normalizedMinutes.observations,
+    });
+
+    return {
+      success: true,
+      minutesId,
+      meetingMinutes: normalizedMinutes,
+      processingTime: duration,
+    };
   },
 });
 
 // Simulate audio transcription
 // In a real implementation, this would use an actual transcription service
-async function simulateAudioTranscription(audioData: ArrayBuffer, mimeType: string): Promise<string> {
+async function simulateAudioTranscription(audioAsDataUrl: string, mimeType: string): Promise<string> {
   // This is a placeholder implementation
   // In a real implementation, you might use:
   // 1. Google Cloud Speech-to-Text API
   // 2. Wait for Gemini to support audio input directly
   // 3. Use another transcription service
-  
+
   // For now, we'll return a sample transcription
   return `This is a simulated transcription of an audio meeting recording.
   

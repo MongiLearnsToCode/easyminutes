@@ -1,7 +1,8 @@
-import { mutation } from "./_generated/server";
+import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { validateAndNormalizeMeetingMinutes } from "./utils/meeting_minutes_validator";
+import { internal } from "./_generated/api";
 
 // Define the structure for our meeting minutes
 export type MeetingMinutes = {
@@ -70,26 +71,30 @@ async function withRetry<T>(
   throw lastError!;
 }
 
-// Mutation to process meeting notes using Gemini API
-export const processMeetingNotes = mutation({
+export interface ProcessMeetingNotesResult {
+  success: boolean;
+  minutesId: any;
+  meetingMinutes: MeetingMinutes;
+  processingTime: number;
+}
+
+// Action to process meeting notes using Gemini API
+export const processMeetingNotes = action({
   args: {
     text: v.string(),
     userId: v.string(),
   },
-  handler: async (ctx, args) => {
-    // Check if user has remaining generations (implement in Pro gating phase)
-    // For now, we'll proceed with the generation
-    
+  handler: async (ctx, args): Promise<ProcessMeetingNotesResult> => {
     // Get the Gemini API key from Convex environment variables
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       throw new Error("GEMINI_API_KEY is not configured in Convex environment variables");
     }
-    
+
     // Initialize the Gemini API client
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-    
+
     // Create the enhanced prompt for generating Fortune-500 style meeting minutes
     const prompt = `
       You are an AI assistant specialized in creating professional meeting minutes following Fortune-500 standards. 
@@ -163,87 +168,61 @@ export const processMeetingNotes = mutation({
       Meeting Notes to Process:
       ${args.text}
     `;
-    
+
+    // Record start time for performance monitoring
+    const startTime = Date.now();
+
+    // Call the Gemini API with timeout and retry logic
+    const result = await withRetry(async () => {
+      return await withTimeout(
+        model.generateContent(prompt),
+        9000 // 9 second timeout to ensure we stay under 10s
+      );
+    }, 2); // Retry up to 2 times
+
+    const response = await result.response;
+    const text = response.text();
+
+    // Parse the JSON response
+    let meetingMinutes: any;
     try {
-      // Record start time for performance monitoring
-      const startTime = Date.now();
-      
-      // Call the Gemini API with timeout and retry logic
-      const result = await withRetry(async () => {
-        return await withTimeout(
-          model.generateContent(prompt),
-          9000 // 9 second timeout to ensure we stay under 10s
-        );
-      }, 2); // Retry up to 2 times
-      
-      const response = await result.response;
-      const text = response.text();
-      
-      // Parse the JSON response
-      let meetingMinutes: any;
-      try {
-        meetingMinutes = JSON.parse(text);
-      } catch (parseError) {
-        // If parsing fails, try to extract JSON from the response
-        // Using [\s\S]* instead of .* to match across multiple lines without the /s flag
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          meetingMinutes = JSON.parse(jsonMatch[0]);
-        } else {
-          throw new Error("Failed to parse Gemini API response as JSON");
-        }
+      meetingMinutes = JSON.parse(text);
+    } catch (parseError) {
+      // If parsing fails, try to extract JSON from the response
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        meetingMinutes = JSON.parse(jsonMatch[0]);
+      } else {
+        throw new Error("Failed to parse Gemini API response as JSON");
       }
-      
-      // Validate and normalize the meeting minutes
-      const normalizedMinutes = validateAndNormalizeMeetingMinutes(meetingMinutes);
-      
-      // Record end time and log performance
-      const endTime = Date.now();
-      const duration = endTime - startTime;
-      console.log(`Gemini API call completed in ${duration}ms`);
-      
-      // Track processing time (in a real implementation, this would be done asynchronously)
-      // For now, we'll just log that it should be tracked
-      console.log(`Should track processing time: ${duration}ms for user ${args.userId}`);
-      
-      // Store the generated minutes in the database
-      const minutesId = await ctx.db.insert("meetingMinutes", {
-        userId: args.userId,
-        title: normalizedMinutes.title,
-        executiveSummary: normalizedMinutes.executiveSummary,
-        actionMinutes: normalizedMinutes.actionMinutes,
-        attendees: normalizedMinutes.attendees,
-        decisions: normalizedMinutes.decisions,
-        risks: normalizedMinutes.risks,
-        actionItems: normalizedMinutes.actionItems,
-        observations: normalizedMinutes.observations,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      });
-      
-      return {
-        success: true,
-        minutesId,
-        meetingMinutes: normalizedMinutes,
-        processingTime: duration,
-      };
-    } catch (error) {
-      console.error("Error processing meeting notes with Gemini API:", error);
-      
-      // Log the error for monitoring
-      console.error("Gemini API error details:", {
-        errorMessage: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
-        userId: args.userId,
-        textLength: args.text.length
-      });
-      
-      // Provide a more user-friendly error message
-      const userMessage = error instanceof Error && error.message.includes("Operation timed out") 
-        ? "The request took too long to process. Please try again with a shorter input." 
-        : "We encountered an issue processing your meeting notes. Please try again.";
-      
-      throw new Error(userMessage);
     }
+
+    // Validate and normalize the meeting minutes
+    const normalizedMinutes = validateAndNormalizeMeetingMinutes(meetingMinutes);
+
+    // Record end time and log performance
+    const endTime = Date.now();
+    const duration = endTime - startTime;
+    console.log(`Gemini API call completed in ${duration}ms`);
+
+    // Store the generated minutes in the database by calling a mutation
+    const minutesId = await ctx.runMutation(internal.gemini_mutations.internalSaveMeetingMinutes, {
+      userId: args.userId,
+      title: normalizedMinutes.title,
+      executiveSummary: normalizedMinutes.executiveSummary,
+      actionMinutes: normalizedMinutes.actionMinutes,
+      attendees: normalizedMinutes.attendees,
+      decisions: normalizedMinutes.decisions,
+      risks: normalizedMinutes.risks,
+      actionItems: normalizedMinutes.actionItems,
+      observations: normalizedMinutes.observations,
+    });
+
+    return {
+      success: true,
+      minutesId,
+      meetingMinutes: normalizedMinutes,
+      processingTime: duration,
+    };
   },
 });

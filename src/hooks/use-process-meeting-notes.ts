@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation } from 'convex/react';
+import { useAction } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { useCallback, useState } from 'react';
 
@@ -43,7 +43,7 @@ export function useProcessMeetingNotes() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<ProcessMeetingNotesResult | null>(null);
   
-  const processMeetingNotes = useMutation(api.gemini.processMeetingNotes);
+  const processMeetingNotes = useAction(api.gemini.processMeetingNotes);
 
   const processNotes = useCallback(async (text: string, userId: string) => {
     setIsLoading(true);
