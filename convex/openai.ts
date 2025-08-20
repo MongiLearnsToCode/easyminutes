@@ -127,6 +127,10 @@ export const processMeetingNotes = action({
 
     const text = result.choices[0].message.content;
 
+    if (!text) {
+      throw new Error("OpenAI API returned an empty message content.");
+    }
+
     // Parse the JSON response
     let meetingMinutes: any;
     try {
