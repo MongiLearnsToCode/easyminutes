@@ -1,8 +1,8 @@
-import { query } from "./_generated/server";
+import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 
-// Query to check if a user has reached their free generation limit
-export const checkFreeGenerationLimit = query({
+// Mutation to check if a user has reached their free generation limit
+export const checkFreeGenerationLimit = mutation({
   args: {
     userId: v.string(),
   },
