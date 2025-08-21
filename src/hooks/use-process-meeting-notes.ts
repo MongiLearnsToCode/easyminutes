@@ -70,5 +70,6 @@ export function useProcessMeetingNotes() {
     processNotes,
     isLoading,
     result,
+    setResult,
   };
 }

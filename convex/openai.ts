@@ -104,6 +104,43 @@ export const processMeetingNotes = action({
     const prompt = `
       You are an AI assistant specialized in creating professional meeting minutes following Fortune-500 standards.
       Your task is to transform raw meeting notes into a structured, executive-ready document.
+      The output must be a JSON object that strictly follows this schema:
+      {
+        "title": "string",
+        "executiveSummary": "string",
+        "actionMinutes": "string",
+        "attendees": [
+          {
+            "name": "string",
+            "role": "string"
+          }
+        ],
+        "decisions": [
+          {
+            "description": "string",
+            "madeBy": "string",
+            "date": "YYYY-MM-DD"
+          }
+        ],
+        "risks": [
+          {
+            "description": "string",
+            "mitigation": "string"
+          }
+        ],
+        "actionItems": [
+          {
+            "description": "string",
+            "owner": "string",
+            "deadline": "YYYY-MM-DD"
+          }
+        ],
+        "observations": [
+          {
+            "description": "string"
+          }
+        ]
+      }
       Respond ONLY with the JSON object, no other text.
 
       Meeting Notes to Process:
