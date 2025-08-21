@@ -30,7 +30,7 @@ export default function Home() {
   const [showMinutes, setShowMinutes] = useState(false);
   const { processNotes, isLoading, result, setResult } = useProcessMeetingNotes();
   const saveEditedMinutes = useMutation(api.save_edited_minutes.saveEditedMeetingMinutes);
-  const checkFreeLimit = useMutation(api.check_free_limit.checkFreeGenerationLimit);
+  const checkFreeLimit = useMutation(api.check_free_limit.checkFreeGenerationLimitV2);
   const incrementFreeGenerations = useMutation(api.increment_free_generations.incrementFreeGenerations);
   
   // State to track last input for retry functionality

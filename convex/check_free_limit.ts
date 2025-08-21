@@ -2,7 +2,7 @@ import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 
 // Mutation to check if a user has reached their free generation limit
-export const checkFreeGenerationLimit = mutation({
+export const checkFreeGenerationLimitV2 = mutation({
   args: {
     userId: v.string(),
   },
