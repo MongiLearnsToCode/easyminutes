@@ -2,6 +2,14 @@ import { mutation } from "./_generated/server";
 import { query } from "./_generated/server";
 import { v } from "convex/values";
 
+// Helper function to get user profile, exported for use in other modules
+export const getUserProfile = async (ctx: any, args: { userId: string }) => {
+  return await ctx.db
+    .query("users") // Correct table name
+    .withIndex("by_userId", (q: any) => q.eq("userId", args.userId))
+    .unique();
+};
+
 // Define the user profile type
 export type UserProfile = {
   userId: string;
@@ -22,10 +30,7 @@ export const storeUserProfile = mutation({
   },
   handler: async (ctx, args) => {
     // Check if user already exists
-    const existingUser = await ctx.db
-      .query("users")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
-      .unique();
+    const existingUser = await getUserProfile(ctx, { userId: args.userId });
       
     const timestamp = Date.now();
     
@@ -59,11 +64,10 @@ export const getUserProfileByUserId = query({
     userId: v.string(),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
-      .unique();
-      
-    return user;
+    if (!args.userId) {
+      return null;
+    }
+    // Use the helper function for consistency
+    return await getUserProfile(ctx, args);
   },
 });

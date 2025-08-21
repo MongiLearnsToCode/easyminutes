@@ -109,9 +109,18 @@ export default function Home() {
   const handleGenerate = async (text: string) => {
     if (user?.id) {
       setLastTextInput(text);
-      const result = await checkFreeLimitAndProcess(text, user.id);
-      if (result.success) {
-        setShowMinutes(true);
+      try {
+        const result = await checkFreeLimitAndProcess(text, user.id);
+        if (result.success) {
+          setShowMinutes(true);
+        }
+      } catch (error) {
+        console.error("Failed to generate minutes:", error);
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        setResult({
+          success: false,
+          error: errorMessage,
+        });
       }
       
       // Track user activity
@@ -123,9 +132,18 @@ export default function Home() {
   const handleFileUpload = async (file: File, text: string) => {
     if (user?.id) {
       setLastFileInput({ file, text });
-      const result = await checkFreeLimitAndProcess(text, user.id);
-      if (result.success) {
-        setShowMinutes(true);
+      try {
+        const result = await checkFreeLimitAndProcess(text, user.id);
+        if (result.success) {
+          setShowMinutes(true);
+        }
+      } catch (error) {
+        console.error("Failed to upload and process file:", error);
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        setResult({
+          success: false,
+          error: errorMessage,
+        });
       }
       
       // Track user activity
