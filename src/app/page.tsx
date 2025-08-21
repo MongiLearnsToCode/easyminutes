@@ -110,8 +110,10 @@ export default function Home() {
   const handleGenerate = async (text: string) => {
     if (user?.id) {
       setLastTextInput(text);
-      await processNotes(text, user.id);
-      setShowMinutes(true);
+      const result = await checkFreeLimitAndProcess(text, user.id);
+      if (result.success) {
+        setShowMinutes(true);
+      }
       
       // Track user activity
       // TODO: Implement actual tracking
@@ -122,8 +124,10 @@ export default function Home() {
   const handleFileUpload = async (file: File, text: string) => {
     if (user?.id) {
       setLastFileInput({ file, text });
-      await processNotes(text, user.id);
-      setShowMinutes(true);
+      const result = await checkFreeLimitAndProcess(text, user.id);
+      if (result.success) {
+        setShowMinutes(true);
+      }
       
       // Track user activity
       // TODO: Implement actual tracking
