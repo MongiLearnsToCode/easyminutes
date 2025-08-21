@@ -28,7 +28,7 @@ export default function Home() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('text');
   const [showMinutes, setShowMinutes] = useState(false);
-  const { processNotes, isLoading, result } = useProcessMeetingNotes();
+  const { processNotes, isLoading, result, setResult } = useProcessMeetingNotes();
   const saveEditedMinutes = useMutation(api.save_edited_minutes.saveEditedMeetingMinutes);
   const checkFreeLimit = useMutation(api.check_free_limit.checkFreeGenerationLimit);
   const incrementFreeGenerations = useMutation(api.increment_free_generations.incrementFreeGenerations);
@@ -88,8 +88,7 @@ export default function Home() {
       };
       
       // Update the result state to show the error
-      // We need to manually set this since processNotes won't be called
-      // In a real implementation, we would have a better way to handle this
+      setResult(errorResult);
       return errorResult;
     }
     
